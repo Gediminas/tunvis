@@ -18,9 +18,9 @@
 
 /* buffer for reading from tun/tap interface, must be >= 1500 */
 #define BUFSIZE 2000
-#define CLIENT 0
-#define SERVER 1
-#define PORT 55555
+#define CLIENT  0
+#define SERVER  1
+#define PORT    55555
 
 int debug;
 
@@ -28,33 +28,30 @@ int debug;
  * tun_alloc: allocates or reconnects to a tun/tap device. The caller     *
  *            must reserve enough space in *dev.                          *
  **************************************************************************/
-int tun_alloc(char *dev, int flags) {
-
-  struct ifreq ifr;
-  int fd, err;
+int tun_alloc(const char *dev, int flags) {
   const char *clonedev = "/dev/net/tun";
-
-  if( (fd = open(clonedev , O_RDWR)) < 0 ) {
+  const int fd = open(clonedev, O_RDWR);
+  if (fd < 0 ) {
     perror("Opening /dev/net/tun");
     return fd;
   }
 
+  struct ifreq ifr;
   memset(&ifr, 0, sizeof(ifr));
-
   ifr.ifr_flags = flags;
 
   if (*dev) {
     strncpy(ifr.ifr_name, dev, IFNAMSIZ);
   }
 
-  if( (err = ioctl(fd, TUNSETIFF, (void *)&ifr)) < 0 ) {
+  const int err = ioctl(fd, TUNSETIFF, (void *)&ifr);
+  if (err < 0) {
     perror("ioctl(TUNSETIFF)");
     close(fd);
     return err;
   }
 
   strcpy(dev, ifr.ifr_name);
-
   return fd;
 }
 
@@ -133,104 +130,37 @@ void my_err(const char *msg, ...) {
   va_end(argp);
 }
 
-/**************************************************************************
- * usage: prints usage and exits.                                         *
- **************************************************************************/
-void usage(const char *progname) {
-  fprintf(stderr, "Usage:\n");
-  fprintf(stderr, "%s -i <ifacename> [-s|-c <serverIP>] [-p <port>] [-u|-a] [-d]\n", progname);
-  fprintf(stderr, "%s -h\n", progname);
-  fprintf(stderr, "\n");
-  fprintf(stderr, "-i <ifacename>: Name of interface to use (mandatory)\n");
-  fprintf(stderr, "-s|-c <serverIP>: run in server mode (-s), or specify server address (-c <serverIP>) (mandatory)\n");
-  fprintf(stderr, "-p <port>: port to listen on (if run in server mode) or to connect to (in client mode), default 55555\n");
-  fprintf(stderr, "-u|-a: use TUN (-u, default) or TAP (-a)\n");
-  fprintf(stderr, "-d: outputs debug information while running\n");
-  fprintf(stderr, "-h: prints this help text\n");
-  exit(1);
-}
-
-int main(int argc, char *argv[]) {
+int main() {
 
   std::cout << "Tunnel Vission!" << std::endl;
 
-  int tap_fd, option;
-  int flags = IFF_TUN;
-  char if_name[IFNAMSIZ] = "";
+  char if_name[IFNAMSIZ] = "tun1";
+  int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP
+
   int maxfd;
   uint16_t nread, nwrite, plength;
   char buffer[BUFSIZE];
   struct sockaddr_in local, remote;
   char remote_ip[16] = "";            /* dotted quad IP string */
   unsigned short int port = PORT;
-  int sock_fd, net_fd, optval = 1;
+  int net_fd, optval = 1;
   socklen_t remotelen;
-  int cliserv = -1;    /* must be specified on cmd line */
   unsigned long int tap2net = 0, net2tap = 0;
 
-  const char* progname = argv[0];
-
-  /* Check command line options */
-  while((option = getopt(argc, argv, "i:sc:p:uahd")) > 0) {
-    switch(option) {
-      case 'd':
-        debug = 1;
-        break;
-      case 'h':
-        usage(progname);
-        break;
-      case 'i':
-        strncpy(if_name,optarg, IFNAMSIZ-1);
-        break;
-      case 's':
-        cliserv = SERVER;
-        break;
-      case 'c':
-        cliserv = CLIENT;
-        strncpy(remote_ip,optarg,15);
-        break;
-      case 'p':
-        port = atoi(optarg);
-        break;
-      case 'u':
-        flags = IFF_TUN;
-        break;
-      case 'a':
-        flags = IFF_TAP;
-        break;
-      default:
-        my_err("Unknown option %c\n", option);
-        usage(progname);
-    }
-  }
-
-  argv += optind;
-  argc -= optind;
-
-  if(argc > 0) {
-    my_err("Too many options!\n");
-    usage(progname);
-  }
-
-  if(*if_name == '\0') {
-    my_err("Must specify interface name!\n");
-    usage(progname);
-  } else if(cliserv < 0) {
-    my_err("Must specify client or server mode!\n");
-    usage(progname);
-  } else if((cliserv == CLIENT)&&(*remote_ip == '\0')) {
-    my_err("Must specify server address!\n");
-    usage(progname);
-  }
+  debug = 1;
+  const int cliserv = SERVER; // CLIENT; strncpy(remote_ip, optarg, 15);
 
   /* initialize tun/tap interface */
-  if ( (tap_fd = tun_alloc(if_name, flags | IFF_NO_PI)) < 0 ) {
+  const int tap_fd = tun_alloc(if_name, flags);
+  if (tap_fd < 0) {
     my_err("Error connecting to tun/tap interface %s!\n", if_name);
     exit(1);
   }
+  std::cout << "OK" << std::endl;
 
   do_debug("Successfully connected to interface %s\n", if_name);
 
+  int sock_fd;
   if ( (sock_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
     perror("socket()");
     exit(1);
