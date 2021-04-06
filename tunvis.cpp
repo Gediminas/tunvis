@@ -16,22 +16,16 @@
 #include <errno.h>
 #include <stdarg.h>
 
-/* buffer for reading from tun/tap interface, must be >= 1500 */
-#define BUFSIZE 2000
-#define CLIENT  0
-#define SERVER  1
-#define PORT    55555
+constexpr int BUFSIZE {2000}; //for reading from tun/tap interface, must be >= 1500
+constexpr int PORT    {55555};
+constexpr int debug   {1};
+constexpr const char *if_name = "tunvis";
+constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP
 
-int debug;
-
-/**************************************************************************
- * tun_alloc: allocates or reconnects to a tun/tap device. The caller     *
- *            must reserve enough space in *dev.                          *
- **************************************************************************/
-int tun_alloc(const char *dev, int flags) {
+int InitializeTUN(const char *name, int flags) {
   const char *clonedev = "/dev/net/tun";
   const int fd = open(clonedev, O_RDWR);
-  if (fd < 0 ) {
+  if (fd < 0) {
     perror("Opening /dev/net/tun");
     return fd;
   }
@@ -39,10 +33,7 @@ int tun_alloc(const char *dev, int flags) {
   struct ifreq ifr;
   memset(&ifr, 0, sizeof(ifr));
   ifr.ifr_flags = flags;
-
-  if (*dev) {
-    strncpy(ifr.ifr_name, dev, IFNAMSIZ);
-  }
+  strncpy(ifr.ifr_name, name, IFNAMSIZ);
 
   const int err = ioctl(fd, TUNSETIFF, (void *)&ifr);
   if (err < 0) {
@@ -51,7 +42,6 @@ int tun_alloc(const char *dev, int flags) {
     return err;
   }
 
-  strcpy(dev, ifr.ifr_name);
   return fd;
 }
 
@@ -111,7 +101,7 @@ void do_debug(const char *msg, ...){
 
   va_list argp;
 
-  if(debug) {
+  if (debug) {
     va_start(argp, msg);
     vfprintf(stderr, msg, argp);
     va_end(argp);
@@ -134,25 +124,8 @@ int main() {
 
   std::cout << "Tunnel Vission!" << std::endl;
 
-  char if_name[IFNAMSIZ] = "tun1";
-  int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP
-
-  int maxfd;
-  uint16_t nread, nwrite, plength;
-  char buffer[BUFSIZE];
-  struct sockaddr_in local, remote;
-  char remote_ip[16] = "";            /* dotted quad IP string */
-  unsigned short int port = PORT;
-  int net_fd, optval = 1;
-  socklen_t remotelen;
-  unsigned long int tap2net = 0, net2tap = 0;
-
-  debug = 1;
-  const int cliserv = SERVER; // CLIENT; strncpy(remote_ip, optarg, 15);
-
-  /* initialize tun/tap interface */
-  const int tap_fd = tun_alloc(if_name, flags);
-  if (tap_fd < 0) {
+  const int tun_fd = InitializeTUN(if_name, flags);
+  if (tun_fd < 0) {
     my_err("Error connecting to tun/tap interface %s!\n", if_name);
     exit(1);
   }
@@ -166,69 +139,56 @@ int main() {
     exit(1);
   }
 
-  if(cliserv == CLIENT) {
-    /* Client, try to connect to server */
+  /* Server, wait for connections */
 
-    /* assign the destination address */
-    memset(&remote, 0, sizeof(remote));
-    remote.sin_family = AF_INET;
-    remote.sin_addr.s_addr = inet_addr(remote_ip);
-    remote.sin_port = htons(port);
+  int maxfd;
+  uint16_t nread, nwrite, plength;
+  char buffer[BUFSIZE];
+  struct sockaddr_in local, remote;
+  unsigned short int port = PORT;
+  int net_fd, optval = 1;
+  socklen_t remotelen;
+  unsigned long int tap2net = 0, net2tap = 0;
 
-    /* connection request */
-    if (connect(sock_fd, (struct sockaddr*) &remote, sizeof(remote)) < 0) {
-      perror("connect()");
-      exit(1);
-    }
-
-    net_fd = sock_fd;
-    do_debug("CLIENT: Connected to server %s\n", inet_ntoa(remote.sin_addr));
-
-  } else {
-    /* Server, wait for connections */
-
-    /* avoid EADDRINUSE error on bind() */
-    if(setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&optval, sizeof(optval)) < 0) {
-      perror("setsockopt()");
-      exit(1);
-    }
-
-    memset(&local, 0, sizeof(local));
-    local.sin_family = AF_INET;
-    local.sin_addr.s_addr = htonl(INADDR_ANY);
-    local.sin_port = htons(port);
-    if (bind(sock_fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
-      perror("bind()");
-      exit(1);
-    }
-
-    if (listen(sock_fd, 5) < 0) {
-      perror("listen()");
-      exit(1);
-    }
-
-    /* wait for connection request */
-    remotelen = sizeof(remote);
-    memset(&remote, 0, remotelen);
-    if ((net_fd = accept(sock_fd, (struct sockaddr*)&remote, &remotelen)) < 0) {
-      perror("accept()");
-      exit(1);
-    }
-
-    do_debug("SERVER: Client connected from %s\n", inet_ntoa(remote.sin_addr));
+  /* avoid EADDRINUSE error on bind() */
+  if(setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&optval, sizeof(optval)) < 0) {
+    perror("setsockopt()");
+    exit(1);
   }
 
+  memset(&local, 0, sizeof(local));
+  local.sin_family = AF_INET;
+  local.sin_addr.s_addr = htonl(INADDR_ANY);
+  local.sin_port = htons(port);
+  if (bind(sock_fd, (struct sockaddr*) &local, sizeof(local)) < 0) {
+    perror("bind()");
+    exit(1);
+  }
+
+  if (listen(sock_fd, 5) < 0) {
+    perror("listen()");
+    exit(1);
+  }
+
+  /* wait for connection request */
+  remotelen = sizeof(remote);
+  memset(&remote, 0, remotelen);
+  if ((net_fd = accept(sock_fd, (struct sockaddr*)&remote, &remotelen)) < 0) {
+    perror("accept()");
+    exit(1);
+  }
+
+  do_debug("SERVER: Client connected from %s\n", inet_ntoa(remote.sin_addr));
+
   /* use select() to handle two descriptors at once */
-  maxfd = (tap_fd > net_fd)?tap_fd:net_fd;
+  maxfd = (tun_fd > net_fd)?tun_fd:net_fd;
 
   while(1) {
-    int ret;
     fd_set rd_set;
-
     FD_ZERO(&rd_set);
-    FD_SET(tap_fd, &rd_set); FD_SET(net_fd, &rd_set);
+    FD_SET(tun_fd, &rd_set); FD_SET(net_fd, &rd_set);
 
-    ret = select(maxfd + 1, &rd_set, NULL, NULL, NULL);
+    int ret = select(maxfd + 1, &rd_set, NULL, NULL, NULL);
 
     if (ret < 0 && errno == EINTR){
       continue;
@@ -239,10 +199,10 @@ int main() {
       exit(1);
     }
 
-    if(FD_ISSET(tap_fd, &rd_set)) {
+    if(FD_ISSET(tun_fd, &rd_set)) {
       /* data from tun/tap: just read it and write it to the network */
 
-      nread = cread(tap_fd, buffer, BUFSIZE);
+      nread = cread(tun_fd, buffer, BUFSIZE);
 
       tap2net++;
       do_debug("TAP2NET %lu: Read %d bytes from the tap interface\n", tap2net, nread);
@@ -273,7 +233,7 @@ int main() {
       do_debug("NET2TAP %lu: Read %d bytes from the network\n", net2tap, nread);
 
       /* now buffer[] contains a full packet or frame, write it into the tun/tap interface */
-      nwrite = cwrite(tap_fd, buffer, nread);
+      nwrite = cwrite(tun_fd, buffer, nread);
       do_debug("NET2TAP %lu: Written %d bytes to the tap interface\n", net2tap, nwrite);
     }
   }
