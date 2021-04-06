@@ -23,7 +23,6 @@
 #define PORT 55555
 
 int debug;
-char *progname;
 
 /**************************************************************************
  * tun_alloc: allocates or reconnects to a tun/tap device. The caller     *
@@ -116,9 +115,9 @@ void do_debug(const char *msg, ...){
   va_list argp;
 
   if(debug) {
-	va_start(argp, msg);
-	vfprintf(stderr, msg, argp);
-	va_end(argp);
+    va_start(argp, msg);
+    vfprintf(stderr, msg, argp);
+    va_end(argp);
   }
 }
 
@@ -137,7 +136,7 @@ void my_err(const char *msg, ...) {
 /**************************************************************************
  * usage: prints usage and exits.                                         *
  **************************************************************************/
-void usage(void) {
+void usage(const char *progname) {
   fprintf(stderr, "Usage:\n");
   fprintf(stderr, "%s -i <ifacename> [-s|-c <serverIP>] [-p <port>] [-u|-a] [-d]\n", progname);
   fprintf(stderr, "%s -h\n", progname);
@@ -153,7 +152,7 @@ void usage(void) {
 
 int main(int argc, char *argv[]) {
 
-  std::cout << "Hello world!" << std::endl;
+  std::cout << "Tunnel Vission!" << std::endl;
 
   int tap_fd, option;
   int flags = IFF_TUN;
@@ -169,7 +168,7 @@ int main(int argc, char *argv[]) {
   int cliserv = -1;    /* must be specified on cmd line */
   unsigned long int tap2net = 0, net2tap = 0;
 
-  progname = argv[0];
+  const char* progname = argv[0];
 
   /* Check command line options */
   while((option = getopt(argc, argv, "i:sc:p:uahd")) > 0) {
@@ -178,7 +177,7 @@ int main(int argc, char *argv[]) {
         debug = 1;
         break;
       case 'h':
-        usage();
+        usage(progname);
         break;
       case 'i':
         strncpy(if_name,optarg, IFNAMSIZ-1);
@@ -201,7 +200,7 @@ int main(int argc, char *argv[]) {
         break;
       default:
         my_err("Unknown option %c\n", option);
-        usage();
+        usage(progname);
     }
   }
 
@@ -210,18 +209,18 @@ int main(int argc, char *argv[]) {
 
   if(argc > 0) {
     my_err("Too many options!\n");
-    usage();
+    usage(progname);
   }
 
   if(*if_name == '\0') {
     my_err("Must specify interface name!\n");
-    usage();
+    usage(progname);
   } else if(cliserv < 0) {
     my_err("Must specify client or server mode!\n");
-    usage();
+    usage(progname);
   } else if((cliserv == CLIENT)&&(*remote_ip == '\0')) {
     my_err("Must specify server address!\n");
-    usage();
+    usage(progname);
   }
 
   /* initialize tun/tap interface */
