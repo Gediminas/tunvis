@@ -23,8 +23,7 @@ constexpr const char *if_name = "tunvis";
 constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP
 
 int InitializeTUN(const char *name, int flags) {
-  const char *clonedev = "/dev/net/tun";
-  const int fd = open(clonedev, O_RDWR);
+  const int fd = open("/dev/net/tun", O_RDWR);
   if (fd < 0) {
     perror("Opening /dev/net/tun");
     return fd;
@@ -51,9 +50,8 @@ int InitializeTUN(const char *name, int flags) {
  **************************************************************************/
 int cread(int fd, char *buf, int n){
 
-  int nread;
-
-  if((nread=read(fd, buf, n)) < 0){
+  const int nread = read(fd, buf, n);
+  if (nread < 0) {
     perror("Reading data");
     exit(1);
   }
@@ -80,16 +78,14 @@ int cwrite(int fd, char *buf, int n){
  *         (unless EOF, of course)                                        *
  **************************************************************************/
 int read_n(int fd, char *buf, int n) {
-
-  int nread, left = n;
-
-  while(left > 0) {
-    if ((nread = cread(fd, buf, left)) == 0){
-      return 0 ;
-    }else {
-      left -= nread;
-      buf += nread;
+  int left = n;
+  while (left > 0) {
+    const int nread = cread(fd, buf, left);
+    if (nread == 0) {
+      return 0;
     }
+    left -= nread;
+    buf += nread;
   }
   return n;
 }
@@ -129,25 +125,19 @@ int main() {
     my_err("Error connecting to tun/tap interface %s!\n", if_name);
     exit(1);
   }
-  std::cout << "OK" << std::endl;
-
   do_debug("Successfully connected to interface %s\n", if_name);
 
-  int sock_fd;
-  if ( (sock_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+  const int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+  if (sock_fd < 0) {
     perror("socket()");
     exit(1);
   }
 
   /* Server, wait for connections */
 
-  int maxfd;
-  uint16_t nread, nwrite, plength;
   char buffer[BUFSIZE];
-  struct sockaddr_in local, remote;
   unsigned short int port = PORT;
   int net_fd, optval = 1;
-  socklen_t remotelen;
   unsigned long int tap2net = 0, net2tap = 0;
 
   /* avoid EADDRINUSE error on bind() */
@@ -156,6 +146,7 @@ int main() {
     exit(1);
   }
 
+  struct sockaddr_in local;
   memset(&local, 0, sizeof(local));
   local.sin_family = AF_INET;
   local.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -171,7 +162,8 @@ int main() {
   }
 
   /* wait for connection request */
-  remotelen = sizeof(remote);
+  struct sockaddr_in remote;
+  socklen_t remotelen = sizeof(remote);
   memset(&remote, 0, remotelen);
   if ((net_fd = accept(sock_fd, (struct sockaddr*)&remote, &remotelen)) < 0) {
     perror("accept()");
@@ -181,25 +173,26 @@ int main() {
   do_debug("SERVER: Client connected from %s\n", inet_ntoa(remote.sin_addr));
 
   /* use select() to handle two descriptors at once */
-  maxfd = (tun_fd > net_fd)?tun_fd:net_fd;
+  const int maxfd = (tun_fd > net_fd) ? tun_fd : net_fd;
+
+  uint16_t nread, nwrite, plength;
 
   while(1) {
     fd_set rd_set;
     FD_ZERO(&rd_set);
-    FD_SET(tun_fd, &rd_set); FD_SET(net_fd, &rd_set);
+    FD_SET(tun_fd, &rd_set);
+    FD_SET(net_fd, &rd_set);
 
-    int ret = select(maxfd + 1, &rd_set, NULL, NULL, NULL);
-
-    if (ret < 0 && errno == EINTR){
-      continue;
-    }
-
+    const int ret = select(maxfd + 1, &rd_set, NULL, NULL, NULL);
     if (ret < 0) {
+      if (errno == EINTR) {
+        continue;
+      }
       perror("select()");
       exit(1);
     }
 
-    if(FD_ISSET(tun_fd, &rd_set)) {
+    if (FD_ISSET(tun_fd, &rd_set)) {
       /* data from tun/tap: just read it and write it to the network */
 
       nread = cread(tun_fd, buffer, BUFSIZE);
@@ -215,7 +208,7 @@ int main() {
       do_debug("TAP2NET %lu: Written %d bytes to the network\n", tap2net, nwrite);
     }
 
-    if(FD_ISSET(net_fd, &rd_set)) {
+    if (FD_ISSET(net_fd, &rd_set)) {
       /* data from the network: read it, and write it to the tun/tap interface.
        * We need to read the length first, and then the packet */
 
