@@ -21,7 +21,7 @@
 constexpr int BUFSIZE {2000}; //for reading from tun/tap interface, must be >= 1500
 constexpr const char *if_name1 = "tun11";
 constexpr const char *if_name2 = "tun12";
-constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP
+constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP IFF_MULTI_QUEUE
 
 int main() {
 
