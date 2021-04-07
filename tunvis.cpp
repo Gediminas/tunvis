@@ -16,79 +16,13 @@
 #include <errno.h>
 #include <stdarg.h>
 
+#include "tools/tun.h"
+
 constexpr int BUFSIZE {2000}; //for reading from tun/tap interface, must be >= 1500
 constexpr int PORT    {55555};
 constexpr int debug   {1};
 constexpr const char *if_name = "tunvis";
 constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP
-
-int InitializeTUN(const char *name, int flags) {
-  const int fd = open("/dev/net/tun", O_RDWR);
-  if (fd < 0) {
-    perror("Opening /dev/net/tun");
-    return fd;
-  }
-
-  struct ifreq ifr;
-  memset(&ifr, 0, sizeof(ifr));
-  ifr.ifr_flags = flags;
-  strncpy(ifr.ifr_name, name, IFNAMSIZ);
-
-  const int err = ioctl(fd, TUNSETIFF, (void *)&ifr);
-  if (err < 0) {
-    perror("ioctl(TUNSETIFF)");
-    close(fd);
-    return err;
-  }
-
-  return fd;
-}
-
-/**************************************************************************
- * cread: read routine that checks for errors and exits if an error is    *
- *        returned.                                                       *
- **************************************************************************/
-int cread(int fd, char *buf, int n){
-
-  const int nread = read(fd, buf, n);
-  if (nread < 0) {
-    perror("Reading data");
-    exit(1);
-  }
-  return nread;
-}
-
-/**************************************************************************
- * cwrite: write routine that checks for errors and exits if an error is  *
- *         returned.                                                      *
- **************************************************************************/
-int cwrite(int fd, char *buf, int n){
-
-  int nwrite;
-
-  if((nwrite=write(fd, buf, n)) < 0){
-    perror("Writing data");
-    exit(1);
-  }
-  return nwrite;
-}
-
-/**************************************************************************
- * read_n: ensures we read exactly n bytes, and puts them into "buf".     *
- *         (unless EOF, of course)                                        *
- **************************************************************************/
-int read_n(int fd, char *buf, int n) {
-  int left = n;
-  while (left > 0) {
-    const int nread = cread(fd, buf, left);
-    if (nread == 0) {
-      return 0;
-    }
-    left -= nread;
-    buf += nread;
-  }
-  return n;
-}
 
 /**************************************************************************
  * do_debug: prints debugging stuff (doh!)                                *
@@ -118,14 +52,15 @@ void my_err(const char *msg, ...) {
 
 int main() {
 
-  std::cout << "Tunnel Vission!" << std::endl;
+  std::cout << "Tunnel-Vission started!" << std::endl;
 
   const int tun_fd = InitializeTUN(if_name, flags);
   if (tun_fd < 0) {
     my_err("Error connecting to tun/tap interface %s!\n", if_name);
     exit(1);
   }
-  do_debug("Successfully connected to interface %s\n", if_name);
+  // do_debug("Successfully connected to interface %s\n", if_name);
+  std::cout << "Successfully connected to interface " << if_name << std::endl;
 
   const int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (sock_fd < 0) {
@@ -171,6 +106,7 @@ int main() {
   }
 
   do_debug("SERVER: Client connected from %s\n", inet_ntoa(remote.sin_addr));
+  std::cout << "SERVER: Client connected from " << inet_ntoa(remote.sin_addr) << std::endl;
 
   /* use select() to handle two descriptors at once */
   const int maxfd = (tun_fd > net_fd) ? tun_fd : net_fd;
@@ -199,6 +135,7 @@ int main() {
 
       tap2net++;
       do_debug("TAP2NET %lu: Read %d bytes from the tap interface\n", tap2net, nread);
+      std::cout << "TAP2NET " << tap2net << ": Read " << nread << " bytes from the tap interface" << std::endl;
 
       /* write length + packet */
       plength = htons(nread);
@@ -206,6 +143,7 @@ int main() {
       nwrite = cwrite(net_fd, buffer, nread);
 
       do_debug("TAP2NET %lu: Written %d bytes to the network\n", tap2net, nwrite);
+      std::cout << "TAP2NET " << tap2net << ": Written " << nwrite << " bytes to the network" << std::endl;
     }
 
     if (FD_ISSET(net_fd, &rd_set)) {
@@ -224,10 +162,12 @@ int main() {
       /* read packet */
       nread = read_n(net_fd, buffer, ntohs(plength));
       do_debug("NET2TAP %lu: Read %d bytes from the network\n", net2tap, nread);
+      std::cout << "NET2TAP " << net2tap << ": Read " << nread << " bytes from the network" << std::endl;
 
       /* now buffer[] contains a full packet or frame, write it into the tun/tap interface */
       nwrite = cwrite(tun_fd, buffer, nread);
       do_debug("NET2TAP %lu: Written %d bytes to the tap interface\n", net2tap, nwrite);
+      std::cout << "NET2TAP " << net2tap << ": Written " << nwrite << " bytes to the tap interface" << std::endl;
     }
   }
 
