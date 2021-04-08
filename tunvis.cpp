@@ -27,21 +27,33 @@ int main() {
 
   std::cout << "Tunnel-Vission started!" << std::endl;
 
-  const int tun_in_fd = InitializeTUN(if_name1, flags);
+  const int tun_in_fd  = InitializeTUN(if_name1, flags);
+  const int tun_out_fd = InitializeTUN(if_name2, flags);
   if (tun_in_fd < 0) {
     std::cerr << "Error connecting to tun/tap interface " << if_name1 << std::endl;
     exit(1);
   }
-  std::cout << "Successfully connected to interface " << if_name1 << std::endl;
-
-  const int tun_out_fd = InitializeTUN(if_name2, flags);
   if (tun_out_fd < 0) {
     std::cerr << "Error connecting to tun/tap interface " << if_name2 << std::endl;
     exit(1);
   }
-  std::cout << "Successfully connected to interface " << if_name2 << std::endl;
+  std::cout << "Successfully connected to interfaces " << if_name1 << " & " << if_name2 << std::endl;
 
-  /* Server, wait for connections */
+
+  system("echo 1 > /proc/sys/net/ipv4/ip_forward");
+  system("ip link set tun11 up");
+  system("ip link set tun12 up");
+  system("ip addr add 10.77.11.11/24 dev tun11");
+  system("ip addr add 10.77.12.12/24 dev tun12");
+
+  //ip route list
+  // default via 10.77.11.11 dev tun11
+  // default via 192.168.101.1 dev enp0s3 proto dhcp metric 100
+  // 10.10.10.0/24 dev enp0s8 proto kernel scope link src 10.10.10.10
+  // 10.77.11.0/24 dev tun11 proto kernel scope link src 10.77.11.11
+  // 10.77.12.0/24 dev tun12 proto kernel scope link src 10.77.12.12
+  // 192.168.101.0/24 dev enp0s3 proto kernel scope link src 192.168.101.137 metric 100
+
 
   char buffer[BUFSIZE];
 
@@ -51,13 +63,16 @@ int main() {
   // uint16_t nread, nwrite, plength;
 
   while(1) {
+    std::cout << "LOOP" << std::endl;
+
     fd_set rd_set;
     FD_ZERO(&rd_set);
     FD_SET(tun_in_fd, &rd_set);
     FD_SET(tun_out_fd, &rd_set);
 
     const int ret = select(maxfd + 1, &rd_set, NULL, NULL, NULL);
-    std::cout << ret << std::endl;
+    std::cout << "SELECT: " << ret << std::endl;
+
     if (ret < 0) {
       if (errno == EINTR) {
         continue;
@@ -67,15 +82,15 @@ int main() {
     }
 
     if( FD_ISSET(tun_in_fd, &rd_set) ) {
-      std::cout << "IN" << std::endl;
-      const uint16_t l = read(tun_in_fd, buffer, sizeof(buffer));
-      write(tun_out_fd, buffer, l);
+      const uint16_t nread = read(tun_in_fd, buffer, sizeof(buffer));
+      std::cout << "IN: " << nread << ": " << buffer << std::endl;
+      // write(tun_out_fd, buffer, nread);
     }
 
     if( FD_ISSET(tun_out_fd, &rd_set) ) {
-      std::cout << "OUT" << std::endl;
-      const uint16_t l = read(tun_out_fd, buffer, sizeof(buffer));
-      write(tun_in_fd, buffer, l);
+      const uint16_t nread = read(tun_out_fd, buffer, sizeof(buffer));
+      std::cout << "OUT: " << nread << ": " << buffer << std::endl;
+      // write(tun_in_fd, buffer, nread);
     }
 
 
