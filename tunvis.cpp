@@ -22,6 +22,18 @@ constexpr int BUFSIZE {2000}; //for reading from tun/tap interface, must be >= 1
 constexpr const char *if_name1 = "tun11";
 constexpr const char *if_name2 = "tun12";
 constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP IFF_MULTI_QUEUE
+int nr = 0;
+
+void print_ip(unsigned int ip)
+{
+    unsigned char bytes[4];
+    bytes[0] = ip & 0xFF;
+    bytes[1] = (ip >> 8) & 0xFF;
+    bytes[2] = (ip >> 16) & 0xFF;
+    bytes[3] = (ip >> 24) & 0xFF;
+    // printf("%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
+    std::cout << (int)bytes[3] << "." << (int)bytes[2] << "." << (int)bytes[1] << "." << (int)bytes[0] << std::endl;
+}
 
 int main() {
 
@@ -45,6 +57,8 @@ int main() {
   system("ip link set tun12 up");
   system("ip addr add 10.77.11.11/24 dev tun11");
   system("ip addr add 10.77.12.12/24 dev tun12");
+  system("ip route add default via 10.77.11.11");
+
 
   //ip route list
   // default via 10.77.11.11 dev tun11
@@ -83,14 +97,32 @@ int main() {
 
     if( FD_ISSET(tun_in_fd, &rd_set) ) {
       const uint16_t nread = read(tun_in_fd, buffer, sizeof(buffer));
-      std::cout << "IN: " << nread << ": " << buffer << std::endl;
-      // write(tun_out_fd, buffer, nread);
+
+
+      std::cout << ++nr << " IN: " << nread << ": " << buffer << std::endl;
+
+      // const int src = std::stoi(buffer, nullptr, 10);
+      // std::cout << src << std::endl;
+      const int x = *((int*)(buffer));
+      std::cout << x << std::endl;
+      print_ip(x);
+
+
+      write(tun_out_fd, buffer, nread);
     }
 
     if( FD_ISSET(tun_out_fd, &rd_set) ) {
       const uint16_t nread = read(tun_out_fd, buffer, sizeof(buffer));
-      std::cout << "OUT: " << nread << ": " << buffer << std::endl;
-      // write(tun_in_fd, buffer, nread);
+      std::cout << ++nr <<  " OUT: " << nread << ": " << buffer << std::endl;
+
+      // const int src = std::stoi(buffer, nullptr, 10);
+      // std::cout << src << std::endl;
+
+      const int x = *((int*)(buffer));
+      std::cout << x << std::endl;
+      print_ip(x);
+
+      write(tun_in_fd, buffer, nread);
     }
 
 
