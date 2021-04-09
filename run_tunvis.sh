@@ -9,10 +9,10 @@ ctrl_c() {
     exit
 }
 
-for i in `seq 1 5`; do
-  $@ &
+while true; do
+  ./tunvis &
   PID=$!
-  inotifywait $1
+  inotifywait ./tunvis
   kill $PID
   sleep 2
 done
