@@ -53,11 +53,23 @@ int main() {
   std::cout << "Successfully connected to interfaces " << if_name1 << " & " << if_name2 << std::endl;
 
   system("echo 1 > /proc/sys/net/ipv4/ip_forward");
+  system("echo 1 > /proc/sys/net/ipv4/tcp_syncookies");
+  system("echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts");
+  system("echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects");
+  system("echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route");
+  system("echo 1 > /proc/sys/net/ipv4/conf/all/log_martians");
+  system("echo 1 > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses");
+  system("echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects");
+
+  system("echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter");
+  system("echo 0 > /proc/sys/net/ipv4/conf/tun11/rp_filter");
+  system("echo 0 > /proc/sys/net/ipv4/conf/tun12/rp_filter");
+
   system("ip link set tun11 up");
   system("ip link set tun12 up");
   system("ip addr add 10.77.11.11/24 dev tun11");
   system("ip addr add 10.77.12.12/24 dev tun12");
-  system("ip route add default via 10.77.11.11");
+  // system("ip route add default via 10.77.11.11");
 
   // system("ip rule del from 192.168.101.137 lookup 2");
   // system("ip rule del from 10.77.11.11 lookup 2");
