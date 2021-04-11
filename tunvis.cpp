@@ -59,6 +59,15 @@ int main() {
   system("ip addr add 10.77.12.12/24 dev tun12");
   system("ip route add default via 10.77.11.11");
 
+  // system("ip rule del from 192.168.101.137 lookup 2");
+  // system("ip rule del from 10.77.11.11 lookup 2");
+
+  // system("iptables -t nat -I POSTROUTING 1 -s 10.77.11.11 -j SNAT --to-source 192.168.101.1");
+  // system("iptables -t nat -I PREROUTING 1 -d 192.168.101.1 -j DNAT --to-destination 10.77.11.11");
+
+  // system("iptables -t nat -I POSTROUTING 1 -s 192.168.101.137 -j SNAT --to-source 10.77.11.11");
+  // system("iptables -t nat -I PREROUTING 1 -d 10.77.11.11 -j DNAT --to-destination 192.168.101.137");
+
   char buffer[BUFSIZE];
 
   /* use select() to handle two descriptors at once */
