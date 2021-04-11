@@ -1,1 +1,1 @@
-sudo tshark -i enp0s3 --color
+tshark -i enp0s3 --color
