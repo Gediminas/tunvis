@@ -65,6 +65,15 @@ int main() {
   system("echo 0 > /proc/sys/net/ipv4/conf/tun11/rp_filter");
   system("echo 0 > /proc/sys/net/ipv4/conf/tun12/rp_filter");
 
+  system("echo 1 > /proc/sys/net/ipv4/conf/tun11/accept_local");
+  system("echo 1 > /proc/sys/net/ipv4/conf/tun12/accept_local");
+
+  system("iptables -F");
+  system("iptables -F -t nat");
+
+  system("iptables --table nat --append POSTROUTING --out-interface eth0 -j MASQUERADE");
+  system("iptables --append FORWARD --in-interface tun0 -j ACCEPT");
+
   system("ip link set tun11 up");
   system("ip link set tun12 up");
   system("ip addr add 10.77.11.11/24 dev tun11");
@@ -79,6 +88,13 @@ int main() {
 
   // system("iptables -t nat -I POSTROUTING 1 -s 192.168.101.137 -j SNAT --to-source 10.77.11.11");
   // system("iptables -t nat -I PREROUTING 1 -d 10.77.11.11 -j DNAT --to-destination 192.168.101.137");
+
+
+
+
+  // https://serverfault.com/questions/356165/forwarding-traffic-from-tun-device-c-backend-to-the-default-gateway?newreg=90f16a8eec8a4dc28c94af5aef531881
+  // echo 1 > /proc/sys/net/ipv4/conf/tun0/accept_local
+
 
   char buffer[BUFSIZE];
 
