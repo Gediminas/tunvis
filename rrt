@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
+clear
 watch ip r
