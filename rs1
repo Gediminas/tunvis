@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 interface=tun11
 
 while true; do

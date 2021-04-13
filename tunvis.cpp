@@ -91,6 +91,26 @@ int main() {
   system("ip addr add 10.77.12.12/24 dev tun12");
   system("ip route add default via 10.77.11.11");
 
+
+  // ip rule del fwmark 42 table TUNVIS
+  // ip rule add fwmark 42 table TUNVIS
+
+  //OK
+  // echo "200 TUNVIS" >> /etc/iproute2/rt_tables
+  // ip route add default table TUNVIS via 192.168.101.1
+  // ip rule add fwmark 42 table TUNVIS
+  // iptables -t mangle -I PREROUTING -d 0.0.0.0/0 -j MARK --set-mark 42
+
+
+  //xz
+  // iptables -F
+  // iptables -F -t nat
+  // iptables -t nat -I POSTROUTING -d 0.0.0.0/0 -j SNAT --to-source 10.77.12.12
+  // iptables -t mangle -I PREROUTING -i tun12 -d 0.0.0.0/0 -j MARK --set-mark 42
+
+  // iptables -t nat -A POSTROUTING -m mark --mark 42 -j SNAT --to-source 10.77.12.12
+
+
 // You can use iptables to redirect your eth1 traffic to tun0:
 // sudo iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE
 // sudo iptables -A FORWARD -i tun0 -o eth1 -m state --state RELATED,ESTABLISHED -j ACCEPT

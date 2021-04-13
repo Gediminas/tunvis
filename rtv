@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 PID=0
 
@@ -6,13 +6,17 @@ trap ctrl_c INT
 ctrl_c() {
     echo "** Trapped CTRL-C"
     kill $PID
+    killall tunvis
     exit
 }
+
+killall tunvis
 
 while true; do
   ./tunvis &
   PID=$!
   inotifywait ./tunvis
   kill $PID
+  killall tunvis
   sleep 2
 done
