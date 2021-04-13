@@ -96,6 +96,10 @@ int main() {
   system("ip route add default via 10.77.11.11");
   system("ip route add table TUNVIS default via 192.168.101.1");
 
+  system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42");
+  system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 42");
+
+
   //OK
   // echo "200 TUNVIS" >> /etc/iproute2/rt_tables
   // ip route add default table TUNVIS via 192.168.101.1
