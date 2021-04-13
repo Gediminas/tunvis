@@ -89,11 +89,12 @@ int main() {
 
   system("ip addr add 10.77.11.11/24 dev tun11");
   system("ip addr add 10.77.12.12/24 dev tun12");
+
+  system("ip rule del fwmark 42 table TUNVIS");
+  system("ip rule add fwmark 42 table TUNVIS");
+
   system("ip route add default via 10.77.11.11");
-
-
-  // ip rule del fwmark 42 table TUNVIS
-  // ip rule add fwmark 42 table TUNVIS
+  system("ip route add table TUNVIS default via 192.168.101.1");
 
   //OK
   // echo "200 TUNVIS" >> /etc/iproute2/rt_tables

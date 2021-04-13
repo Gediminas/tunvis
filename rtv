@@ -7,6 +7,8 @@ ctrl_c() {
     echo "** Trapped CTRL-C"
     kill $PID
     killall tunvis
+    ip route del table TUNVIS default via 192.168.101.1
+    ip rule del fwmark 42 table TUNVIS
     exit
 }
 
@@ -18,5 +20,7 @@ while true; do
   inotifywait ./tunvis
   kill $PID
   killall tunvis
+  ip route del table TUNVIS default via 192.168.101.1
+  ip rule del fwmark 42 table TUNVIS
   sleep 2
 done
