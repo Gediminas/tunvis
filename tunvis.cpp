@@ -39,6 +39,8 @@ int main() {
 
   std::cout << "Tunnel-Vission started!" << std::endl;
 
+
+
   const int tun_in_fd  = InitializeTUN(if_name1, flags);
   const int tun_out_fd = InitializeTUN(if_name2, flags);
 
@@ -71,14 +73,46 @@ int main() {
   system("iptables -F");
   system("iptables -F -t nat");
 
-  system("iptables --table nat --append POSTROUTING --out-interface eth0 -j MASQUERADE");
-  system("iptables --append FORWARD --in-interface tun0 -j ACCEPT");
+  // system("iptables --table nat --append POSTROUTING --out-interface eth0 -j MASQUERADE");
+  // system("iptables --append FORWARD --in-interface tun0 -j ACCEPT");
+
+  // https://blog.scottlowe.org/2013/09/04/introducing-linux-network-namespaces/
+  // system("ip netns add tunvis");
+  // system("ip link set tun12 netns tunvis");
+  // system("ip netns exec tunvis ip link list");
+
+
+
 
   system("ip link set tun11 up");
   system("ip link set tun12 up");
+
   system("ip addr add 10.77.11.11/24 dev tun11");
   system("ip addr add 10.77.12.12/24 dev tun12");
-  // system("ip route add default via 10.77.11.11");
+  system("ip route add default via 10.77.11.11");
+
+// You can use iptables to redirect your eth1 traffic to tun0:
+// sudo iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE
+// sudo iptables -A FORWARD -i tun0 -o eth1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+// sudo iptables -A FORWARD -i eth1 -o tun0 -j ACCEPT
+
+  // https://wiki.archlinux.org/index.php/Network_bridge
+  // system("ip link add name br_tunvis type bridge");
+  // system("ip link set br_tunvis up");
+  // system("ip link set enp0s3 up");
+  // system("ip link set enp0s3 master br_tunvis");
+  // system("ip link set tun12 master br_tunvis");
+  // system("bridge link");
+
+
+
+  // Route all traffic through TUN interface
+  // https://superuser.com/questions/1614666/route-all-traffic-through-tun-interface
+
+
+
+
+  // ip link add veth0 type veth peer name veth1 netns blue
 
   // system("ip rule del from 192.168.101.137 lookup 2");
   // system("ip rule del from 10.77.11.11 lookup 2");
@@ -133,7 +167,7 @@ int main() {
       const int x = *((int*)(buffer));
       std::cout << " / "; print_ip(x); std::cout << std::endl;
 
-      cwrite(tun_in_fd, buffer, nread);
+      // cwrite(tun_in_fd, buffer, nread);
     }
   }
 
