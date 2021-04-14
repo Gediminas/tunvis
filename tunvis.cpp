@@ -70,8 +70,9 @@ int main() {
   system("echo 1 > /proc/sys/net/ipv4/conf/tun11/accept_local");
   system("echo 1 > /proc/sys/net/ipv4/conf/tun12/accept_local");
 
-  system("iptables -F");
-  system("iptables -F -t nat");
+  // system("iptables -F");
+  // system("iptables -F -t nat");
+  // system("iptables -F -t mangle");
 
   // system("iptables --table nat --append POSTROUTING --out-interface eth0 -j MASQUERADE");
   // system("iptables --append FORWARD --in-interface tun0 -j ACCEPT");
@@ -98,6 +99,9 @@ int main() {
 
   system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42");
   system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 42");
+
+  system("sudo iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137");
+  system("sudo iptables -t nat -A POSTROUTING -j SNAT --to-source 192.168.101.137");
 
 
   //OK
