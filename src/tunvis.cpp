@@ -16,7 +16,7 @@
 #include <errno.h>
 #include <stdarg.h>
 
-#include "tools/tun.h"
+#include "tun.h"
 
 constexpr int BUFSIZE {2000}; //for reading from tun/tap interface, must be >= 1500
 constexpr const char *if_name1 = "tun11";
