@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+clear
+sudo tail /var/log/syslog -f
