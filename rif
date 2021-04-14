@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 clear
-sudo watch iptables -L
+sudo watch iptables -nvL
