@@ -196,7 +196,7 @@ int main() {
       const int x = *((int*)(buffer));
       std::cout << " / "; print_ip(x); std::cout << std::endl;
 
-      // cwrite(tun_in_fd, buffer, nread);
+      cwrite(tun_in_fd, buffer, nread);
     }
   }
 
