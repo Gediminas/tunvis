@@ -2,14 +2,34 @@
 
 PID=0
 
-destroy() {
-    kill $PID
-    killall tunvis
+init() {
+  killall tunvis
 
-    iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42
-    iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137
-    ip route del table TUNVIS default via 192.168.101.1
-    ip rule del fwmark 42 table TUNVIS
+  ip link add br0 type bridge
+  # ip link set tun12 master br0
+  # ip link set dev enp0s3 down
+  # ip addr flush dev enp0s3
+  # ip link set dev enp0s3 up
+  # ip link set enp0s3 master br0
+  # ip link set dev br0 up
+}
+
+destroy() {
+  kill $PID
+  killall tunvis
+
+  # ip link set dev br0 up
+  # ip link set enp0s3 master br0
+  # ip link set dev enp0s3 up
+  # ip addr flush dev enp0s3
+  # ip link set dev enp0s3 down
+  # ip link set tun12 master br0
+  ip link del br0 type bridge
+
+  iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42
+  iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137
+  ip route del table TUNVIS default via 192.168.101.1
+  ip rule del fwmark 42 table TUNVIS
 }
 
 trap ctrl_c INT
@@ -19,8 +39,7 @@ ctrl_c() {
     exit
 }
 
-killall tunvis
-
+init
 while true; do
   ./tunvis &
   PID=$!
