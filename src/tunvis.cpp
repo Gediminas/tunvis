@@ -91,6 +91,14 @@ int main() {
   system("ip addr add 10.77.11.11/24 dev tun11");
   system("ip addr add 10.77.12.12/24 dev tun12");
 
+  // system("ip link add br0 type bridge");
+  // system("ip link set tun12 master br0");
+  // system("ip link set dev enp0s3 down");
+  // system("ip addr flush dev enp0s3 ");
+  // system("ip link set dev enp0s3 up");
+  // system("ip link set enp0s3 master br0");
+  // system("ip link set dev br0 up");
+
   system("ip rule del fwmark 42 table TUNVIS");
   system("ip rule add fwmark 42 table TUNVIS");
 
