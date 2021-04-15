@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+clear
+tshark -i enp0s3 --color "$@"
+#-Y "ip.addr == 8.8.8.8"

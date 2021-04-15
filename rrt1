@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+clear
+watch ip route list table TUN_IN
