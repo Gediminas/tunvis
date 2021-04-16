@@ -91,6 +91,20 @@ int main() {
   system("ip addr add 10.77.11.11/24 dev tun11");
   system("ip addr add 10.77.12.12/24 dev tun12");
 
+  // system("ip rule del fwmark 42 table TUNVIS");
+  // system("ip rule add fwmark 42 table TUNVIS");
+
+  system("ip route add default via 10.77.11.11");
+  // system("ip route add table TUNVIS default via 192.168.101.1");
+
+  // system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42");
+  // system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 42");
+
+  // system("sudo iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137");
+  // system("sudo iptables -t nat -A POSTROUTING -j SNAT --to-source 192.168.101.137");
+
+
+  //bridge
   // system("ip link add br0 type bridge");
   // system("ip link set tun12 master br0");
   // system("ip link set dev enp0s3 down");
@@ -98,19 +112,6 @@ int main() {
   // system("ip link set dev enp0s3 up");
   // system("ip link set enp0s3 master br0");
   // system("ip link set dev br0 up");
-
-  system("ip rule del fwmark 42 table TUNVIS");
-  system("ip rule add fwmark 42 table TUNVIS");
-
-  system("ip route add default via 10.77.11.11");
-  system("ip route add table TUNVIS default via 192.168.101.1");
-
-  system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42");
-  system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 42");
-
-  system("sudo iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137");
-  system("sudo iptables -t nat -A POSTROUTING -j SNAT --to-source 192.168.101.137");
-
 
   //OK
   // echo "200 TUNVIS" >> /etc/iproute2/rt_tables

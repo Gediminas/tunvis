@@ -5,7 +5,7 @@ PID=0
 init() {
   killall tunvis
 
-  ip link add br0 type bridge
+  # ip link add br0 type bridge
   # ip link set tun12 master br0
   # ip link set dev enp0s3 down
   # ip addr flush dev enp0s3
@@ -24,12 +24,12 @@ destroy() {
   # ip addr flush dev enp0s3
   # ip link set dev enp0s3 down
   # ip link set tun12 master br0
-  ip link del br0 type bridge
+  # ip link del br0 type bridge
 
-  iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42
-  iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137
-  ip route del table TUNVIS default via 192.168.101.1
-  ip rule del fwmark 42 table TUNVIS
+  # iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42
+  # iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137
+  # ip route del table TUNVIS default via 192.168.101.1
+  # ip rule del fwmark 42 table TUNVIS
 }
 
 trap ctrl_c INT
