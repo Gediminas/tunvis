@@ -92,10 +92,10 @@ int main() {
   system("ip addr add 10.77.12.12/24 dev tun12");
 
   //OUT
-  // APP -> OUTPUT -> POST ---------> normal packet rooute ----------------------> INTERNET
-  //          ^              \                                                /
-  //       add-mark-2         -> tun11 ==copy==> tun12 -> PRE -> FWD -> POST -
-  //                              ^               ^        ^
+  // APP -> OUTPUT -> POST -------------> normal packet rooute ---------------------- [enp0s3] --> INTERNET
+  //          ^              \                                                    /
+  //       add-mark-2         -> [tun11] ==copy==> [tun12] -> PRE -> FWD -> POST -
+  //                               ^                 ^         ^
   //                      (10.77.11.11)  (10.77.12.12)  del-mark-2
   //
   //
