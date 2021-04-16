@@ -10,7 +10,8 @@ destroy() {
 
 
     iptables -t nat -D POSTROUTING -o tun11 -j SNAT --to-source 192.168.101.137
-    iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 2
+    iptables -t mangle -D OUTPUT -j MARK --set-mark 2
+    iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 0/2
     iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 1
 
     ip route del table TUN_IN default via 10.77.12.12

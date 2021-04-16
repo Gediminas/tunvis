@@ -91,28 +91,21 @@ int main() {
   system("ip addr add 10.77.11.11/24 dev tun11");
   system("ip addr add 10.77.12.12/24 dev tun12");
 
-  // system("ip link add br0 type bridge");
-  // system("ip link set tun12 master br0");
-  // system("ip link set dev enp0s3 down");
-  // system("ip addr flush dev enp0s3 ");
-  // system("ip link set dev enp0s3 up");
-  // system("ip link set enp0s3 master br0");
-  // system("ip link set dev br0 up");
-
-
-
-  // system("ip route add default via 10.77.11.11");
-
   //OUT
-  system("ip rule del fwmark 2 table TUN_OUT");
+  // APP -> OUTPUT -> POST ---------> normal packet rooute ----------------------> INTERNET
+  //          ^              \                                                /
+  //       add-mark-2         -> tun11 ==copy==> tun12 -> PRE -> FWD -> POST -
+  //                              ^               ^        ^
+  //                      (10.77.11.11)  (10.77.12.12)  del-mark-2
+  //
+  //
+
   system("ip rule add fwmark 2 table TUN_OUT");
   system("ip route add table TUN_OUT default via 10.77.11.11");
 
-  system("iptables -t mangle -D OUTPUT -j MARK --set-mark 2");
-  system("iptables -t mangle -I OUTPUT -j MARK --set-mark 2");
+  system("iptables -t mangle -I OUTPUT -j MARK --set-mark 2"); //Add mark 2
 
-  system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 0/2");
-  system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 0/2");
+  system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 0/2"); //Remove mark 2
 
   // system("iptables -t nat -D POSTROUTING -i tun12 -j SNAT --to-source 192.168.101.137");
   // system("iptables -t nat -A POSTROUTING -i tun12 -j SNAT --to-source 192.168.101.137");
