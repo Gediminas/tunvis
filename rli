@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
 
 #sudo iptables -D OUTPUT  -p ICMP -j LOG --log-prefix "f OUT: "
-sudo iptables -A OUTPUT  -p ICMP -j LOG --log-prefix "f OUT: "
+sudo iptables -I OUTPUT  -p ICMP -j LOG --log-prefix "f OUT: "
 
 #sudo iptables -D INPUT   -p ICMP -j LOG --log-prefix "f INP: "
-sudo iptables -A INPUT   -p ICMP -j LOG --log-prefix "f INP: "
+sudo iptables -I INPUT   -p ICMP -j LOG --log-prefix "f INP: "
 
 #sudo iptables -D FORWARD -p ICMP -j LOG --log-prefix "f FWD: "
-sudo iptables -A FORWARD -p ICMP -j LOG --log-prefix "f FWD: "
+sudo iptables -I FORWARD -p ICMP -j LOG --log-prefix "f FWD: "
 
-sudo iptables -t mangle -A OUTPUT      -p ICMP -j LOG --log-prefix "m OUT: "
-sudo iptables -t mangle -A INPUT       -p ICMP -j LOG --log-prefix "m INP: "
-sudo iptables -t mangle -A FORWARD     -p ICMP -j LOG --log-prefix "m FWD: "
-sudo iptables -t mangle -A PREROUTING  -p ICMP -j LOG --log-prefix "m PRE: "
-sudo iptables -t mangle -A POSTROUTING -p ICMP -j LOG --log-prefix "m POS: "
+sudo iptables -t mangle -I OUTPUT      -p ICMP -j LOG --log-prefix "m OUT: "
+sudo iptables -t mangle -I INPUT       -p ICMP -j LOG --log-prefix "m INP: "
+sudo iptables -t mangle -I FORWARD     -p ICMP -j LOG --log-prefix "m FWD: "
+sudo iptables -t mangle -I PREROUTING  -p ICMP -j LOG --log-prefix "m PRE: "
+sudo iptables -t mangle -I POSTROUTING -p ICMP -j LOG --log-prefix "m POS: "
 
-sudo iptables -t nat    -A OUTPUT      -p ICMP -j LOG --log-prefix "n OUT: "
-sudo iptables -t nat    -A INPUT       -p ICMP -j LOG --log-prefix "n INP: "
-sudo iptables -t nat    -A PREROUTING  -p ICMP -j LOG --log-prefix "n PRE: "
-sudo iptables -t nat    -A POSTROUTING -p ICMP -j LOG --log-prefix "n POS: "
+sudo iptables -t nat    -I OUTPUT      -p ICMP -j LOG --log-prefix "n OUT: "
+sudo iptables -t nat    -I INPUT       -p ICMP -j LOG --log-prefix "n INP: "
+sudo iptables -t nat    -I PREROUTING  -p ICMP -j LOG --log-prefix "n PRE: "
+sudo iptables -t nat    -I POSTROUTING -p ICMP -j LOG --log-prefix "n POS: "
 
 #m OUT: IN= OUT=enp0s3 SRC=192.168.101.137 DST=8.8.8.8 LEN=84 TOS=0x00 PREC=0x00 TTL=64 ID=7355 DF PROTO=ICMP TYPE=8 CODE=0 ID=3032 SEQ=1
 #f OUT: IN= OUT=enp0s3 SRC=192.168.101.137 DST=8.8.8.8 LEN=84 TOS=0x00 PREC=0x00 TTL=64 ID=7355 DF PROTO=ICMP TYPE=8 CODE=0 ID=3032 SEQ=1
