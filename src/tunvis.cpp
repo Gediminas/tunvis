@@ -107,12 +107,6 @@ int main() {
 
   system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 0/2"); //Remove mark 2
 
-  // system("iptables -t nat -D POSTROUTING -i tun12 -j SNAT --to-source 192.168.101.137");
-  // system("iptables -t nat -A POSTROUTING -i tun12 -j SNAT --to-source 192.168.101.137");
-
-  // system("iptables -t nat -D POSTROUTING -i tun12 -j SNAT --to-source 10.77.11.11");
-  // system("iptables -t nat -A POSTROUTING -i tun12 -j SNAT --to-source 10.77.11.11");
-
 
   //IN
   system("ip rule del fwmark 1 table TUN_IN");
