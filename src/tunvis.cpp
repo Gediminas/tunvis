@@ -19,9 +19,9 @@
 #include "tun.h"
 
 constexpr int BUFSIZE {2000}; //for reading from tun/tap interface, must be >= 1500
-constexpr const char *if_name1 = "tun11";
-constexpr const char *if_name2 = "tun12";
-constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP IFF_MULTI_QUEUE
+constexpr const char *if_name1 = "tap11";
+constexpr const char *if_name2 = "tap12";
+constexpr int flags = IFF_TAP | IFF_NO_PI; //IFF_TAP IFF_MULTI_QUEUE
 int nr = 0;
 
 void print_ip(unsigned int ip)
@@ -64,11 +64,11 @@ int main() {
   system("echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects");
 
   system("echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter");
-  system("echo 0 > /proc/sys/net/ipv4/conf/tun11/rp_filter");
-  system("echo 0 > /proc/sys/net/ipv4/conf/tun12/rp_filter");
+  system("echo 0 > /proc/sys/net/ipv4/conf/tap11/rp_filter");
+  system("echo 0 > /proc/sys/net/ipv4/conf/tap12/rp_filter");
 
-  system("echo 1 > /proc/sys/net/ipv4/conf/tun11/accept_local");
-  system("echo 1 > /proc/sys/net/ipv4/conf/tun12/accept_local");
+  system("echo 1 > /proc/sys/net/ipv4/conf/tap11/accept_local");
+  system("echo 1 > /proc/sys/net/ipv4/conf/tap12/accept_local");
 
   // system("iptables -F");
   // system("iptables -F -t nat");
@@ -85,23 +85,23 @@ int main() {
 
 
 
-  system("ip link set tun11 up");
-  system("ip link set tun12 up");
+  system("ip link set tap11 up");
+  system("ip link set tap12 up");
 
-  system("ip addr add 10.77.11.11/24 dev tun11");
-  system("ip addr add 10.77.12.12/24 dev tun12");
+  system("ip addr add 10.77.11.11/24 dev tap11");
+  system("ip addr add 10.77.12.12/24 dev tap12");
 
-  // system("ip rule del fwmark 42 table TUNVIS");
-  // system("ip rule add fwmark 42 table TUNVIS");
+  system("ip rule del fwmark 42 table TUNVIS");
+  system("ip rule add fwmark 42 table TUNVIS");
 
   system("ip route add default via 10.77.11.11");
-  // system("ip route add table TUNVIS default via 192.168.101.1");
+  system("ip route add table TUNVIS default via 192.168.101.1");
 
-  // system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42");
-  // system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 42");
+  system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42");
+  system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 42");
 
-  // system("sudo iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137");
-  // system("sudo iptables -t nat -A POSTROUTING -j SNAT --to-source 192.168.101.137");
+  system("sudo iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137");
+  system("sudo iptables -t nat -A POSTROUTING -j SNAT --to-source 192.168.101.137");
 
 
   //bridge

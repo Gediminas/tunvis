@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-interface=tun12
+interface=tap12
 
 while true; do
     clear
-    echo "Waiting for tun12"
-    ip link | grep tun12 && tshark -i $interface --color "$@"
+    echo "Waiting for tap12"
+    ip link | grep tap12 && tshark -i $interface --color "$@"
     sleep 3
 done

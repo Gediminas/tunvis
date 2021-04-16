@@ -6,25 +6,39 @@ init() {
   killall tunvis
 
   # ip link add br0 type bridge
+  # ip link set br0 up
+  # ip link set enp0s3 master br0
+  # bridge link
+
   # ip link set tun12 master br0
   # ip link set dev enp0s3 down
   # ip addr flush dev enp0s3
   # ip link set dev enp0s3 up
   # ip link set enp0s3 master br0
   # ip link set dev br0 up
+
+
+  ip link add br0 type bridge
+  ip tuntap add tap11 mode tap
+  ip tuntap add tap12 mode tap
+  ip link set tap12 master br0
+  ip link set enp0s3 master br0
 }
 
 destroy() {
   kill $PID
   killall tunvis
 
+  ip tuntap del tap11 mode tap
+  ip tuntap del tap12 mode tap
+  ip link del br0
+
   # ip link set dev br0 up
   # ip link set enp0s3 master br0
   # ip link set dev enp0s3 up
   # ip addr flush dev enp0s3
   # ip link set dev enp0s3 down
   # ip link set tun12 master br0
-  # ip link del br0 type bridge
 
   # iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42
   # iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137
