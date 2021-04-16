@@ -10,8 +10,8 @@
 
 int main()
 {
-   const int f1 = open("/dev/tun11", O_RDWR);
-   const int f2 = open("/dev/tun12", O_RDWR);
+   const int f1 = open("/dev/tunvis1", O_RDWR);
+   const int f2 = open("/dev/tunvis2", O_RDWR);
    const int fm = max(f1, f2) + 1;
    std::cout << f1 << f2 << fm << std::endl;
 

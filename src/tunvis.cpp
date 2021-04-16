@@ -4,10 +4,10 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <sys/time.h>
+#include <linux/if_tun.h>
 // #include <stdlib.h>
 // #include <string.h>
 // #include <net/if.h>
-#include <linux/if_tun.h>
 // #include <sys/socket.h>
 // #include <sys/ioctl.h>
 // #include <sys/stat.h>
@@ -19,8 +19,8 @@
 #include "tun.h"
 
 constexpr int BUFSIZE {2000}; //for reading from tun/tap interface, must be >= 1500
-constexpr const char *if_name1 = "tun11";
-constexpr const char *if_name2 = "tun12";
+constexpr const char *if_name1 = "tunvis1";
+constexpr const char *if_name2 = "tunvis2";
 constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP IFF_MULTI_QUEUE
 int nr = 0;
 
@@ -64,63 +64,50 @@ int main() {
   system("echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects");
 
   system("echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter");
-  system("echo 0 > /proc/sys/net/ipv4/conf/tun11/rp_filter");
-  system("echo 0 > /proc/sys/net/ipv4/conf/tun12/rp_filter");
+  system("echo 0 > /proc/sys/net/ipv4/conf/tunvis1/rp_filter");
+  system("echo 0 > /proc/sys/net/ipv4/conf/tunvis2/rp_filter");
 
-  system("echo 1 > /proc/sys/net/ipv4/conf/tun11/accept_local");
-  system("echo 1 > /proc/sys/net/ipv4/conf/tun12/accept_local");
-
-  // system("iptables -F");
-  // system("iptables -F -t nat");
-  // system("iptables -F -t mangle");
-
-  // system("iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE");
-  // system("iptables -A FORWARD -i tun11 -j ACCEPT");
-
-  // https://blog.scottlowe.org/2013/09/04/introducing-linux-network-namespaces/
-  // system("ip netns add tunvis");
-  // system("ip link set tun12 netns tunvis");
-  // system("ip netns exec tunvis ip link list");
+  system("echo 1 > /proc/sys/net/ipv4/conf/tunvis1/accept_local");
+  system("echo 1 > /proc/sys/net/ipv4/conf/tunvis2/accept_local");
 
 
 
+  system("ip link set tunvis1 up");
+  system("ip link set tunvis2 up");
 
-  system("ip link set tun11 up");
-  system("ip link set tun12 up");
-
-  system("ip addr add 10.77.11.11/24 dev tun11");
-  system("ip addr add 10.77.12.12/24 dev tun12");
+  system("ip addr add 10.1.1.1/24 dev tunvis1");
+  system("ip addr add 10.2.2.2/24 dev tunvis2");
 
   //OUT
-  // APP -> OUTPUT -> POST -------------> normal packet rooute ---------------------- [enp0s3] --> INTERNET
-  //          ^              \                                                    /
-  //       add-mark-1         -> [tun11] ==copy==> [tun12] -> PRE -> FWD -> POST -
-  //                               ^                 ^         ^
-  //                      (10.77.11.11)  (10.77.12.12)  del-mark-1
+  // APP -> OUTPUT -> POST ---------------> normal packet rooute ------------------------ [enp0s3] --> INTERNET
+  //          ^              \                                                        /
+  //       add-mark-1         -> [tunvis1] ==copy==> [tunvis2] -> PRE -> FWD -> POST -
+  //                                 ^                   ^         ^
+  //                         (10.77.11.11)       (10.77.12.12)   del-mark-1
   //
   //
 
   system("ip rule del fwmark 1 table 1");
   system("ip rule add fwmark 1 table 1");
 
-  system("ip route del table 1 default via 10.77.11.11");
-  system("ip route add table 1 default via 10.77.11.11");
+  system("ip route del table 1 default via 10.1.1.1");
+  system("ip route add table 1 default via 10.1.1.1");
 
   system("iptables -t mangle -D OUTPUT -j MARK --set-mark 1");   // Add mark 1
   system("iptables -t mangle -A OUTPUT -j MARK --set-mark 1");   // Add mark 1
 
-  // system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 0/1"); // Remove mark 1
-  // system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 0/1"); // Remove mark 1
-  system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 9"); // Remove mark 1
-  system("iptables -t mangle -A PREROUTING -i tun12 -j MARK --set-mark 9"); // Remove mark 1
+  // system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 0/1"); // Remove mark 1
+  // system("iptables -t mangle -I PREROUTING -i tunvis2 -j MARK --set-mark 0/1"); // Remove mark 1
+  system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 9"); // Remove mark 1
+  system("iptables -t mangle -A PREROUTING -i tunvis2 -j MARK --set-mark 9"); // Remove mark 1
 
 
   //IN
   system("ip rule del fwmark 2 table 2");
   system("ip rule add fwmark 2 table 2");
 
-  system("ip route del table 2 default via 10.77.12.12");
-  system("ip route add table 2 default via 10.77.12.12");
+  system("ip route del table 2 default via 10.2.2.2");
+  system("ip route add table 2 default via 10.2.2.2");
 
   system("iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 2");
   system("iptables -t mangle -A PREROUTING -i enp0s3 -j MARK --set-mark 2");
@@ -138,7 +125,7 @@ int main() {
   // iptables -F
   // iptables -F -t nat
   // iptables -t nat -I POSTROUTING -d 0.0.0.0/0 -j SNAT --to-source 10.77.12.12
-  // iptables -t mangle -I PREROUTING -i tun12 -d 0.0.0.0/0 -j MARK --set-mark 42
+  // iptables -t mangle -I PREROUTING -i tunvis2 -d 0.0.0.0/0 -j MARK --set-mark 42
 
   // iptables -t nat -A POSTROUTING -m mark --mark 42 -j SNAT --to-source 10.77.12.12
 
@@ -153,7 +140,7 @@ int main() {
   // system("ip link set br_tunvis up");
   // system("ip link set enp0s3 up");
   // system("ip link set enp0s3 master br_tunvis");
-  // system("ip link set tun12 master br_tunvis");
+  // system("ip link set tunvis2 master br_tunvis");
   // system("bridge link");
 
 
@@ -180,6 +167,19 @@ int main() {
 
   // https://serverfault.com/questions/356165/forwarding-traffic-from-tun-device-c-backend-to-the-default-gateway?newreg=90f16a8eec8a4dc28c94af5aef531881
   // echo 1 > /proc/sys/net/ipv4/conf/tun0/accept_local
+
+
+  // system("iptables -F");
+  // system("iptables -F -t nat");
+  // system("iptables -F -t mangle");
+
+  // system("iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE");
+  // system("iptables -A FORWARD -i tunvis1 -j ACCEPT");
+
+  // https://blog.scottlowe.org/2013/09/04/introducing-linux-network-namespaces/
+  // system("ip netns add tunvis");
+  // system("ip link set tunvis2 netns tunvis");
+  // system("ip netns exec tunvis ip link list");
 
 
   char buffer[BUFSIZE];
