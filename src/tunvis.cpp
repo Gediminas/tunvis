@@ -94,31 +94,36 @@ int main() {
   //OUT
   // APP -> OUTPUT -> POST -------------> normal packet rooute ---------------------- [enp0s3] --> INTERNET
   //          ^              \                                                    /
-  //       add-mark-2         -> [tun11] ==copy==> [tun12] -> PRE -> FWD -> POST -
+  //       add-mark-1         -> [tun11] ==copy==> [tun12] -> PRE -> FWD -> POST -
   //                               ^                 ^         ^
-  //                      (10.77.11.11)  (10.77.12.12)  del-mark-2
+  //                      (10.77.11.11)  (10.77.12.12)  del-mark-1
   //
   //
 
-  system("ip rule del fwmark 2 table TUN_OUT");
-  system("ip rule add fwmark 2 table TUN_OUT");
+  system("ip rule del fwmark 1 table 1");
+  system("ip rule add fwmark 1 table 1");
 
-  system("ip route del table TUN_OUT default via 10.77.11.11");
-  system("ip route add table TUN_OUT default via 10.77.11.11");
+  system("ip route del table 1 default via 10.77.11.11");
+  system("ip route add table 1 default via 10.77.11.11");
 
-  system("iptables -t mangle -D OUTPUT -j MARK --set-mark 2");   // Add mark 2
-  system("iptables -t mangle -I OUTPUT -j MARK --set-mark 2");   // Add mark 2
+  system("iptables -t mangle -D OUTPUT -j MARK --set-mark 1");   // Add mark 1
+  system("iptables -t mangle -A OUTPUT -j MARK --set-mark 1");   // Add mark 1
 
-  system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 0/2"); // Remove mark 2
-  system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 0/2"); // Remove mark 2
+  // system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 0/1"); // Remove mark 1
+  // system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 0/1"); // Remove mark 1
+  system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 9"); // Remove mark 1
+  system("iptables -t mangle -A PREROUTING -i tun12 -j MARK --set-mark 9"); // Remove mark 1
 
 
   //IN
-  system("ip rule del fwmark 1 table TUN_IN");
-  system("ip rule add fwmark 1 table TUN_IN");
-  system("ip route add table TUN_IN default via 10.77.12.12");
-  system("iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 1");
-  system("iptables -t mangle -I PREROUTING -i enp0s3 -j MARK --set-mark 1");
+  system("ip rule del fwmark 2 table 2");
+  system("ip rule add fwmark 2 table 2");
+
+  system("ip route del table 2 default via 10.77.12.12");
+  system("ip route add table 2 default via 10.77.12.12");
+
+  system("iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 2");
+  system("iptables -t mangle -A PREROUTING -i enp0s3 -j MARK --set-mark 2");
 
 
 
