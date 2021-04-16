@@ -98,6 +98,8 @@ int main() {
 
   // system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 0/1"); // Remove mark 1
   // system("iptables -t mangle -I PREROUTING -i tunvis2 -j MARK --set-mark 0/1"); // Remove mark 1
+
+  //Just for visual
   system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 9"); // Remove mark 1
   system("iptables -t mangle -A PREROUTING -i tunvis2 -j MARK --set-mark 9"); // Remove mark 1
 

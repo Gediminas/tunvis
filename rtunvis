@@ -6,9 +6,13 @@ destroy() {
     kill $PID
     killall tunvis
 
-    iptables -t mangle -D OUTPUT -j MARK --set-mark 1
-    iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 0/1
+    # iptables -t mangle -D OUTPUT -j MARK --set-mark 1
+    # iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 0/1
+    # iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 2
+
+    iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 9
     iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 2
+    iptables -t mangle -D OUTPUT -j MARK --set-mark 1
 
     ip route del table 1 default via 10.1.1.1
     ip route del table 2 default via 10.2.2.2
