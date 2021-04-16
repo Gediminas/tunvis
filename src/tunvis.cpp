@@ -99,26 +99,27 @@ int main() {
   // system("ip link set enp0s3 master br0");
   // system("ip link set dev br0 up");
 
-  system("ip rule del fwmark 1 table TUN_IN");
-  system("ip rule add fwmark 1 table TUN_IN");
 
-  system("ip rule del fwmark 2 table TUN_OUT");
-  system("ip rule add fwmark 2 table TUN_OUT");
 
   system("ip route add default via 10.77.11.11");
-  system("ip route add table TUN_IN default via 10.77.12.12");
-  system("ip route add table TUN_OUT default via 192.168.101.1");
-
-  //IN
-  system("iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 1");
-  system("iptables -t mangle -I PREROUTING -i enp0s3 -j MARK --set-mark 1");
 
   //OUT
+  system("ip rule del fwmark 2 table TUN_OUT");
+  system("ip rule add fwmark 2 table TUN_OUT");
+  system("ip route add table TUN_OUT default via 192.168.101.1");
   system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 2");
   system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 2");
 
   system("iptables -t nat -D POSTROUTING -o tun11 -j SNAT --to-source 192.168.101.137");
   system("iptables -t nat -A POSTROUTING -o tun11 -j SNAT --to-source 192.168.101.137");
+
+
+  //IN
+  system("ip rule del fwmark 1 table TUN_IN");
+  system("ip rule add fwmark 1 table TUN_IN");
+  system("ip route add table TUN_IN default via 10.77.12.12");
+  system("iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 1");
+  system("iptables -t mangle -I PREROUTING -i enp0s3 -j MARK --set-mark 1");
 
 
 
