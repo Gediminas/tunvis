@@ -74,8 +74,8 @@ int main() {
   // system("iptables -F -t nat");
   // system("iptables -F -t mangle");
 
-  // system("iptables --table nat --append POSTROUTING --out-interface eth0 -j MASQUERADE");
-  // system("iptables --append FORWARD --in-interface tun0 -j ACCEPT");
+  // system("iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE");
+  // system("iptables -A FORWARD -i tun11 -j ACCEPT");
 
   // https://blog.scottlowe.org/2013/09/04/introducing-linux-network-namespaces/
   // system("ip netns add tunvis");
