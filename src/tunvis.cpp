@@ -100,12 +100,17 @@ int main() {
   //
   //
 
+  system("ip rule del fwmark 2 table TUN_OUT");
   system("ip rule add fwmark 2 table TUN_OUT");
+
+  system("ip route del table TUN_OUT default via 10.77.11.11");
   system("ip route add table TUN_OUT default via 10.77.11.11");
 
-  system("iptables -t mangle -I OUTPUT -j MARK --set-mark 2"); //Add mark 2
+  system("iptables -t mangle -D OUTPUT -j MARK --set-mark 2");   // Add mark 2
+  system("iptables -t mangle -I OUTPUT -j MARK --set-mark 2");   // Add mark 2
 
-  system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 0/2"); //Remove mark 2
+  system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 0/2"); // Remove mark 2
+  system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 0/2"); // Remove mark 2
 
 
   //IN
