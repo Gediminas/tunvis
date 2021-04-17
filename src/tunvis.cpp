@@ -55,6 +55,7 @@ int main() {
   std::cout << "Successfully connected to interfaces " << if_name1 << " & " << if_name2 << std::endl;
 
   system("echo 1 > /proc/sys/net/ipv4/ip_forward");
+  system("echo 1 > /proc/sys/net/ipv4/tcp_fwmark_accept");
   system("echo 1 > /proc/sys/net/ipv4/tcp_syncookies");
   system("echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts");
   system("echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects");
