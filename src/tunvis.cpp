@@ -114,6 +114,7 @@ int main() {
   system("iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 2");
   system("iptables -t mangle -A PREROUTING -i enp0s3 -j MARK --set-mark 2");
 
+  //system("iptables -t nat -I PREROUTING 1 -d 192.168.101.137 -j DNAT --to-destination 10.2.2.222");
 
 
   //OK

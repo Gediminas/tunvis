@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 clear
-watch ip route list table TUNVIS
+watch -n1 ip route list table TUNVIS

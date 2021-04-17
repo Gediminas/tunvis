@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 clear
-watch ip rule
+watch -n1 ip rule

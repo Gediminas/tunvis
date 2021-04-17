@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 clear
-sudo watch iptables -nvL -t mangle
+sudo watch -n1 iptables -nvL -t mangle
