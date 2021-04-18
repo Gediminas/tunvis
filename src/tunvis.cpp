@@ -103,46 +103,82 @@ int main() {
   system("ip link set tunvis1 up");
   system("ip link set tunvis2 up");
 
-  system("ip addr add 10.1.1.1/24 dev tunvis1");
-  system("ip addr add 10.2.2.2/24 dev tunvis2");
+  system("ip addr add 10.0.1.1/24 dev tunvis1");
+  system("ip addr add 10.0.2.2/24 dev tunvis2");
 
   //OUT
   // APP -> OUTPUT -> POST ---------------> normal packet rooute ------------------------ [enp0s3] --> INTERNET
   //          ^              \                                                        /
   //       add-mark-1         -> [tunvis1] ==copy==> [tunvis2] -> PRE -> FWD -> POST -
   //                                 ^                   ^         ^
-  //                         (10.77.11.11)       (10.77.12.12)   del-mark-1
+  //                            (10.0.0.1)          (10.0.0.2)   del-mark-1
   //
   //
 
-  system("ip rule del fwmark 1 table 1 prio 1");
-  system("ip rule add fwmark 1 table 1 prio 1");
+  // system("ip rule del fwmark 1 table 1 prio 1");
+  // system("ip rule add fwmark 1 table 1 prio 1");
 
-  system("ip route del table 1 default via 10.1.1.1");
-  system("ip route add table 1 default via 10.1.1.1");
+  // system("ip route del table 1 default via 10.0.1.1");
+  // system("ip route add table 1 default via 10.0.1.1");
 
-  system("iptables -t mangle -D OUTPUT -j MARK --set-mark 1");   // Add mark 1
-  system("iptables -t mangle -A OUTPUT -j MARK --set-mark 1");   // Add mark 1
+  // system("iptables -t mangle -D OUTPUT -j MARK --set-mark 1");   // Add mark 1
+  // system("iptables -t mangle -A OUTPUT -j MARK --set-mark 1");   // Add mark 1
 
   // system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 0/1"); // Remove mark 1
   // system("iptables -t mangle -I PREROUTING -i tunvis2 -j MARK --set-mark 0/1"); // Remove mark 1
 
   //Just for visual
-  system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 9"); // Remove mark 1
-  system("iptables -t mangle -A PREROUTING -i tunvis2 -j MARK --set-mark 9"); // Remove mark 1
+  // system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 9"); // Remove mark 1
+  // system("iptables -t mangle -A PREROUTING -i tunvis2 -j MARK --set-mark 9"); // Remove mark 1
+
+  // system("iptables -t mangle -D POSTROUTING -o enp0s3 -j CONNMARK --save-mark");
+  // system("iptables -t mangle -A POSTROUTING -o enp0s3 -j CONNMARK --save-mark");
+
+  // // system("iptables --table nat --append POSTROUTING --out-interface eth0 -j MASQUERADE");
+  // // system("iptables --append FORWARD --in-interface tun0 -j ACCEPT");
+  // system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42");
+  // system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 42");
+
+  // system("sudo iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137");
+  // system("sudo iptables -t nat -A POSTROUTING -j SNAT --to-source 192.168.101.137");
+
+
+
+  //COMPLICATED, WORKS, NOT HTTPS
+  // system("ip rule del fwmark 9 table 9 prio 9");
+  // system("ip rule add fwmark 9 table 9 prio 9");
+  // system("ip route del table 9 default via 192.168.101.1");
+  // system("ip route add table 9 default via 192.168.101.1");
+  // system("ip route del default via 10.0.0.2");
+  // system("ip route add default via 10.0.0.2");
+  // system("iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137");
+  // system("iptables -t nat -I POSTROUTING -j SNAT --to-source 192.168.101.137");
 
 
   //IN
-  system("ip rule del fwmark 2 table 2 prio 2");
-  system("ip rule add fwmark 2 table 2 prio 2");
+  // system("ip rule del fwmark 2 table 2 prio 2");
+  // system("ip rule add fwmark 2 table 2 prio 2");
 
-  system("ip route del table 2 default via 10.2.2.2");
-  system("ip route add table 2 default via 10.2.2.2");
+  // system("ip route del table 2 default via 10.0.2.2");
+  // system("ip route add table 2 default via 10.0.2.2");
 
-  system("iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 2");
-  system("iptables -t mangle -A PREROUTING -i enp0s3 -j MARK --set-mark 2");
+  // system("iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 2");
+  // system("iptables -t mangle -A PREROUTING -i enp0s3 -j MARK --set-mark 2");
 
-  //system("iptables -t nat -I PREROUTING 1 -d 192.168.101.137 -j DNAT --to-destination 10.2.2.222");
+  // system("iptables -t mangle -D PREROUTING  -i enp0s3 -j CONNMARK --restore-mark");
+  // system("iptables -t mangle -A PREROUTING  -i enp0s3 -j CONNMARK --restore-mark");
+
+  // system("iptables -t nat -A PREROUTING -i enp0s3 -j DNAT --to-destination 10.0.2.222");
+  // system("iptables -t nat -A PREROUTING -i tunvis1 -j DNAT --to-destination 10.0.2.2");
+
+
+
+
+
+  // system("iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 2");
+  // system("iptables -t mangle -A PREROUTING -i enp0s3 -j MARK --set-mark 2");
+
+  //system("iptables -t nat -I PREROUTING 1 -d 192.168.101.137 -j DNAT --to-destination 10.0.0.2222");
 
 
   //OK
@@ -235,10 +271,10 @@ int main() {
 
     if (FD_ISSET(tun_in_fd, &rd_set)) {
       const uint16_t nread = cread(tun_in_fd, buffer, sizeof(buffer));
-      std::cout << "I-" << ++nr <<  ": " << nread << " B";
+      // std::cout << "I-" << ++nr <<  ": " << nread << " B";
 
-      const int x = *((int*)(buffer));
-      std::cout << " / "; print_ip(x); std::cout << std::endl;
+      // const int x = *((int*)(buffer));
+      // std::cout << " / "; print_ip(x); std::cout << std::endl;
 
       cwrite(tun_out_fd, buffer, nread);
     }
