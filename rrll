@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+clear
+watch -n1 sudo ip -br link
