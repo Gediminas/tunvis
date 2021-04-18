@@ -121,15 +121,15 @@ int main() {
   system("ip route del table 1 default via 10.1.1.1");
   system("ip route add table 1 default via 10.1.1.1");
 
-  system("iptables -t mangle -D OUTPUT -p icmp -j MARK --set-mark 1");   // Add mark 1
-  system("iptables -t mangle -A OUTPUT -p icmp -j MARK --set-mark 1");   // Add mark 1
+  system("iptables -t mangle -D OUTPUT -j MARK --set-mark 1");   // Add mark 1
+  system("iptables -t mangle -A OUTPUT -j MARK --set-mark 1");   // Add mark 1
 
   // system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 0/1"); // Remove mark 1
   // system("iptables -t mangle -I PREROUTING -i tunvis2 -j MARK --set-mark 0/1"); // Remove mark 1
 
   //Just for visual
-  system("iptables -t mangle -D PREROUTING -i tunvis2 -p icmp -j MARK --set-mark 9"); // Remove mark 1
-  system("iptables -t mangle -A PREROUTING -i tunvis2 -p icmp -j MARK --set-mark 9"); // Remove mark 1
+  system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 9"); // Remove mark 1
+  system("iptables -t mangle -A PREROUTING -i tunvis2 -j MARK --set-mark 9"); // Remove mark 1
 
 
   //IN
@@ -139,8 +139,8 @@ int main() {
   system("ip route del table 2 default via 10.2.2.2");
   system("ip route add table 2 default via 10.2.2.2");
 
-  system("iptables -t mangle -D PREROUTING -i enp0s3 -p icmp -j MARK --set-mark 2");
-  system("iptables -t mangle -A PREROUTING -i enp0s3 -p icmp -j MARK --set-mark 2");
+  system("iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 2");
+  system("iptables -t mangle -A PREROUTING -i enp0s3 -j MARK --set-mark 2");
 
   //system("iptables -t nat -I PREROUTING 1 -d 192.168.101.137 -j DNAT --to-destination 10.2.2.222");
 
