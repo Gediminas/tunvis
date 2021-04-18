@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+sudo iptables -A OUTPUT  -p TCP -j LOG --log-prefix " f OUT: "
+sudo iptables -A INPUT   -p TCP -j LOG --log-prefix " f INP: "
+sudo iptables -A FORWARD -p TCP -j LOG --log-prefix " f FWD: "
+
+sudo iptables -t mangle -A OUTPUT      -p TCP -j LOG --log-prefix ">m OUT: "
+sudo iptables -t mangle -A INPUT       -p TCP -j LOG --log-prefix " m INP: "
+sudo iptables -t mangle -A FORWARD     -p TCP -j LOG --log-prefix " m FWD: "
+sudo iptables -t mangle -I PREROUTING  -p TCP   -i enp0s3 -j LOG --log-prefix "<m PRE: "
+sudo iptables -t mangle -I PREROUTING  -p TCP ! -i enp0s3 -j LOG --log-prefix " m PRE: "
+sudo iptables -t mangle -A POSTROUTING -p TCP -j LOG --log-prefix " m POS: "
+
+sudo iptables -t nat    -A OUTPUT      -p TCP -j LOG --log-prefix "*n OUT: "
+sudo iptables -t nat    -A INPUT       -p TCP -j LOG --log-prefix "*n INP: "
+sudo iptables -t nat    -A PREROUTING  -p TCP -j LOG --log-prefix "*n PRE: "
+sudo iptables -t nat    -A POSTROUTING -p TCP -j LOG --log-prefix "*n POS: "
