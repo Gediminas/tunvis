@@ -115,17 +115,17 @@ int main() {
   //
   //
 
-  // system("ip rule del fwmark 1 table 1 prio 1");
-  // system("ip rule add fwmark 1 table 1 prio 1");
+  system("ip rule del fwmark 1 table 1 prio 1");
+  system("ip rule add fwmark 1 table 1 prio 1");
 
-  // system("ip route del table 1 default via 10.0.1.1");
-  // system("ip route add table 1 default via 10.0.1.1");
+  system("ip route del table 1 default via 10.0.1.1");
+  system("ip route add table 1 default via 10.0.1.1");
 
-  // system("iptables -t mangle -D OUTPUT -j MARK --set-mark 1");   // Add mark 1
-  // system("iptables -t mangle -A OUTPUT -j MARK --set-mark 1");   // Add mark 1
+  system("iptables -t mangle -D OUTPUT -j MARK --set-mark 1");   // Add mark 1
+  system("iptables -t mangle -A OUTPUT -j MARK --set-mark 1");   // Add mark 1
 
-  // system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 0/1"); // Remove mark 1
-  // system("iptables -t mangle -I PREROUTING -i tunvis2 -j MARK --set-mark 0/1"); // Remove mark 1
+  system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 0/1"); // Remove mark 1
+  system("iptables -t mangle -I PREROUTING -i tunvis2 -j MARK --set-mark 0/1"); // Remove mark 1
 
   //Just for visual
   // system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 9"); // Remove mark 1
@@ -139,8 +139,8 @@ int main() {
   // system("iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 42");
   // system("iptables -t mangle -I PREROUTING -i tun12 -j MARK --set-mark 42");
 
-  // system("sudo iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137");
-  // system("sudo iptables -t nat -A POSTROUTING -j SNAT --to-source 192.168.101.137");
+  system("sudo iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137");
+  system("sudo iptables -t nat -A POSTROUTING -j SNAT --to-source 192.168.101.137");
 
 
 
@@ -168,8 +168,11 @@ int main() {
   // system("iptables -t mangle -D PREROUTING  -i enp0s3 -j CONNMARK --restore-mark");
   // system("iptables -t mangle -A PREROUTING  -i enp0s3 -j CONNMARK --restore-mark");
 
-  // system("iptables -t nat -A PREROUTING -i enp0s3 -j DNAT --to-destination 10.0.2.222");
-  // system("iptables -t nat -A PREROUTING -i tunvis1 -j DNAT --to-destination 10.0.2.2");
+  system("iptables -t nat -D PREROUTING -i enp0s3 -j DNAT --to-destination 10.0.2.222");
+  system("iptables -t nat -A PREROUTING -i enp0s3 -j DNAT --to-destination 10.0.2.222");
+
+  system("iptables -t nat -D PREROUTING -i tunvis1 -j DNAT --to-destination 10.0.2.2");
+  system("iptables -t nat -A PREROUTING -i tunvis1 -j DNAT --to-destination 10.0.2.2");
 
 
 
