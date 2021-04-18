@@ -67,19 +67,37 @@ int main() {
   system("echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter");
   system("echo 0 > /proc/sys/net/ipv4/conf/tunvis1/rp_filter");
   system("echo 0 > /proc/sys/net/ipv4/conf/tunvis2/rp_filter");
+  system("echo 0 > /proc/sys/net/ipv4/conf/enp0s3/rp_filter");
 
   system("echo 1 > /proc/sys/net/ipv4/conf/default/accept_local");
   system("echo 1 > /proc/sys/net/ipv4/conf/tunvis1/accept_local");
   system("echo 1 > /proc/sys/net/ipv4/conf/tunvis2/accept_local");
+  system("echo 1 > /proc/sys/net/ipv4/conf/enp0s3/accept_local");
 
   system("echo 1 > /proc/sys/net/ipv4/conf/default/accept_redirects");
   system("echo 1 > /proc/sys/net/ipv4/conf/tunvis1/accept_redirects");
   system("echo 1 > /proc/sys/net/ipv4/conf/tunvis2/accept_redirects");
+  system("echo 1 > /proc/sys/net/ipv4/conf/enp0s3/accept_redirects");
 
   system("echo 0 > /proc/sys/net/ipv4/conf/default/accept_source_route");
   system("echo 0 > /proc/sys/net/ipv4/conf/tunvis1/accept_source_route");
   system("echo 0 > /proc/sys/net/ipv4/conf/tunvis2/accept_source_route");
+  system("echo 0 > /proc/sys/net/ipv4/conf/enp0s3/accept_source_route");
 
+  system("echo 1 > /proc/sys/net/ipv4/conf/default/forwarding");
+  system("echo 1 > /proc/sys/net/ipv4/conf/tunvis1/forwarding");
+  system("echo 1 > /proc/sys/net/ipv4/conf/tunvis2/forwarding");
+  system("echo 1 > /proc/sys/net/ipv4/conf/enp0s3/forwarding");
+
+  system("echo 1 > /proc/sys/net/ipv4/conf/default/mc_forwarding");
+  system("echo 1 > /proc/sys/net/ipv4/conf/tunvis1/mc_forwarding");
+  system("echo 1 > /proc/sys/net/ipv4/conf/tunvis2/mc_forwarding");
+  system("echo 1 > /proc/sys/net/ipv4/conf/enp0s3/mc_forwarding");
+
+  system("echo 1 > /proc/sys/net/ipv4/conf/default/bc_forwarding");
+  system("echo 1 > /proc/sys/net/ipv4/conf/tunvis1/bc_forwarding");
+  system("echo 1 > /proc/sys/net/ipv4/conf/tunvis2/bc_forwarding");
+  system("echo 1 > /proc/sys/net/ipv4/conf/enp0s3/bc_forwarding");
 
 
   system("ip link set tunvis1 up");
