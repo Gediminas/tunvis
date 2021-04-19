@@ -221,3 +221,6 @@ int main() {
 
   return 0;
 }
+// https://erg.abdn.ac.uk/users/gorry/course/inet-pages/packet-dec2.html
+// https://www.techrepublic.com/article/exploring-the-anatomy-of-a-data-packet/
+//
