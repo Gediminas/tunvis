@@ -136,19 +136,19 @@ int main() {
   // IN
 
   //                        <-- [tunvis1] <==copy== [tunvis2] <--
-  //                      /         ^                   ^        \
+  //                      /         ^                   ^        \                                  .
   //                     /  (10.0.1.1/24)         (10.0.2.2/24)  POST
-  //          (dnat-2)  /                                          \
+  //          (dnat-2)  /                                          \                                .
   //                  PRE                                          FWD
-  //                  /                                              \
+  //                  /                                              \                              .
   // APP <- INPUT <--------------- normal packet rooute <--------------- PRE <-- [enp0s3] <-- INTERNET
   //                                                                  (dnat-1)   (192.168.101.137)
 
   system("iptables -t nat -D PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22");
   system("iptables -t nat -A PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22"); //dnat1
 
-  system("iptables -t nat -D PREROUTING -i tunvis1 -j DNAT --to-destination 192.168.101.137");
-  system("iptables -t nat -A PREROUTING -i tunvis1 -j DNAT --to-destination 192.168.101.137"); //dnat2
+  // system("iptables -t nat -D PREROUTING -i tunvis1 -j DNAT --to-destination 192.168.101.137");
+  // system("iptables -t nat -A PREROUTING -i tunvis1 -j DNAT --to-destination 192.168.101.137"); //dnat2
 
 
 
@@ -174,10 +174,10 @@ int main() {
 
     if (FD_ISSET(tun_in_fd, &rd_set)) {
       const uint16_t nread = cread(tun_in_fd, buffer, sizeof(buffer));
-      // std::cout << "I-" << ++nr <<  ": " << nread << " B";
+      std::cout << "I-" << ++nr <<  ": " << nread << " B";
 
-      // const int x = *((int*)(buffer));
-      // std::cout << " / "; print_ip(x); std::cout << std::endl;
+      const int x = *((int*)(buffer));
+      std::cout << " / "; print_ip(x); std::cout << std::endl;
 
       cwrite(tun_out_fd, buffer, nread);
     }

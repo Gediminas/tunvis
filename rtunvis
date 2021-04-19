@@ -35,9 +35,9 @@ ctrl_c() {
 }
 
 killall tunvis
-init
 
 while true; do
+  init
   ./tunvis &
   PID=$!
   inotifywait ./tunvis
