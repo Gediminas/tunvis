@@ -2,26 +2,29 @@
 
 PID=0
 
+init() {
+  # EXTRA CHECK
+  iptables -I INPUT -i enp0s3 -j DROP
+}
+
 destroy() {
-    kill $PID
-    killall tunvis
+  kill $PID
+  killall tunvis
 
-    # iptables -t mangle -D OUTPUT -j MARK --set-mark 1
-    # iptables -t mangle -D PREROUTING -i tun12 -j MARK --set-mark 0/1
-    # iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 2
+  # REMOVE EXTRA CHECK
+  iptables -D INPUT -i enp0s3 -j DROP
 
-    iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 9
-    iptables -t mangle -D PREROUTING -i enp0s3 -j MARK --set-mark 2
-    iptables -t mangle -D OUTPUT -j MARK --set-mark 1
+  # OUT
+  iptables -t nat -D POSTROUTING -m mark --mark 2 -j SNAT --to-source 192.168.101.137
+  iptables -t nat -D POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22
+  iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 9
+  iptables -t mangle -D OUTPUT -j MARK --set-mark 1
+  ip route del table 1 default via 10.0.1.1
+  ip rule del fwmark 1 table 1
 
-    ip route del table 1 default via 10.0.0.1
-    ip route del table 2 default via 10.0.0.2
-    ip route del table 9 default via 192.168.101.1
-
-    ip rule del fwmark 9 table 9
-    ip rule del fwmark 2 table 2
-    ip rule del fwmark 1 table 1
-
+  # IN
+  iptables -t nat -D PREROUTING -i tunvis1 -j DNAT --to-destination 192.168.101.137
+  iptables -t nat -D PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22
 }
 
 trap ctrl_c INT
@@ -32,6 +35,7 @@ ctrl_c() {
 }
 
 killall tunvis
+init
 
 while true; do
   ./tunvis &
