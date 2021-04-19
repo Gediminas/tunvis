@@ -122,33 +122,31 @@ int main() {
   system("ip route add table 1 default via 10.0.1.1");
 
   system("iptables -t mangle -D OUTPUT -j MARK --set-mark 1");
-  system("iptables -t mangle -A OUTPUT -j MARK --set-mark 1"); // Mark 1
+  system("iptables -t mangle -A OUTPUT -j MARK --set-mark 1"); //mark-1
 
   system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 2");
-  system("iptables -t mangle -A PREROUTING -i tunvis2 -j MARK --set-mark 2"); // Mark 2
+  system("iptables -t mangle -A PREROUTING -i tunvis2 -j MARK --set-mark 2"); //mark-2
 
   system("iptables -t nat -D POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22");
-  system("iptables -t nat -A POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22"); //snat1
+  system("iptables -t nat -A POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22"); //snat-1
 
   system("iptables -t nat -D POSTROUTING -m mark --mark 2 -j SNAT --to-source 192.168.101.137");
-  system("iptables -t nat -A POSTROUTING -m mark --mark 2 -j SNAT --to-source 192.168.101.137"); //snat2
+  system("iptables -t nat -A POSTROUTING -m mark --mark 2 -j SNAT --to-source 192.168.101.137"); //snat-2
 
   // IN
 
   //                        <-- [tunvis1] <==copy== [tunvis2] <--
   //                      /         ^                   ^        \                                  .
   //                     /  (10.0.1.1/24)         (10.0.2.2/24)  POST
-  //          (dnat-2)  /                                          \                                .
+  //                    /                                          \                                .
   //                  PRE                                          FWD
   //                  /                                              \                              .
   // APP <- INPUT <--------------- normal packet rooute <--------------- PRE <-- [enp0s3] <-- INTERNET
   //                                                                  (dnat-1)   (192.168.101.137)
 
   system("iptables -t nat -D PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22");
-  system("iptables -t nat -A PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22"); //dnat1
+  system("iptables -t nat -A PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22"); //dnat-1
 
-  // system("iptables -t nat -D PREROUTING -i tunvis1 -j DNAT --to-destination 192.168.101.137");
-  // system("iptables -t nat -A PREROUTING -i tunvis1 -j DNAT --to-destination 192.168.101.137"); //dnat2
 
 
 
