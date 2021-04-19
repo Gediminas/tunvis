@@ -1,4 +1,6 @@
 #include <iostream>
+#include <sstream>
+
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -24,16 +26,34 @@ constexpr const char *if_name2 = "tunvis2";
 constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP IFF_MULTI_QUEUE
 int nr = 0;
 
-void print_ip(unsigned int ip)
-{
-  unsigned char bytes[4];
-  bytes[0] = ip & 0xFF;
-  bytes[1] = (ip >> 8) & 0xFF;
-  bytes[2] = (ip >> 16) & 0xFF;
-  bytes[3] = (ip >> 24) & 0xFF;
-  // printf("%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
-  std::cout << (int)bytes[3] << "." << (int)bytes[2] << "." << (int)bytes[1] << "." << (int)bytes[0];
+class CInfo {
+public:
+  std::string sSrc;
+  std::string sDst;
+  uint16_t    uSize;
+};
+
+std::string toIpv4Address(const uint32_t uAddress) {
+  const uint8_t a1 = (uint8_t) (0xFF &  uAddress);
+  const uint8_t a2 = (uint8_t) (0xFF & (uAddress >> 8));
+  const uint8_t a3 = (uint8_t) (0xFF & (uAddress >> 16));
+  const uint8_t a4 = (uint8_t) (0xFF & (uAddress >> 24));
+  std::stringstream ss;
+  ss << +a1 << "." << +a2 << "." << +a3 << "." << +a4;
+  return ss.str();
 }
+
+CInfo parseIpv4(const char *data) {
+  const uint32_t *pFirst = (uint32_t*) data;
+  const uint32_t *pSrc   = pFirst + 3;
+  const uint32_t *pDst   = pFirst + 4;
+
+  CInfo info;
+  info.sSrc = toIpv4Address(*pSrc);
+  info.sDst = toIpv4Address(*pDst);
+  return info;
+}
+
 
 int main() {
 
@@ -171,23 +191,31 @@ int main() {
     }
 
     if (FD_ISSET(tun_in_fd, &rd_set)) {
-      const uint16_t nread = cread(tun_in_fd, buffer, sizeof(buffer));
-      std::cout << "I-" << ++nr <<  ": " << nread << " B";
+      const uint16_t uRead = cread(tun_in_fd, buffer, sizeof(buffer));
 
-      const int x = *((int*)(buffer));
-      std::cout << " / "; print_ip(x); std::cout << std::endl;
+      CInfo info = parseIpv4(buffer);
+      info.uSize = uRead;
 
-      cwrite(tun_out_fd, buffer, nread);
+      std::cout << "I-" << ++nr <<  ": " << uRead << " B";
+      std::cout << " /s: " << info.sSrc;
+      std::cout << " /d: " << info.sDst;
+      std::cout << std::endl;
+
+      cwrite(tun_out_fd, buffer, uRead);
     }
 
     if (FD_ISSET(tun_out_fd, &rd_set)) {
-      const uint16_t nread = cread(tun_out_fd, buffer, sizeof(buffer));
-      std::cout << "O-" << ++nr <<  ": " << nread << " B";
+      const uint16_t uRead = cread(tun_out_fd, buffer, sizeof(buffer));
 
-      const int x = *((int*)(buffer));
-      std::cout << " / "; print_ip(x); std::cout << std::endl;
+      CInfo info = parseIpv4(buffer);
+      info.uSize = uRead;
 
-      cwrite(tun_in_fd, buffer, nread);
+      std::cout << "O-" << ++nr <<  ": " << uRead << " B";
+      std::cout << " /s: " << info.sSrc;
+      std::cout << " /d: " << info.sDst;
+      std::cout << std::endl;
+
+      cwrite(tun_in_fd, buffer, uRead);
     }
   }
 
