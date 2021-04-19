@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+sudo iptables -I INPUT  -i enpos3  -j DROP
+
+sudo iptables -A OUTPUT            -j LOG --log-prefix " f OUT: "
+sudo iptables -A INPUT             -j LOG --log-prefix " f INP: "
+sudo iptables -A FORWARD           -j LOG --log-prefix " f FWD: "
+
+sudo iptables -t mangle -A OUTPUT  -j LOG --log-prefix ">m OUT: "
+sudo iptables -t mangle -A INPUT   -j LOG --log-prefix " m INP: "
+
+sudo iptables -t nat    -A OUTPUT  -j LOG --log-prefix "*n OUT: "
+sudo iptables -t nat    -A INPUT   -j LOG --log-prefix "*n INP: "
