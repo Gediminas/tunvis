@@ -15,10 +15,11 @@ COMMIT
 :POSTROUTING ACCEPT [5:342]
 :OUTPUT ACCEPT [222:13734]
 
--A PREROUTING -i enp0s3 -j DNAT --to-destination 10.0.2.22
--A PREROUTING -i tunvis1 -j DNAT --to-destination 192.168.101.137
 -A POSTROUTING -m mark --mark 0x1 -j SNAT --to-source 10.0.2.22
 -A POSTROUTING -m mark --mark 0x9 -j SNAT --to-source 192.168.101.137
+
+-A PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22
+-A PREROUTING -i tunvis1 -j DNAT --to-destination 192.168.101.137
 
 COMMIT
 # -------------------------------------

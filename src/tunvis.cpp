@@ -137,20 +137,19 @@ int main() {
   // system("sudo iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137");
   // system("sudo iptables -t nat -A POSTROUTING -j SNAT --to-source 192.168.101.137");
 
+  system("iptables -t nat -D POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22");
+  system("iptables -t nat -A POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22");
 
-
-  //COMPLICATED, WORKS, NOT HTTPS
-  // system("ip rule del fwmark 9 table 9 prio 9");
-  // system("ip rule add fwmark 9 table 9 prio 9");
-  // system("ip route del table 9 default via 192.168.101.1");
-  // system("ip route add table 9 default via 192.168.101.1");
-  // system("ip route del default via 10.0.0.2");
-  // system("ip route add default via 10.0.0.2");
-  // system("iptables -t nat -D POSTROUTING -j SNAT --to-source 192.168.101.137");
-  // system("iptables -t nat -I POSTROUTING -j SNAT --to-source 192.168.101.137");
-
+  system("iptables -t nat -D POSTROUTING -m mark --mark 9 -j SNAT --to-source 192.168.101.137");
+  system("iptables -t nat -A POSTROUTING -m mark --mark 9 -j SNAT --to-source 192.168.101.137");
 
   //IN
+  system("iptables -t nat -D PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22");
+  system("iptables -t nat -A PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22");
+
+  system("iptables -t nat -D PREROUTING -i tunvis1 -j DNAT --to-destination 192.168.101.137");
+  system("iptables -t nat -A PREROUTING -i tunvis1 -j DNAT --to-destination 192.168.101.137");
+
   // system("ip rule del fwmark 2 table 2 prio 2");
   // system("ip rule add fwmark 2 table 2 prio 2");
 
