@@ -26,11 +26,16 @@ constexpr const char *if_name2 = "tunvis2";
 constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP IFF_MULTI_QUEUE
 int nr = 0;
 
-class CInfo {
+class CInfo final {
 public:
+  CInfo()  {}
+  ~CInfo() {}
+public:
+  uint32_t    uSrc {0};
+  uint32_t    uDst {0};
   std::string sSrc;
   std::string sDst;
-  uint16_t    uSize;
+  uint16_t    uSize {0};
 };
 
 std::string toIpv4Address(const uint32_t uAddress) {
@@ -45,12 +50,11 @@ std::string toIpv4Address(const uint32_t uAddress) {
 
 CInfo parseIpv4(const char *data) {
   const uint32_t *pFirst = (uint32_t*) data;
-  const uint32_t *pSrc   = pFirst + 3;
-  const uint32_t *pDst   = pFirst + 4;
-
   CInfo info;
-  info.sSrc = toIpv4Address(*pSrc);
-  info.sDst = toIpv4Address(*pDst);
+  info.uSrc = *(pFirst + 3);
+  info.uDst = *(pFirst + 4);
+  info.sSrc = toIpv4Address(info.uSrc);
+  info.sDst = toIpv4Address(info.uDst);
   return info;
 }
 
@@ -58,8 +62,6 @@ CInfo parseIpv4(const char *data) {
 int main() {
 
   std::cout << "Tunnel-Vission started!" << std::endl;
-
-
 
   const int tun_in_fd  = InitializeTUN(if_name1, flags);
   const int tun_out_fd = InitializeTUN(if_name2, flags);
@@ -197,8 +199,7 @@ int main() {
       info.uSize = uRead;
 
       std::cout << "I-" << ++nr <<  ": " << uRead << " B";
-      std::cout << " /s: " << info.sSrc;
-      std::cout << " /d: " << info.sDst;
+      std::cout << "  " << info.sSrc << " --> " << info.sDst;
       std::cout << std::endl;
 
       cwrite(tun_out_fd, buffer, uRead);
@@ -211,8 +212,7 @@ int main() {
       info.uSize = uRead;
 
       std::cout << "O-" << ++nr <<  ": " << uRead << " B";
-      std::cout << " /s: " << info.sSrc;
-      std::cout << " /d: " << info.sDst;
+      std::cout << "  " << info.sSrc << " --> " << info.sDst;
       std::cout << std::endl;
 
       cwrite(tun_in_fd, buffer, uRead);
