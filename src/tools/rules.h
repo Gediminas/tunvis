@@ -36,20 +36,16 @@ std::vector<CFilterRule> readRules(const char* sFileName) {
   //   // std::cout << sCidr << " | " << sRule << std::endl;
   // }
 
-  try {
-    while(getline(fs, sLine)) {
-      std::cout << "\n[" << sLine << "]: " << std::endl;
+  std::string const delims{ " ./" };
 
-      std::regex rgx("\\s+");
-      std::sregex_token_iterator it(sLine.begin(), sLine.end(), rgx, -1);
-      std::sregex_token_iterator end;
-      int i = 0;
-      for ( ; it != end; ++it) {
-        std::cout << i++ << ": " << *it << '\n';
+  while(getline(fs, sLine)) {
+    std::cout << "\n[" << sLine << "]: " << std::endl;
+    size_t beg, pos = 0;
+    while ((beg = sLine.find_first_not_of(delims, pos)) != std::string::npos)
+      {
+        pos = sLine.find_first_of(delims, beg + 1);
+        std::cout << sLine.substr(beg, pos - beg) << std::endl;
       }
-    }
-  } catch (std::regex_error& e) {
-    // Syntax error in the regular expression
   }
 
 
