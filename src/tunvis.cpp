@@ -1,5 +1,4 @@
 #include <iostream>
-#include <sstream>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -19,6 +18,8 @@
 // #include <stdarg.h>
 
 #include "tun.h"
+#include "tools/ipv4.h"
+#include "tools/rules.h"
 
 constexpr int BUFSIZE {2000}; //for reading from tun/tap interface, must be >= 1500
 constexpr const char *if_name1 = "tunvis1";
@@ -26,42 +27,13 @@ constexpr const char *if_name2 = "tunvis2";
 constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP IFF_MULTI_QUEUE
 int nr = 0;
 
-class CInfo final {
-public:
-  CInfo()  {}
-  ~CInfo() {}
-public:
-  uint32_t    uSrc {0};
-  uint32_t    uDst {0};
-  std::string sSrc;
-  std::string sDst;
-  uint16_t    uSize {0};
-};
-
-std::string toIpv4Address(const uint32_t uAddress) {
-  const uint8_t a1 = (uint8_t) (0xFF &  uAddress);
-  const uint8_t a2 = (uint8_t) (0xFF & (uAddress >> 8));
-  const uint8_t a3 = (uint8_t) (0xFF & (uAddress >> 16));
-  const uint8_t a4 = (uint8_t) (0xFF & (uAddress >> 24));
-  std::stringstream ss;
-  ss << +a1 << "." << +a2 << "." << +a3 << "." << +a4;
-  return ss.str();
-}
-
-CInfo parseIpv4(const char *data) {
-  const uint32_t *pFirst = (uint32_t*) data;
-  CInfo info;
-  info.uSrc = *(pFirst + 3);
-  info.uDst = *(pFirst + 4);
-  info.sSrc = toIpv4Address(info.uSrc);
-  info.sDst = toIpv4Address(info.uDst);
-  return info;
-}
-
-
 int main() {
 
   std::cout << "Tunnel-Vission started!" << std::endl;
+
+  const std::vector<CFilterRule> arRules = readRules("dat/rules1.txt");
+  sleep(100);
+  return 0;
 
   const int tun_in_fd  = InitializeTUN(if_name1, flags);
   const int tun_out_fd = InitializeTUN(if_name2, flags);
