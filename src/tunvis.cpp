@@ -77,9 +77,9 @@ int main() {
   std::cout << "Successfully connected to interfaces " << if_name1 << " & " << if_name2 << std::endl;
 
   system("echo 1 > /proc/sys/net/ipv4/ip_forward");
-  system("echo 1 > /proc/sys/net/ipv4/tcp_fwmark_accept");
+  // system("echo 1 > /proc/sys/net/ipv4/tcp_fwmark_accept");
 
-  system("echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter");
+  // system("echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter");
   system("echo 0 > /proc/sys/net/ipv4/conf/tunvis1/rp_filter");
   // system("echo 0 > /proc/sys/net/ipv4/conf/tunvis2/rp_filter");
   // system("echo 0 > /proc/sys/net/ipv4/conf/enp0s3/rp_filter");
@@ -160,7 +160,7 @@ int main() {
       CInfo info = parseIpv4(buffer);
       info.uSize = uRead;
 
-      std::cout << "I-" << ++nr <<  ": " << uRead << " B";
+      std::cout << ++nr <<  " IN:  " << uRead << " B";
       std::cout << "  " << info.sSrc << " --> " << info.sDst;
       std::cout << std::endl;
 
@@ -173,7 +173,7 @@ int main() {
       CInfo info = parseIpv4(buffer);
       info.uSize = uRead;
 
-      std::cout << "O-" << ++nr <<  ": " << uRead << " B";
+      std::cout << ++nr <<  " OUT: " << uRead << " B";
       std::cout << "  " << info.sSrc << " --> " << info.sDst;
       std::cout << std::endl;
 
