@@ -32,6 +32,9 @@ int main() {
     std::cout << "Tunnel-Vission started!" << std::endl;
 
     const std::vector<CFilterRule> arRules = readRules("dat/rules1.txt");
+    for (const CFilterRule &rule : arRules) {
+        std::cout << rule.uAddress << " m:" << rule.uMask << " r:" << rule.sRule << " rn:" << rule.nRuleValue << std::endl;
+    }
     sleep(100);
     return 0;
 
@@ -133,7 +136,7 @@ int main() {
             info.uSize = uRead;
 
             std::cout << ++nr <<  " IN:  " << uRead << " B";
-            std::cout << "  " << info.sSrc << " --> " << info.sDst;
+            std::cout << "  " << numberToAddress(info.uSrc) << " --> " << numberToAddress(info.uDst);
             std::cout << std::endl;
 
             cwrite(tun_out_fd, buffer, uRead);
@@ -146,7 +149,8 @@ int main() {
             info.uSize = uRead;
 
             std::cout << ++nr <<  " OUT: " << uRead << " B";
-            std::cout << "  " << info.sSrc << " --> " << info.sDst;
+            std::cout << "  " << numberToAddress(info.uSrc) << " --> " << numberToAddress(info.uDst);
+            std::cout << std::endl;
             std::cout << std::endl;
 
             cwrite(tun_in_fd, buffer, uRead);
