@@ -3,10 +3,10 @@
 #include <sstream>
 
 class CInfo final {
-public:
+ public:
     CInfo()  {}
     ~CInfo() {}
-public:
+ public:
     uint32_t    uSrc {0};
     uint32_t    uDst {0};
     std::string sSrc;
