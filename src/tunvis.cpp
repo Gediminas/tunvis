@@ -51,8 +51,6 @@ int main() {
         }
         std::cout << std::endl;
     }
-    sleep(100);
-    return 0;
 
     const int tun_in_fd  = InitializeTUN(if_name1, flags);
     const int tun_out_fd = InitializeTUN(if_name2, flags);
@@ -145,31 +143,38 @@ int main() {
             exit(1);
         }
 
-        if (FD_ISSET(tun_in_fd, &rd_set)) {
-            const uint16_t uRead = cread(tun_in_fd, buffer, sizeof(buffer));
-
-            CInfo info = parseIpv4(buffer);
-            info.uSize = uRead;
-
-            std::cout << ++nr <<  " IN:  " << uRead << " B";
-            std::cout << "  " << numberToAddress(info.uSrc) << " --> " << numberToAddress(info.uDst);
-            std::cout << std::endl;
-
-            cwrite(tun_out_fd, buffer, uRead);
-        }
-
         if (FD_ISSET(tun_out_fd, &rd_set)) {
             const uint16_t uRead = cread(tun_out_fd, buffer, sizeof(buffer));
 
             CInfo info = parseIpv4(buffer);
             info.uSize = uRead;
 
-            std::cout << ++nr <<  " OUT: " << uRead << " B";
-            std::cout << "  " << numberToAddress(info.uSrc) << " --> " << numberToAddress(info.uDst);
-            std::cout << std::endl;
+            std::cout << "\033[36m";
+            std::cout << ++nr <<  " OUT/UPL: " << uRead << " B";
+            std::cout << " --> " << numberToAddress(info.uSrc);
+            // std::cout << "  " << numberToAddress(info.uSrc) << ". --> " << numberToAddress(info.uDst);
+            std::cout << "  (" << numberToAddress(info.uDst) << ")";
+            std::cout << "\033[0m";
             std::cout << std::endl;
 
             cwrite(tun_in_fd, buffer, uRead);
+        }
+
+        if (FD_ISSET(tun_in_fd, &rd_set)) {
+            const uint16_t uRead = cread(tun_in_fd, buffer, sizeof(buffer));
+
+            CInfo info = parseIpv4(buffer);
+            info.uSize = uRead;
+
+            std::cout << "\033[32m";
+            std::cout << ++nr <<  "  IN/DWN: " << uRead << " B";
+            std::cout << " <-- " << numberToAddress(info.uDst);
+            std::cout << "  (" << numberToAddress(info.uSrc) << ")";
+            // std::cout << "  " << numberToAddress(info.uSrc) << " <-- . " << numberToAddress(info.uDst);
+            std::cout << "\033[0m";
+            std::cout << std::endl;
+
+            cwrite(tun_out_fd, buffer, uRead);
         }
     }
 

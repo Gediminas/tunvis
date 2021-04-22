@@ -15,11 +15,11 @@ class CInfo final {
 };
 
 std::string numberToAddress(const uint32_t uAddress) {
-    std::cout << "number: " << uAddress << std::endl;
-    const uint8_t a4 = (uint8_t) (uAddress);
-    const uint8_t a3 = (uint8_t) (uAddress >> 8);
-    const uint8_t a2 = (uint8_t) (uAddress >> 16);
-    const uint8_t a1 = (uint8_t) (uAddress >> 24);
+    /* std::cout << "number: " << uAddress << std::endl; */
+    const uint8_t a1 = (uint8_t) (uAddress);
+    const uint8_t a2 = (uint8_t) (uAddress >> 8);
+    const uint8_t a3 = (uint8_t) (uAddress >> 16);
+    const uint8_t a4 = (uint8_t) (uAddress >> 24);
     std::stringstream ss;
     ss << +a1 << "." << +a2 << "." << +a3 << "." << +a4;
     return ss.str();
