@@ -23,8 +23,8 @@ constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP IFF_MULTI_QUEUE
 int tun::InitTun(const char *name) {
     const int fd = open("/dev/net/tun", O_RDWR);
     if (fd < 0) {
-        perror("Opening /dev/net/tun");
-        return fd;
+        std::cerr << "Error connecting to tun/tap interface " << name << std::endl;
+        exit(1);
     }
 
     struct ifreq ifr;
@@ -42,10 +42,6 @@ int tun::InitTun(const char *name) {
     return fd;
 }
 
-/**************************************************************************
- * cread: read routine that checks for errors and exits if an error is    *
- *        returned.                                                       *
- **************************************************************************/
 int tun::Read(int fd, char *buf, int n){
 
     const int nread = read(fd, buf, n);
@@ -56,10 +52,6 @@ int tun::Read(int fd, char *buf, int n){
     return nread;
 }
 
-/**************************************************************************
- * cwrite: write routine that checks for errors and exits if an error is  *
- *         returned.                                                      *
- **************************************************************************/
 int tun::Write(int fd, char *buf, int n){
 
     int nwrite;

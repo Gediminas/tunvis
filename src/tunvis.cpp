@@ -34,19 +34,11 @@ int main() {
 
     const int fdTun1  = tun::InitTun(c_sIFName1);
     const int fdTun2 = tun::InitTun(c_sIFName2);
-    if (fdTun1 < 0) {
-        std::cerr << "Error connecting to tun/tap interface " << c_sIFName1 << std::endl;
-        exit(1);
-    }
-    if (fdTun2 < 0) {
-        std::cerr << "Error connecting to tun/tap interface " << c_sIFName2 << std::endl;
-        exit(1);
-    }
 
     std::cout << "Successfully connected to interfaces " << c_sIFName1 << " & " << c_sIFName2 << std::endl;
     std::cout << "Creating tunnel " << c_sIFName1 << "-" << c_sIFName2 << std::endl;
 
-    routing();
+    CreateTunnelRoutes(c_sIFName1, c_sIFName2);
 
     char buffer[c_nBufferSize];
 

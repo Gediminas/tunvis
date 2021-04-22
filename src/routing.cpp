@@ -1,5 +1,7 @@
 #include "routing.h"
 
+#include "utils/str_util.h"
+
 // #include <stdio.h>
 // #include <unistd.h>
 // #include <sys/types.h>
@@ -19,13 +21,13 @@
 
 #include <stdlib.h>
 
-void routing()
+void CreateTunnelRoutes(const char *sIFName1, const char *sIFName2)
 {
     system("echo 1 > /proc/sys/net/ipv4/ip_forward");
     // system("echo 1 > /proc/sys/net/ipv4/tcp_fwmark_accept");
 
     // system("echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter");
-    system("echo 0 > /proc/sys/net/ipv4/conf/tunvis1/rp_filter");
+//    system(str_format("echo 0 > /proc/sys/net/ipv4/conf/%s/rp_filter", sIFName1).c_str());
     // system("echo 0 > /proc/sys/net/ipv4/conf/tunvis2/rp_filter");
     // system("echo 0 > /proc/sys/net/ipv4/conf/enp0s3/rp_filter");
 
