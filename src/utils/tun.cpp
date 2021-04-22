@@ -18,7 +18,7 @@
 #include <errno.h>
 #include <stdarg.h>
 
-int InitializeTUN(const char *name, int flags) {
+int tun::InitializeTUN(const char *name, int flags) {
     const int fd = open("/dev/net/tun", O_RDWR);
     if (fd < 0) {
         perror("Opening /dev/net/tun");
@@ -44,7 +44,7 @@ int InitializeTUN(const char *name, int flags) {
  * cread: read routine that checks for errors and exits if an error is    *
  *        returned.                                                       *
  **************************************************************************/
-int cread(int fd, char *buf, int n){
+int tun::cread(int fd, char *buf, int n){
 
     const int nread = read(fd, buf, n);
     if (nread < 0) {
@@ -58,7 +58,7 @@ int cread(int fd, char *buf, int n){
  * cwrite: write routine that checks for errors and exits if an error is  *
  *         returned.                                                      *
  **************************************************************************/
-int cwrite(int fd, char *buf, int n){
+int tun::cwrite(int fd, char *buf, int n){
 
     int nwrite;
 
@@ -73,7 +73,7 @@ int cwrite(int fd, char *buf, int n){
  * read_n: ensures we read exactly n bytes, and puts them into "buf".     *
  *         (unless EOF, of course)                                        *
  **************************************************************************/
-int read_n(int fd, char *buf, int n) {
+int tun::read_n(int fd, char *buf, int n) {
     int left = n;
     while (left > 0) {
         const int nread = cread(fd, buf, left);
@@ -87,38 +87,38 @@ int read_n(int fd, char *buf, int n) {
 }
 
 //https://www.kernel.org/doc/Documentation/networking/tuntap.txt
-int tun_alloc_mq(char *dev, int queues, int *fds)
-{
-    struct ifreq ifr;
-    int fd, err, i;
+// int tun::tun_alloc_mq(char *dev, int queues, int *fds)
+// {
+//     struct ifreq ifr;
+//     int fd, err, i;
 
-    if (!dev)
-        return -1;
+//     if (!dev)
+//         return -1;
 
-    memset(&ifr, 0, sizeof(ifr));
-    /* Flags: IFF_TUN   - TUN device (no Ethernet headers)
-     *        IFF_TAP   - TAP device
-     *
-     *        IFF_NO_PI - Do not provide packet information
-     *        IFF_MULTI_QUEUE - Create a queue of multiqueue device
-     */
-    ifr.ifr_flags = IFF_TAP | IFF_NO_PI | IFF_MULTI_QUEUE;
-    strcpy(ifr.ifr_name, dev);
+//     memset(&ifr, 0, sizeof(ifr));
+//     /* Flags: IFF_TUN   - TUN device (no Ethernet headers)
+//      *        IFF_TAP   - TAP device
+//      *
+//      *        IFF_NO_PI - Do not provide packet information
+//      *        IFF_MULTI_QUEUE - Create a queue of multiqueue device
+//      */
+//     ifr.ifr_flags = IFF_TAP | IFF_NO_PI | IFF_MULTI_QUEUE;
+//     strcpy(ifr.ifr_name, dev);
 
-    for (i = 0; i < queues; i++) {
-        if ((fd = open("/dev/net/tun", O_RDWR)) < 0)
-            goto err;
-        err = ioctl(fd, TUNSETIFF, (void *)&ifr);
-        if (err) {
-            close(fd);
-            goto err;
-        }
-        fds[i] = fd;
-    }
+//     for (i = 0; i < queues; i++) {
+//         if ((fd = open("/dev/net/tun", O_RDWR)) < 0)
+//             goto err;
+//         err = ioctl(fd, TUNSETIFF, (void *)&ifr);
+//         if (err) {
+//             close(fd);
+//             goto err;
+//         }
+//         fds[i] = fd;
+//     }
 
-    return 0;
- err:
-    for (--i; i >= 0; i--)
-        close(fds[i]);
-    return err;
-}
+//     return 0;
+//  err:
+//     for (--i; i >= 0; i--)
+//         close(fds[i]);
+//     return err;
+// }

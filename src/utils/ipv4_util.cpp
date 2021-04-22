@@ -2,8 +2,7 @@
 
 #include <sstream>
 
-std::string numberToAddress(const uint32_t uAddress) {
-    /* std::cout << "number: " << uAddress << std::endl; */
+std::string ipv4::numberToAddress(const uint32_t uAddress) {
     const uint8_t a1 = (uint8_t) (uAddress);
     const uint8_t a2 = (uint8_t) (uAddress >> 8);
     const uint8_t a3 = (uint8_t) (uAddress >> 16);
@@ -13,13 +12,11 @@ std::string numberToAddress(const uint32_t uAddress) {
     return ss.str();
 }
 
-uint32_t addressToNumber(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4) {
-    const uint32_t b1 = (a4 << 24) | (a3 << 16) | (a2 << 8) | a1;
-    /* std::cout << numberToAddress(b1) << std::endl; */
-    return b1;
+uint32_t ipv4::addressToNumber(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4) {
+    return (a4 << 24) | (a3 << 16) | (a2 << 8) | a1;
 }
 
-CInfo parseIpv4(const char *data) {
+CInfo ipv4::parseIpv4(const char *data) {
     const uint32_t *pFirst = (uint32_t*) data;
     CInfo info;
     info.uSrc = *(pFirst + 3);

@@ -14,6 +14,8 @@ class CInfo final {
     uint16_t    uSize {0};
 };
 
-std::string numberToAddress(const uint32_t uAddress);
-uint32_t addressToNumber(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4);
-CInfo parseIpv4(const char *data);
+namespace ipv4 {
+  std::string numberToAddress(const uint32_t uAddress);
+  uint32_t addressToNumber(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4);
+  CInfo parseIpv4(const char *data);
+};

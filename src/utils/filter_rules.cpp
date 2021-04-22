@@ -48,7 +48,7 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
 
         rule.uNr         = uNr;
         rule.sTitle      = sLine;
-        rule.uAddress    = addressToNumber(a1, a2, a3, a4);
+        rule.uAddress    = ipv4::addressToNumber(a1, a2, a3, a4);
         rule.uMaskBits   = uMaskValue ? (0xFFFFFFFF >> (32 - uMaskValue)) : 0U;
         rule.sRule       = arsRulePart[5];
         rule.sNote       = arsLinePart.size() > 1 ? arsLinePart[1] : "";

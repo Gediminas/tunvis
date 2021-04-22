@@ -35,13 +35,13 @@ int main() {
     const std::vector<CFilterRule> arRules = filter_rules::readRules("dat/rules1.txt");
     filter_rules::displayRules(arRules);
 
-    const int fdTun1  = InitializeTUN(c_sIFName1, flags);
+    const int fdTun1  = tun::InitializeTUN(c_sIFName1, flags);
     if (fdTun1 < 0) {
         std::cerr << "Error connecting to tun/tap interface " << c_sIFName1 << std::endl;
         exit(1);
     }
 
-    const int fdTun2 = InitializeTUN(c_sIFName2, flags);
+    const int fdTun2 = tun::InitializeTUN(c_sIFName2, flags);
     if (fdTun2 < 0) {
         std::cerr << "Error connecting to tun/tap interface " << c_sIFName2 << std::endl;
         exit(1);
@@ -73,16 +73,16 @@ int main() {
         }
 
         if (FD_ISSET(fdTun1, &fdSet)) {
-            const uint16_t uRead = cread(fdTun1, buffer, sizeof(buffer));
+            const uint16_t uRead = tun::cread(fdTun1, buffer, sizeof(buffer));
 
-            CInfo info = parseIpv4(buffer);
+            CInfo info = ipv4::parseIpv4(buffer);
             info.uSize = uRead;
 
             if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uDst)) {
                 std::cout << "\033[92m";
                 std::cout << ++nr <<  ": " << uRead << " B";
-                std::cout << " --> " << numberToAddress(info.uDst);
-                // std::cout << "  (" << numberToAddress(info.uSrc) << ")";
+                std::cout << " --> " << ipv4::numberToAddress(info.uDst);
+                // std::cout << "  (" << ipv4::numberToAddress(info.uSrc) << ")";
                 std::cout << "\033[0m";
 
                 std::cout << "\033[96m";
@@ -91,20 +91,20 @@ int main() {
                 std::cout << std::endl;
             }
 
-            cwrite(fdTun2, buffer, uRead);
+            tun::cwrite(fdTun2, buffer, uRead);
         }
 
         if (FD_ISSET(fdTun2, &fdSet)) {
-            const uint16_t uRead = cread(fdTun2, buffer, sizeof(buffer));
+            const uint16_t uRead = tun::cread(fdTun2, buffer, sizeof(buffer));
 
-            CInfo info = parseIpv4(buffer);
+            CInfo info = ipv4::parseIpv4(buffer);
             info.uSize = uRead;
 
             if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uSrc)) {
                 std::cout << "\033[32m";
                 std::cout << ++nr <<  ": " << uRead << " B";
-                std::cout << " <-- " << numberToAddress(info.uSrc);
-                // std::cout << "  (" << numberToAddress(info.uDst) << ")";
+                std::cout << " <-- " << ipv4::numberToAddress(info.uSrc);
+                // std::cout << "  (" << ipv4::numberToAddress(info.uDst) << ")";
                 std::cout << "\033[0m";
 
                 std::cout << "\033[36m";
@@ -113,7 +113,7 @@ int main() {
                 std::cout << std::endl;
             }
 
-            cwrite(fdTun1, buffer, uRead);
+            tun::cwrite(fdTun1, buffer, uRead);
         }
     }
 
