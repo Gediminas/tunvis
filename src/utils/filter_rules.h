@@ -25,3 +25,4 @@ public:
 
 
 std::vector<CFilterRule> readRules(const char* sFileName);
+const CFilterRule* findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress);

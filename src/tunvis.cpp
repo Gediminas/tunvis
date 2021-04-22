@@ -32,28 +32,6 @@ int main() {
 
     std::cout << "\033[1;33m" << "Tunnel-Vission started!" << "\033[0m" << std::endl;
 
-    // std::cout << "==================" << std::endl;
-    // // {std::bitset<32> bits(0xFFFFFFFF << (32- 0)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // // {std::bitset<32> bits(0xFFFFFFFF << (32- 1)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // // {std::bitset<32> bits(0xFFFFFFFF << (32- 2)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // // {std::bitset<32> bits(0xFFFFFFFF << (32-30)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // // {std::bitset<32> bits(0xFFFFFFFF << (32-31)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-
-    // uint32_t uAddress1 = addressToNumber(192, 168, 101, 100);
-    // uint32_t uAddress = addressToNumber(192, 168, 101, 0);
-    // uint32_t uMask    = addressToNumber(255, 255, 255, 0);
-    // {std::bitset<32> bits(uAddress1); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // {std::bitset<32> bits(uAddress); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // {std::bitset<32> bits(uMask); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // {std::bitset<32> bits(0xFFFFFFFF << (32-24)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // {std::bitset<32> bits(uAddress1 & uMask); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // {std::bitset<32> bits(uAddress & uMask);  std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // if ((uAddress & uMask) == (uAddress1 & uMask)) {
-    //     std::cout << "OK" << std::endl;
-    // }
-
-
-
     const std::vector<CFilterRule> arRules = readRules("dat/rules1.txt");
     std::cout << "\033[93m"  << "Rules loaded" << "\033[0m" << std::endl;
     for (const CFilterRule &rule : arRules) {
@@ -66,42 +44,6 @@ int main() {
         }
         std::cout << std::endl;
     }
-
-
-    // CInfo info;
-    // info.uSrc = addressToNumber(94,142,241,111);
-    // info.uDst = addressToNumber(94,142,241,111);
-
-    // for (const CFilterRule &rule : arRules) {
-    //     // {
-    //     //     std::cout << "\033[34m";
-    //     //     std::cout << rule.uNr << " " << std::endl;
-
-    //     //     std::bitset<32> a(info.uSrc);
-    //     //     std::bitset<32> a1(rule.uAddress);
-    //     //     std::bitset<32> a2(rule.uMaskBits);
-
-    //     //     std::cout << a << " " << std::endl;
-    //     //     std::cout << a1 << " " << std::endl;
-    //     //     std::cout << a2 << " " << std::endl;
-
-    //     //     // std::cout << (info.uSrc & rule.uMaskBits) << " ";
-    //     //     // std::cout << (rule.uAddress & rule.uMaskBits) << " ";
-    //     //     // std::cout << rule.sNote << " ";
-    //     //     std::cout << "\033[0m";
-    //     //     std::cout << std::endl;
-    //     // }
-    //     if ((info.uSrc & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits)) {
-    //         std::cout << "\033[93m";
-    //         std::cout << "* rule " << rule.uNr <<  ": " << rule.sTitle << " B";
-    //         std::cout << "\033[0m";
-    //         std::cout << std::endl;
-    //     }
-    // }
-    // std::cout << "==================" << std::endl;
-
-    // sleep (100);
-    // return 1;
 
     sleep(1);
 
@@ -148,41 +90,18 @@ int main() {
             CInfo info = parseIpv4(buffer);
             info.uSize = uRead;
 
-            std::cout << "\033[36m";
-            std::cout << ++nr <<  "-O: " << uRead << " B";
-            std::cout << " --> " << numberToAddress(info.uSrc);
-            // std::cout << "  " << numberToAddress(info.uSrc) << ". --> " << numberToAddress(info.uDst);
-            std::cout << "  (" << numberToAddress(info.uDst) << ")";
-            std::cout << "\033[0m";
-            std::cout << std::endl;
+            if (const CFilterRule* pRule = findLastRule(arRules, info.uSrc)) {
+                std::cout << "\033[36m";
+                std::cout << ++nr <<  "-O: " << uRead << " B";
+                std::cout << " --> " << numberToAddress(info.uSrc);
+                std::cout << "  (" << numberToAddress(info.uDst) << ") => ";
+                std::cout << "\033[0m";
+                // std::cout << std::endl;
 
-
-            // std::bitset<32> as(info.uSrc);
-            // std::cout << as << " " << numberToAddress(info.uSrc) << std::endl;
-
-            for (const CFilterRule &rule : arRules) {
-                // {
-                //     std::cout << "\033[34m";
-                //     std::cout << rule.uNr << " " << std::endl;
-
-                //     std::bitset<32> a1(rule.uAddress);
-                //     std::cout << a1 << " " << numberToAddress(rule.uAddress) << std::endl;
-
-                //     std::bitset<32> am(rule.uMaskBits);
-                //     std::cout << am << " " << numberToAddress(rule.uMaskBits) << std::endl;
-
-                //     // std::cout << (info.uSrc & rule.uMaskBits) << " ";
-                //     // std::cout << (rule.uAddress & rule.uMaskBits) << " ";
-                //     // std::cout << rule.sNote << " ";
-                //     std::cout << "\033[0m";
-                //     std::cout << std::endl;
-                // }
-                if ((info.uSrc & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits)) {
-                    std::cout << "\033[93m";
-                    std::cout << "* rule " << rule.uNr <<  ": " << rule.sTitle;
-                    std::cout << "\033[0m";
-                    std::cout << std::endl;
-                }
+                std::cout << "\033[93m";
+                std::cout << "* rule " << pRule->uNr <<  ": " << pRule->sTitle;
+                std::cout << "\033[0m";
+                std::cout << std::endl;
             }
 
             cwrite(tun_in_fd, buffer, uRead);

@@ -59,3 +59,13 @@ std::vector<CFilterRule> readRules(const char* sFileName) {
     }
     return arRules;
 }
+
+const CFilterRule* findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress) {
+    const CFilterRule* pRule = nullptr;
+    for (const CFilterRule &rule : arRules) {
+        if ((uAddress & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits)) {
+            pRule = &rule;
+        }
+    }
+    return pRule;
+}
