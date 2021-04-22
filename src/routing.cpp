@@ -1,6 +1,5 @@
 #include "routing.h"
 
-#include "utils/str_util.h"
 
 // #include <stdio.h>
 // #include <unistd.h>
@@ -19,23 +18,38 @@
 // #include <errno.h>
 // #include <stdarg.h>
 
-#include <stdlib.h>
+// #include <stdlib.h>
+#include <bits/stdc++.h>
+// #include "utils/str_util.h"
+//
+std::string str_format(const std::string fmt_str, ...) {
+    va_list ap;
+    char *fp = NULL;
+    va_start(ap, fmt_str);
+    vasprintf(&fp, fmt_str.c_str(), ap);
+    va_end(ap);
+    std::unique_ptr<char[]> formatted(fp);
+    return std::string(formatted.get());
+}
 
-void CreateTunnelRoutes(const char *sIFName1, const char *sIFName2)
+void CreateTunnelRoutes(const char *sEthName, const char *sTunName1, const char *sTunName2)
 {
-    system("echo 1 > /proc/sys/net/ipv4/ip_forward");
-    // system("echo 1 > /proc/sys/net/ipv4/tcp_fwmark_accept");
+    const char *sEthIP = "192.168.101.137";
 
+    system("echo 1 > /proc/sys/net/ipv4/ip_forward");
+    system(str_format("echo 0 > /proc/sys/net/ipv4/conf/%s/rp_filter", sTunName1).c_str());
+
+    // system("echo 1 > /proc/sys/net/ipv4/tcp_fwmark_accept");
     // system("echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter");
-//    system(str_format("echo 0 > /proc/sys/net/ipv4/conf/%s/rp_filter", sIFName1).c_str());
+    // system(str_format("echo 0 > /proc/sys/net/ipv4/conf/%s/rp_filter", sIFName1).c_str());
     // system("echo 0 > /proc/sys/net/ipv4/conf/tunvis2/rp_filter");
     // system("echo 0 > /proc/sys/net/ipv4/conf/enp0s3/rp_filter");
 
-    system("ip link set tunvis1 up");
-    system("ip link set tunvis2 up");
+    system(str_format("ip link set %s up", sTunName1).c_str());
+    system(str_format("ip link set %s up", sTunName2).c_str());
 
-    system("ip addr add 10.0.1.1/24 dev tunvis1");
-    system("ip addr add 10.0.2.2/24 dev tunvis2");
+    system(str_format("ip addr add 10.0.1.1/24 dev %s", sTunName1).c_str());
+    system(str_format("ip addr add 10.0.2.2/24 dev %s", sTunName2).c_str());
 
     // OUT
 
@@ -55,14 +69,14 @@ void CreateTunnelRoutes(const char *sIFName1, const char *sIFName2)
     system("iptables -t mangle -D OUTPUT -j MARK --set-mark 1");
     system("iptables -t mangle -A OUTPUT -j MARK --set-mark 1"); //mark-1
 
-    system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 2");
-    system("iptables -t mangle -A PREROUTING -i tunvis2 -j MARK --set-mark 2"); //mark-2
+    system(str_format("iptables -t mangle -D PREROUTING -i %s -j MARK --set-mark 2", sTunName2).c_str());
+    system(str_format("iptables -t mangle -A PREROUTING -i %s -j MARK --set-mark 2", sTunName2).c_str()); //mark-2
 
     system("iptables -t nat -D POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22");
     system("iptables -t nat -A POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22"); //snat-1
 
-    system("iptables -t nat -D POSTROUTING -m mark --mark 2 -j SNAT --to-source 192.168.101.137");
-    system("iptables -t nat -A POSTROUTING -m mark --mark 2 -j SNAT --to-source 192.168.101.137"); //snat-2
+    system(str_format("iptables -t nat -D POSTROUTING -m mark --mark 2 -j SNAT --to-source %s", sEthIP).c_str());
+    system(str_format("iptables -t nat -A POSTROUTING -m mark --mark 2 -j SNAT --to-source %s", sEthIP).c_str()); //snat-2
 
     // IN
 
@@ -75,6 +89,6 @@ void CreateTunnelRoutes(const char *sIFName1, const char *sIFName2)
     // APP <- INPUT <--------------- normal packet rooute <--------------- PRE <-- [enp0s3] <-- INTERNET
     //                                                                  (dnat-1)   (192.168.101.137)
 
-    system("iptables -t nat -D PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22");
-    system("iptables -t nat -A PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22"); //dnat-1
+    system(str_format("iptables -t nat -D PREROUTING -i %s  -j DNAT --to-destination 10.0.2.22", sEthName).c_str());
+    system(str_format("iptables -t nat -A PREROUTING -i %s  -j DNAT --to-destination 10.0.2.22", sEthName).c_str()); //dnat-1
 }

@@ -23,6 +23,7 @@
 #include "utils/filter_rules.h"
 
 constexpr int32_t     c_nBufferSize = 2000; // for tun/tap must be >= 1500
+constexpr const char *c_sEthName    = "enp0s3";
 constexpr const char *c_sIFName1    = "tunvis1";
 constexpr const char *c_sIFName2    = "tunvis2";
 
@@ -38,7 +39,7 @@ int main() {
     std::cout << "Successfully connected to interfaces " << c_sIFName1 << " & " << c_sIFName2 << std::endl;
     std::cout << "Creating tunnel " << c_sIFName1 << "-" << c_sIFName2 << std::endl;
 
-    CreateTunnelRoutes(c_sIFName1, c_sIFName2);
+    CreateTunnelRoutes(c_sEthName, c_sIFName1, c_sIFName2);
 
     char buffer[c_nBufferSize];
 

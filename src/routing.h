@@ -1,3 +1,3 @@
 #pragma once
 
-void CreateTunnelRoutes(const char *sIFName1, const char *sIFName2);
+void CreateTunnelRoutes(const char *sEthName, const char *sTunName1, const char *sTunName2);
