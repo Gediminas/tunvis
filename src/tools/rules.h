@@ -55,7 +55,7 @@ std::vector<CFilterRule> readRules(const char* sFileName) {
 
         rule.sTitle      = sLine;
         rule.uAddress    = addressToNumber(a1, a2, a3, a4);
-        rule.uMaskBits   = (uMaskValue < 32) ? (0xFFFFFFFF << (32 - uMaskValue)) : 0U;
+        rule.uMaskBits   = uMaskValue ? (0xFFFFFFFF << (32 - uMaskValue)) : 0U;
         rule.sRule       = arsToken[5];
         // rule.nRuleValue  = stoi(arsToken[5]);
         arRules.push_back(rule);
