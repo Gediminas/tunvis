@@ -29,7 +29,7 @@ int nr = 0;
 
 int main() {
 
-    std::cout << "Tunnel-Vission started!" << std::endl;
+    std::cout << "\033[1;33m" << "Tunnel-Vission started!" << "\033[0m" << std::endl;
 
     // std::cout << "==================" << std::endl;
     // {std::bitset<32> bits(0xFFFFFFFF << (32- 0)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
@@ -40,12 +40,16 @@ int main() {
     // std::cout << "==================" << std::endl;
 
     const std::vector<CFilterRule> arRules = readRules("dat/rules1.txt");
+    std::cout << "\033[93m"  << "Rules loaded" << "\033[0m" << std::endl;
     for (const CFilterRule &rule : arRules) {
-        std::cout << std::endl;
-        std::cout << "      " << rule.sTitle    << std::endl;
+        std::cout << "\033[93m"  << "#" << rule.uNr << ":   " << rule.sTitle << "\033[0m" << std::endl;
         std::cout << "Addr: " << rule.uAddress  << std::endl;
         std::cout << "Mask: " << rule.uMaskBits << std::endl;
         std::cout << "Rule: " << rule.sRule     << std::endl;
+        if (!rule.sNote.empty()) {
+            std::cout << "\033[37m" << "Note: " << rule.sNote  << "\033[0m"<< std::endl;
+        }
+        std::cout << std::endl;
     }
     sleep(100);
     return 0;
