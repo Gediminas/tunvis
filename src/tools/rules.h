@@ -19,8 +19,9 @@ public:
     CFilterRule()  {}
     ~CFilterRule() {}
 public:
+    std::string sTitle;
     uint32_t    uAddress {0};
-    uint32_t    uMask {0};
+    uint32_t    uMaskBits {0};
     int64_t     nRuleValue {0};
     std::string sRule;
     EFilterRule eRule {EFilterRule::Undefined};
@@ -31,8 +32,6 @@ std::vector<CFilterRule> readRules(const char* sFileName) {
     std::fstream fs(sFileName, std::ios::in);
     std::string sLine, sCidr, sRule;
     while(getline(fs, sLine)) {
-        std::cout << "\n[" << sLine << "]: " << std::endl;
-
         const std::vector<std::string> arsToken = explode(sLine, " ./");
 
         // for (const std::string &sToken : arsToken) {
@@ -47,8 +46,16 @@ std::vector<CFilterRule> readRules(const char* sFileName) {
         const uint8_t a2 = stoi(arsToken[1]);
         const uint8_t a3 = stoi(arsToken[2]);
         const uint8_t a4 = stoi(arsToken[3]);
+
+        const int8_t uMaskValue = stoi(arsToken[4]);
+        if (uMaskValue > 32) {
+            std::cerr << "Error in mask " << sLine << std::endl;
+            continue;
+        }
+
+        rule.sTitle      = sLine;
         rule.uAddress    = addressToNumber(a1, a2, a3, a4);
-        rule.uMask       = stoi(arsToken[4]);
+        rule.uMaskBits   = (uMaskValue < 32) ? (0xFFFFFFFF << (32 - uMaskValue)) : 0U;
         rule.sRule       = arsToken[5];
         // rule.nRuleValue  = stoi(arsToken[5]);
         arRules.push_back(rule);

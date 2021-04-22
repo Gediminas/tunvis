@@ -31,9 +31,21 @@ int main() {
 
     std::cout << "Tunnel-Vission started!" << std::endl;
 
+    // std::cout << "==================" << std::endl;
+    // {std::bitset<32> bits(0xFFFFFFFF << (32- 0)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // {std::bitset<32> bits(0xFFFFFFFF << (32- 1)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // {std::bitset<32> bits(0xFFFFFFFF << (32- 2)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // {std::bitset<32> bits(0xFFFFFFFF << (32-30)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // {std::bitset<32> bits(0xFFFFFFFF << (32-31)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // std::cout << "==================" << std::endl;
+
     const std::vector<CFilterRule> arRules = readRules("dat/rules1.txt");
     for (const CFilterRule &rule : arRules) {
-        std::cout << rule.uAddress << " m:" << rule.uMask << " r:" << rule.sRule << " rn:" << rule.nRuleValue << std::endl;
+        std::cout << std::endl;
+        std::cout << "      " << rule.sTitle    << std::endl;
+        std::cout << "Addr: " << rule.uAddress  << std::endl;
+        std::cout << "Mask: " << rule.uMaskBits << std::endl;
+        std::cout << "Rule: " << rule.sRule     << std::endl;
     }
     sleep(100);
     return 0;
