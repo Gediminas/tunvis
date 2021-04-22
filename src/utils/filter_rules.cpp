@@ -1,33 +1,11 @@
-#pragma once
+#include "filter_rules.h"
 
-#include "helper.h"
-#include "ipv4.h"
+#include "str_util.h"
+#include "ipv4_util.h"
+
 
 #include <iostream>
-#include <vector>
 #include <fstream>
-#include <regex>
-
-enum class EFilterRule {
-    Undefined = 0,
-    LimitTime,
-    LimitDownload,
-};
-
-class CFilterRule final {
-public:
-    CFilterRule()  {}
-    ~CFilterRule() {}
-public:
-    std::string sTitle;
-    uint32_t    uNr {0};
-    uint32_t    uAddress {0};
-    uint32_t    uMaskBits {0};
-    int64_t     nRuleValue {0};
-    std::string sRule;
-    std::string sNote;
-    EFilterRule eRule {EFilterRule::Undefined};
-};
 
 std::vector<CFilterRule> readRules(const char* sFileName) {
     std::vector<CFilterRule> arRules;
@@ -36,6 +14,9 @@ std::vector<CFilterRule> readRules(const char* sFileName) {
     uint32_t uNr = 0U;
     while (getline(fs, sLine)) {
         ++uNr;
+        if (sLine.empty() || sLine[0] == '#') {
+            continue;
+        }
         const std::vector<std::string> arsLinePart = explode(sLine, "#");
         if (!arsLinePart.size()) {
             continue;
@@ -69,7 +50,7 @@ std::vector<CFilterRule> readRules(const char* sFileName) {
         rule.uNr         = uNr;
         rule.sTitle      = sLine;
         rule.uAddress    = addressToNumber(a1, a2, a3, a4);
-        rule.uMaskBits   = uMaskValue ? (0xFFFFFFFF << (32 - uMaskValue)) : 0U;
+        rule.uMaskBits   = uMaskValue ? (0xFFFFFFFF >> (32 - uMaskValue)) : 0U;
         rule.sRule       = arsRulePart[5];
         rule.sNote       = arsLinePart.size() > 1 ? arsLinePart[1] : "";
         trim(rule.sNote);

@@ -17,9 +17,10 @@
 // #include <errno.h>
 // #include <stdarg.h>
 
-#include "tun.h"
-#include "tools/ipv4.h"
-#include "tools/rules.h"
+#include "routing.h"
+#include "utils/tun.h"
+#include "utils/ipv4_util.h"
+#include "utils/filter_rules.h"
 
 constexpr int BUFSIZE {2000}; //for reading from tun/tap interface, must be >= 1500
 constexpr const char *if_name1 = "tunvis1";
@@ -32,12 +33,26 @@ int main() {
     std::cout << "\033[1;33m" << "Tunnel-Vission started!" << "\033[0m" << std::endl;
 
     // std::cout << "==================" << std::endl;
-    // {std::bitset<32> bits(0xFFFFFFFF << (32- 0)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // {std::bitset<32> bits(0xFFFFFFFF << (32- 1)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // {std::bitset<32> bits(0xFFFFFFFF << (32- 2)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // {std::bitset<32> bits(0xFFFFFFFF << (32-30)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // {std::bitset<32> bits(0xFFFFFFFF << (32-31)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
-    // std::cout << "==================" << std::endl;
+    // // {std::bitset<32> bits(0xFFFFFFFF << (32- 0)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // // {std::bitset<32> bits(0xFFFFFFFF << (32- 1)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // // {std::bitset<32> bits(0xFFFFFFFF << (32- 2)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // // {std::bitset<32> bits(0xFFFFFFFF << (32-30)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // // {std::bitset<32> bits(0xFFFFFFFF << (32-31)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+
+    // uint32_t uAddress1 = addressToNumber(192, 168, 101, 100);
+    // uint32_t uAddress = addressToNumber(192, 168, 101, 0);
+    // uint32_t uMask    = addressToNumber(255, 255, 255, 0);
+    // {std::bitset<32> bits(uAddress1); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // {std::bitset<32> bits(uAddress); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // {std::bitset<32> bits(uMask); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // {std::bitset<32> bits(0xFFFFFFFF << (32-24)); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // {std::bitset<32> bits(uAddress1 & uMask); std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // {std::bitset<32> bits(uAddress & uMask);  std::cout << bits << " " << bits.to_ulong() << std::endl;}
+    // if ((uAddress & uMask) == (uAddress1 & uMask)) {
+    //     std::cout << "OK" << std::endl;
+    // }
+
+
 
     const std::vector<CFilterRule> arRules = readRules("dat/rules1.txt");
     std::cout << "\033[93m"  << "Rules loaded" << "\033[0m" << std::endl;
@@ -52,6 +67,44 @@ int main() {
         std::cout << std::endl;
     }
 
+
+    // CInfo info;
+    // info.uSrc = addressToNumber(94,142,241,111);
+    // info.uDst = addressToNumber(94,142,241,111);
+
+    // for (const CFilterRule &rule : arRules) {
+    //     // {
+    //     //     std::cout << "\033[34m";
+    //     //     std::cout << rule.uNr << " " << std::endl;
+
+    //     //     std::bitset<32> a(info.uSrc);
+    //     //     std::bitset<32> a1(rule.uAddress);
+    //     //     std::bitset<32> a2(rule.uMaskBits);
+
+    //     //     std::cout << a << " " << std::endl;
+    //     //     std::cout << a1 << " " << std::endl;
+    //     //     std::cout << a2 << " " << std::endl;
+
+    //     //     // std::cout << (info.uSrc & rule.uMaskBits) << " ";
+    //     //     // std::cout << (rule.uAddress & rule.uMaskBits) << " ";
+    //     //     // std::cout << rule.sNote << " ";
+    //     //     std::cout << "\033[0m";
+    //     //     std::cout << std::endl;
+    //     // }
+    //     if ((info.uSrc & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits)) {
+    //         std::cout << "\033[93m";
+    //         std::cout << "* rule " << rule.uNr <<  ": " << rule.sTitle << " B";
+    //         std::cout << "\033[0m";
+    //         std::cout << std::endl;
+    //     }
+    // }
+    // std::cout << "==================" << std::endl;
+
+    // sleep (100);
+    // return 1;
+
+    sleep(1);
+
     const int tun_in_fd  = InitializeTUN(if_name1, flags);
     const int tun_out_fd = InitializeTUN(if_name2, flags);
 
@@ -63,65 +116,11 @@ int main() {
         std::cerr << "Error connecting to tun/tap interface " << if_name2 << std::endl;
         exit(1);
     }
+
     std::cout << "Successfully connected to interfaces " << if_name1 << " & " << if_name2 << std::endl;
+    std::cout << "Creating tunnel " << if_name1 << "-" << if_name2 << std::endl;
 
-    system("echo 1 > /proc/sys/net/ipv4/ip_forward");
-    // system("echo 1 > /proc/sys/net/ipv4/tcp_fwmark_accept");
-
-    // system("echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter");
-    system("echo 0 > /proc/sys/net/ipv4/conf/tunvis1/rp_filter");
-    // system("echo 0 > /proc/sys/net/ipv4/conf/tunvis2/rp_filter");
-    // system("echo 0 > /proc/sys/net/ipv4/conf/enp0s3/rp_filter");
-
-    system("ip link set tunvis1 up");
-    system("ip link set tunvis2 up");
-
-    system("ip addr add 10.0.1.1/24 dev tunvis1");
-    system("ip addr add 10.0.2.2/24 dev tunvis2");
-
-    // OUT
-
-    // APP -> OUTPUT -> POST ---------------> normal packet rooute ------------------------ [enp0s3] --> INTERNET
-    //          ^              \                                                        /   (192.168.101.137)
-    //      (mark-1)            -> [tunvis1] ==copy==> [tunvis2] -> PRE -> FWD -> POST -
-    //      ( =>fwmark-1)               ^                  ^         ^
-    //      ( =>snat-1)           (10.0.1.1/24)     (10.0.2.2/24)   (mark-2)
-    //                                                              ( =>snat-2)
-
-    system("ip rule del fwmark 1 table 1");
-    system("ip rule add fwmark 1 table 1");
-
-    system("ip route del table 1 default via 10.0.1.1");
-    system("ip route add table 1 default via 10.0.1.1");
-
-    system("iptables -t mangle -D OUTPUT -j MARK --set-mark 1");
-    system("iptables -t mangle -A OUTPUT -j MARK --set-mark 1"); //mark-1
-
-    system("iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 2");
-    system("iptables -t mangle -A PREROUTING -i tunvis2 -j MARK --set-mark 2"); //mark-2
-
-    system("iptables -t nat -D POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22");
-    system("iptables -t nat -A POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22"); //snat-1
-
-    system("iptables -t nat -D POSTROUTING -m mark --mark 2 -j SNAT --to-source 192.168.101.137");
-    system("iptables -t nat -A POSTROUTING -m mark --mark 2 -j SNAT --to-source 192.168.101.137"); //snat-2
-
-    // IN
-
-    //                        <-- [tunvis1] <==copy== [tunvis2] <--
-    //                      /         ^                   ^        \                                  .
-    //                     /  (10.0.1.1/24)         (10.0.2.2/24)  POST
-    //                    /                                          \                                .
-    //                  PRE                                          FWD
-    //                  /                                              \                              .
-    // APP <- INPUT <--------------- normal packet rooute <--------------- PRE <-- [enp0s3] <-- INTERNET
-    //                                                                  (dnat-1)   (192.168.101.137)
-
-    system("iptables -t nat -D PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22");
-    system("iptables -t nat -A PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22"); //dnat-1
-
-
-
+    routing();
 
     char buffer[BUFSIZE];
 
@@ -150,17 +149,37 @@ int main() {
             info.uSize = uRead;
 
             std::cout << "\033[36m";
-            std::cout << ++nr <<  " OUT/UPL: " << uRead << " B";
+            std::cout << ++nr <<  "-O: " << uRead << " B";
             std::cout << " --> " << numberToAddress(info.uSrc);
             // std::cout << "  " << numberToAddress(info.uSrc) << ". --> " << numberToAddress(info.uDst);
             std::cout << "  (" << numberToAddress(info.uDst) << ")";
             std::cout << "\033[0m";
             std::cout << std::endl;
 
+
+            // std::bitset<32> as(info.uSrc);
+            // std::cout << as << " " << numberToAddress(info.uSrc) << std::endl;
+
             for (const CFilterRule &rule : arRules) {
-                if ((info.uSrc & rule.uAddress & rule.uMaskBits) == 0) {
+                // {
+                //     std::cout << "\033[34m";
+                //     std::cout << rule.uNr << " " << std::endl;
+
+                //     std::bitset<32> a1(rule.uAddress);
+                //     std::cout << a1 << " " << numberToAddress(rule.uAddress) << std::endl;
+
+                //     std::bitset<32> am(rule.uMaskBits);
+                //     std::cout << am << " " << numberToAddress(rule.uMaskBits) << std::endl;
+
+                //     // std::cout << (info.uSrc & rule.uMaskBits) << " ";
+                //     // std::cout << (rule.uAddress & rule.uMaskBits) << " ";
+                //     // std::cout << rule.sNote << " ";
+                //     std::cout << "\033[0m";
+                //     std::cout << std::endl;
+                // }
+                if ((info.uSrc & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits)) {
                     std::cout << "\033[93m";
-                    std::cout << "* rule " << rule.uNr <<  ": " << rule.sTitle << " B";
+                    std::cout << "* rule " << rule.uNr <<  ": " << rule.sTitle;
                     std::cout << "\033[0m";
                     std::cout << std::endl;
                 }
@@ -175,13 +194,13 @@ int main() {
             CInfo info = parseIpv4(buffer);
             info.uSize = uRead;
 
-            std::cout << "\033[32m";
-            std::cout << ++nr <<  "  IN/DWN: " << uRead << " B";
-            std::cout << " <-- " << numberToAddress(info.uDst);
-            std::cout << "  (" << numberToAddress(info.uSrc) << ")";
-            // std::cout << "  " << numberToAddress(info.uSrc) << " <-- . " << numberToAddress(info.uDst);
-            std::cout << "\033[0m";
-            std::cout << std::endl;
+            // std::cout << "\033[32m";
+            // std::cout << ++nr <<  "-I: " << uRead << " B";
+            // std::cout << " <-- " << numberToAddress(info.uDst);
+            // std::cout << "  (" << numberToAddress(info.uSrc) << ")";
+            // // std::cout << "  " << numberToAddress(info.uSrc) << " <-- . " << numberToAddress(info.uDst);
+            // std::cout << "\033[0m";
+            // std::cout << std::endl;
 
             cwrite(tun_out_fd, buffer, uRead);
         }

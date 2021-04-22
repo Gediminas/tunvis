@@ -1,4 +1,4 @@
-/* #pragma once */
+#pragma once
 
 int InitializeTUN(const char *name, int flags);
 int cread(int fd, char *buf, int n);
