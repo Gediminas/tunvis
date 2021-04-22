@@ -157,6 +157,15 @@ int main() {
             std::cout << "\033[0m";
             std::cout << std::endl;
 
+            for (const CFilterRule &rule : arRules) {
+                if ((info.uSrc & rule.uAddress & rule.uMaskBits) == 0) {
+                    std::cout << "\033[93m";
+                    std::cout << "* rule " << rule.uNr <<  ": " << rule.sTitle << " B";
+                    std::cout << "\033[0m";
+                    std::cout << std::endl;
+                }
+            }
+
             cwrite(tun_in_fd, buffer, uRead);
         }
 
