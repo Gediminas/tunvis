@@ -22,9 +22,9 @@
 #include "utils/ipv4_util.h"
 #include "utils/filter_rules.h"
 
-constexpr int BUFSIZE {2000}; //for reading from tun/tap interface, must be >= 1500
-constexpr const char *if_name1 = "tunvis1";
-constexpr const char *if_name2 = "tunvis2";
+constexpr int32_t     c_nBufferSize {2000}; //for reading from tun/tap interface, must be >= 1500
+constexpr const char *c_sIFName1 = "tunvis1";
+constexpr const char *c_sIFName2 = "tunvis2";
 constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP IFF_MULTI_QUEUE
 int nr = 0;
 
@@ -32,39 +32,27 @@ int main() {
 
     std::cout << "\033[1;33m" << "Tunnel-Vission started!" << "\033[0m" << std::endl;
 
-    const std::vector<CFilterRule> arRules = readRules("dat/rules1.txt");
-    std::cout << "\033[93m"  << "Rules loaded" << "\033[0m" << std::endl;
-    for (const CFilterRule &rule : arRules) {
-        std::cout << "\033[93m"  << "#" << rule.uNr << ":   " << rule.sTitle << "\033[0m" << std::endl;
-        std::cout << "Addr: " << rule.uAddress  << std::endl;
-        std::cout << "Mask: " << rule.uMaskBits << std::endl;
-        std::cout << "Rule: " << rule.sRule     << std::endl;
-        if (!rule.sNote.empty()) {
-            std::cout << "\033[37m" << "Note: " << rule.sNote  << "\033[0m"<< std::endl;
-        }
-        std::cout << std::endl;
-    }
+    const std::vector<CFilterRule> arRules = filter_rules::readRules("dat/rules1.txt");
+    filter_rules::displayRules(arRules);
 
-    sleep(1);
-
-    const int fdTun1  = InitializeTUN(if_name1, flags);
-    const int fdTun2 = InitializeTUN(if_name2, flags);
-
+    const int fdTun1  = InitializeTUN(c_sIFName1, flags);
     if (fdTun1 < 0) {
-        std::cerr << "Error connecting to tun/tap interface " << if_name1 << std::endl;
-        exit(1);
-    }
-    if (fdTun2 < 0) {
-        std::cerr << "Error connecting to tun/tap interface " << if_name2 << std::endl;
+        std::cerr << "Error connecting to tun/tap interface " << c_sIFName1 << std::endl;
         exit(1);
     }
 
-    std::cout << "Successfully connected to interfaces " << if_name1 << " & " << if_name2 << std::endl;
-    std::cout << "Creating tunnel " << if_name1 << "-" << if_name2 << std::endl;
+    const int fdTun2 = InitializeTUN(c_sIFName2, flags);
+    if (fdTun2 < 0) {
+        std::cerr << "Error connecting to tun/tap interface " << c_sIFName2 << std::endl;
+        exit(1);
+    }
+
+    std::cout << "Successfully connected to interfaces " << c_sIFName1 << " & " << c_sIFName2 << std::endl;
+    std::cout << "Creating tunnel " << c_sIFName1 << "-" << c_sIFName2 << std::endl;
 
     routing();
 
-    char buffer[BUFSIZE];
+    char buffer[c_nBufferSize];
 
     /* use select() to handle two descriptors at once */
     const int maxfd = (fdTun1 > fdTun2) ? fdTun1 : fdTun2;
@@ -90,7 +78,7 @@ int main() {
             CInfo info = parseIpv4(buffer);
             info.uSize = uRead;
 
-            if (const CFilterRule* pRule = findLastRule(arRules, info.uDst)) {
+            if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uDst)) {
                 std::cout << "\033[92m";
                 std::cout << ++nr <<  ": " << uRead << " B";
                 std::cout << " --> " << numberToAddress(info.uDst);
@@ -112,7 +100,7 @@ int main() {
             CInfo info = parseIpv4(buffer);
             info.uSize = uRead;
 
-            if (const CFilterRule* pRule = findLastRule(arRules, info.uSrc)) {
+            if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uSrc)) {
                 std::cout << "\033[32m";
                 std::cout << ++nr <<  ": " << uRead << " B";
                 std::cout << " <-- " << numberToAddress(info.uSrc);

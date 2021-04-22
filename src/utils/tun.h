@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bits/stdc++.h>
+
 int InitializeTUN(const char *name, int flags);
 int cread(int fd, char *buf, int n);
 int cwrite(int fd, char *buf, int n);

@@ -23,6 +23,8 @@ public:
     EFilterRule eRule {EFilterRule::Undefined};
 };
 
-
-std::vector<CFilterRule> readRules(const char* sFileName);
-const CFilterRule* findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress);
+namespace filter_rules {
+    std::vector<CFilterRule> readRules(const char* sFileName);
+    const CFilterRule* findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress);
+    void displayRules(const std::vector<CFilterRule> &arRules);
+};

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vector>
-#include <algorithm>
+#include <bits/stdc++.h>
+/* #include <vector> */
+/* #include <algorithm> */
 
 std::vector<std::string> explode(const std::string &sText, const std::string &sDelims) {
     std::vector<std::string> arsTokens;

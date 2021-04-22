@@ -3,11 +3,10 @@
 #include "str_util.h"
 #include "ipv4_util.h"
 
-
 #include <iostream>
 #include <fstream>
 
-std::vector<CFilterRule> readRules(const char* sFileName) {
+std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
     std::vector<CFilterRule> arRules;
     std::fstream fs(sFileName, std::ios::in);
     std::string sLine, sCidr, sRule;
@@ -60,7 +59,7 @@ std::vector<CFilterRule> readRules(const char* sFileName) {
     return arRules;
 }
 
-const CFilterRule* findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress) {
+const CFilterRule* filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress) {
     const CFilterRule* pRule = nullptr;
     for (const CFilterRule &rule : arRules) {
         if ((uAddress & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits)) {
@@ -68,4 +67,11 @@ const CFilterRule* findLastRule(const std::vector<CFilterRule> &arRules, uint32_
         }
     }
     return pRule;
+}
+
+void filter_rules::displayRules(const std::vector<CFilterRule> &arRules) {
+    std::cout << "\033[96m"  << "Rules loaded:" << "\033[0m" << std::endl;
+    for (const CFilterRule &rule : arRules) {
+        std::cout << "\033[96m"  << "#" << rule.uNr << ":   " << rule.sTitle << "\033[0m" << std::endl;
+    }
 }
