@@ -27,32 +27,38 @@ constexpr const char *c_sEthName    = "enp0s3";
 constexpr const char *c_sTunName1   = "tunvis1";
 constexpr const char *c_sTunName2   = "tunvis2";
 
+void signal_callback_handler(int signum) {
+   std::cout << "Program terminating " << signum << std::endl;
+   DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
+   sleep(3);
+   exit(signum);
+}
+
 int main() {
-    std::cout << "\033[1;33m" << "=====================================================================" << "\033[0m" << std::endl;
-    std::cout << "\033[1;33m" << "Tunnel Vission" << "\033[0m" << std::endl;
-    std::cout << "\033[1;33m" << "=====================================================================" << "\033[0m" << std::endl;
+    std::cout << "\033[1;33m" << "=======================================================" << "\033[0m" << std::endl;
+    std::cout << "\033[1;33m" << "|  Tunnel Vission" << "\033[0m" << std::endl;
+    std::cout << "\033[1;33m" << "=======================================================" << "\033[0m" << std::endl;
+
+    signal(SIGINT, signal_callback_handler);
 
     const std::vector<CFilterRule> arRules = filter_rules::readRules("dat/rules1.txt");
     filter_rules::displayRules(arRules);
 
-    const int fdTun1  = tun::InitTun(c_sTunName1);
+    const int fdTun1 = tun::InitTun(c_sTunName1);
     const int fdTun2 = tun::InitTun(c_sTunName2);
 
     std::cout << "Successfully connected to interfaces " << c_sTunName1 << " & " << c_sTunName2 << std::endl;
-    std::cout << "Creating tunnel" << std::endl;
 
+    DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
     CreateTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
 
-    std::cout << "\033[1;33m" << "---------------------------------------------------------------------" << "\033[0m" << std::endl;
-    std::cout << "\033[1;33m" << "Tunnel created:" << "\033[0m" << std::endl;
-    std::cout << "\033[1;33mAPP <--> [" << c_sTunName1 << "] <==TunVis==> [" << c_sTunName2 << "] <--> [" << c_sEthName << "] <--> INTERNET\033[0m" << std::endl;
-    std::cout << "\033[1;33m" << "---------------------------------------------------------------------" << "\033[0m" << std::endl;
+    std::cout << "\033[93m" << "--------------------------------------------------------" << "\033[0m" << std::endl;
+    std::cout << "\033[93m" << "Tunnel created:" << "\033[0m" << std::endl;
+    std::cout << "\033[93mAPP <--> [" << c_sTunName1 << "] <==TunVis==> [" << c_sTunName2 << "] <--> [" << c_sEthName << "] <--> INTERNET\033[0m" << std::endl;
+    std::cout << "\033[93m" << "--------------------------------------------------------" << "\033[0m" << std::endl;
 
     char buffer[c_nBufferSize];
-
-    /* use select() to handle two descriptors at once */
-    const int maxfd = (fdTun1 > fdTun2) ? fdTun1 : fdTun2;
-
+    const int maxfd = (fdTun1 > fdTun2) ? fdTun1 : fdTun2; //use select() to handle two descriptors at once
     int64_t nPacketCounter = 0;
 
     while(1) {
@@ -119,6 +125,3 @@ int main() {
 
     return 0;
 }
-// https://erg.abdn.ac.uk/users/gorry/course/inet-pages/packet-dec2.html
-// https://www.techrepublic.com/article/exploring-the-anatomy-of-a-data-packet/
-//

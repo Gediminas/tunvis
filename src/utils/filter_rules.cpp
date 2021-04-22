@@ -70,8 +70,10 @@ const CFilterRule* filter_rules::findLastRule(const std::vector<CFilterRule> &ar
 }
 
 void filter_rules::displayRules(const std::vector<CFilterRule> &arRules) {
+    std::cout << "\033[1;96m" << "-------------------------------------------------------" << "\033[0m" << std::endl;
     std::cout << "\033[96m"  << "Rules loaded:" << "\033[0m" << std::endl;
     for (const CFilterRule &rule : arRules) {
         std::cout << "\033[96m"  << "#" << rule.uNr << ":   " << rule.sTitle << "\033[0m" << std::endl;
     }
+    std::cout << "\033[1;96m" << "-------------------------------------------------------" << "\033[0m" << std::endl;
 }

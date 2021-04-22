@@ -1,4 +1,7 @@
 
+// https://erg.abdn.ac.uk/users/gorry/course/inet-pages/packet-dec2.html
+// https://www.techrepublic.com/article/exploring-the-anatomy-of-a-data-packet/
+//
   // system("echo 1 > /proc/sys/net/ipv4/tcp_syncookies");
   // system("echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts");
   // system("echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects");
