@@ -18,7 +18,9 @@
 #include <errno.h>
 #include <stdarg.h>
 
-int tun::InitializeTUN(const char *name, int flags) {
+constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP IFF_MULTI_QUEUE
+
+int tun::InitTun(const char *name) {
     const int fd = open("/dev/net/tun", O_RDWR);
     if (fd < 0) {
         perror("Opening /dev/net/tun");
@@ -44,7 +46,7 @@ int tun::InitializeTUN(const char *name, int flags) {
  * cread: read routine that checks for errors and exits if an error is    *
  *        returned.                                                       *
  **************************************************************************/
-int tun::cread(int fd, char *buf, int n){
+int tun::Read(int fd, char *buf, int n){
 
     const int nread = read(fd, buf, n);
     if (nread < 0) {
@@ -58,7 +60,7 @@ int tun::cread(int fd, char *buf, int n){
  * cwrite: write routine that checks for errors and exits if an error is  *
  *         returned.                                                      *
  **************************************************************************/
-int tun::cwrite(int fd, char *buf, int n){
+int tun::Write(int fd, char *buf, int n){
 
     int nwrite;
 
@@ -73,18 +75,18 @@ int tun::cwrite(int fd, char *buf, int n){
  * read_n: ensures we read exactly n bytes, and puts them into "buf".     *
  *         (unless EOF, of course)                                        *
  **************************************************************************/
-int tun::read_n(int fd, char *buf, int n) {
-    int left = n;
-    while (left > 0) {
-        const int nread = cread(fd, buf, left);
-        if (nread == 0) {
-            return 0;
-        }
-        left -= nread;
-        buf += nread;
-    }
-    return n;
-}
+// int tun::read_n(int fd, char *buf, int n) {
+//     int left = n;
+//     while (left > 0) {
+//         const int nread = cread(fd, buf, left);
+//         if (nread == 0) {
+//             return 0;
+//         }
+//         left -= nread;
+//         buf += nread;
+//     }
+//     return n;
+// }
 
 //https://www.kernel.org/doc/Documentation/networking/tuntap.txt
 // int tun::tun_alloc_mq(char *dev, int queues, int *fds)
