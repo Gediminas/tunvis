@@ -52,16 +52,16 @@ void PrintAppliedRule(const CFilterRule &rule, bool bIncommingConnection) {
 void PrintTrackingDetails(const CFilterRule &rule, const CRuleTrack &track, std::time_t now, bool bIncommingConnection) {
     switch (rule.eRuleType) {
     case EFilterRule::LimitTime:
-        if (bIncommingConnection) {
-            std::cout << "\033[93m => [" << (now - track.uValue) << " s]\033[0m";
-        }
         std::cout << (track.bTerminate ? "\033[91m TERM\033[0m" : "\033[92m OK\033[0m");
+        if (bIncommingConnection) {
+            std::cout << "\033[93m [" << (now - track.uValue) << " s]\033[0m";
+        }
         break;
     case EFilterRule::LimitDownload:
-        if (bIncommingConnection) {
-            std::cout << "\033[95m => [" << track.uValue << " B]\033[0m";
-        }
         std::cout << (track.bTerminate ? "\033[91m TERM\033[0m" : "\033[92m OK\033[0m");
+        if (bIncommingConnection) {
+            std::cout << "\033[95m [" << track.uValue << " B]\033[0m";
+        }
         break;
     case EFilterRule::Undefined:
     default:
