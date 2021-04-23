@@ -35,6 +35,27 @@ void print_current_time() {
     }
 }
 
+void PrintOutgoingPacket(int64_t nPacketCounter, int16_t uRead, const CInfo &info) {
+    std::cout << "\033[92m";
+    std::cout << " " << nPacketCounter <<  ": " << uRead << " B";
+    std::cout << " ----> " << ipv4::numberToAddress(info.uDst);
+    std::cout << " " << info.sProtocol;
+    std::cout << "\033[0m";
+}
+
+void PrintIncommingPacket(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool bTerminate) {
+    std::cout << "\033[32m" << " " << nPacketCounter <<  ": " << "\033[32m";
+    std::cout << (bTerminate ? "\033[91m" : "\033[32m");
+    std::cout << uRead << " B";
+    std::cout << (bTerminate ? " <-x--" : " <---- ");
+    std::cout << "\033[0m";
+
+    std::cout << "\033[32m";
+    std::cout << ipv4::numberToAddress(info.uSrc);
+    std::cout << "\033[0m";
+    std::cout << " " << info.sProtocol;
+}
+
 void signal_callback_handler(int signum) {
    std::cout << "Program terminating " << signum << std::endl;
    DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
@@ -110,10 +131,10 @@ int main() {
             ++nPacketCounter;
             const uint16_t uRead = tun::Read(fdTun1, buffer, sizeof(buffer));
 
-            const CInfo info = ipv4::parseIpv4(buffer);
             bool bTerminate = false;
-
+            const CInfo info = ipv4::parseIpv4(buffer);
             const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uDst, info.eProtocol);
+
             if (nRuleIndex != -1) {
                 const CFilterRule &rule = arRules[nRuleIndex];
                 CRuleTrack &track = arTrack[nRuleIndex];
@@ -121,16 +142,8 @@ int main() {
 
                 if (!bTerminate) {
                     print_current_time();
-
-                    std::cout << "\033[92m";
-                    std::cout << " " << nPacketCounter <<  ": " << uRead << " B";
-                    std::cout << " ----> " << ipv4::numberToAddress(info.uDst);
-                    std::cout << "\033[0m";
-                    std::cout << " " << info.sProtocol;
-
-                    std::cout << "\033[96m";
-                    std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
-                    std::cout << "\033[0m";
+                    PrintOutgoingPacket(nPacketCounter, uRead, info);
+                    std::cout << "\033[96m => #" << rule.uNr <<  ": " << rule.sTitle << "\033[0m";
                     std::cout << std::endl;
                 }
             }
@@ -179,18 +192,7 @@ int main() {
                     break;
                 }
 
-                if (nRuleIndex != -1) {
-                    std::cout << "\033[32m" << " " << nPacketCounter <<  ": " << "\033[32m";
-                    std::cout << (bTerminate ? "\033[91m" : "\033[32m");
-                    std::cout << uRead << " B";
-                    std::cout << (bTerminate ? " <-x--" : " <---- ");
-                    std::cout << "\033[0m";
-
-                    std::cout << "\033[32m";
-                    std::cout << ipv4::numberToAddress(info.uSrc);
-                    std::cout << "\033[0m";
-                    std::cout << " " << info.sProtocol;
-                }
+                PrintIncommingPacket(nPacketCounter, uRead, info, bTerminate);
 
                 if (nRuleIndex != -1) {
                     const CFilterRule &rule = arRules[nRuleIndex];
@@ -206,11 +208,11 @@ int main() {
                     switch (rule.eRuleType) {
                     case EFilterRule::LimitTime:
                         std::cout << "\033[93m => [" << (now - track.uValue) << " s]\033[0m";
-                        std::cout << (bTerminate ? "\033[91m TERMINATED\033[0m" : "\033[92m OK\033[0m");
+                        std::cout << (bTerminate ? "\033[91m TERM\033[0m" : "\033[92m OK\033[0m");
                         break;
                     case EFilterRule::LimitDownload:
                         std::cout << "\033[95m => [" << track.uValue << " B]\033[0m";
-                        std::cout << (bTerminate ? "\033[91m TERMINATED\033[0m" : "\033[92m OK\033[0m");
+                        std::cout << (bTerminate ? "\033[91m TERM\033[0m" : "\033[92m OK\033[0m");
                         break;
                     case EFilterRule::Undefined:
                     default:
