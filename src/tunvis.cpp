@@ -35,25 +35,36 @@ void print_current_time() {
     }
 }
 
-void PrintOutgoingPacket(int64_t nPacketCounter, int16_t uRead, const CInfo &info) {
-    std::cout << "\033[92m";
-    std::cout << " " << nPacketCounter <<  ": " << uRead << " B";
-    std::cout << " ----> " << ipv4::numberToAddress(info.uDst);
+void PrintOutgoingPacket(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool bTerminate, bool bIncommingConnection) {
     std::cout << " " << info.sProtocol;
     std::cout << "\033[0m";
 }
 
-void PrintIncommingPacket(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool bTerminate) {
-    std::cout << "\033[32m" << " " << nPacketCounter <<  ": " << "\033[32m";
+void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool bTerminate, bool bIncommingConnection) {
+    std::cout << (bIncommingConnection ? "\033[32m" : "\033[92m");
+    std::cout << " " << nPacketCounter << ": ";
+    std::cout << "\033[m";
+
     std::cout << (bTerminate ? "\033[91m" : "\033[32m");
     std::cout << uRead << " B";
-    std::cout << (bTerminate ? " <-x--" : " <---- ");
+    if (bIncommingConnection) {
+        std::cout << (bTerminate ? " <-x-- " : " <---- ");
+    } else {
+        std::cout << (bTerminate ? " --x-> " : " ----> ");
+    }
     std::cout << "\033[0m";
 
-    std::cout << "\033[32m";
+    std::cout << (bIncommingConnection ? "\033[32m" : "\033[92m");
     std::cout << ipv4::numberToAddress(info.uSrc);
     std::cout << "\033[0m";
+
     std::cout << " " << info.sProtocol;
+}
+
+void PrintAppliedRule(const CFilterRule &rule, bool bIncommingConnection) {
+    std::cout << (bIncommingConnection ? "\033[36m" : "\033[96m");
+    std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
+    std::cout << "\033[0m";
 }
 
 void signal_callback_handler(int signum) {
@@ -142,8 +153,8 @@ int main() {
 
                 if (!bTerminate) {
                     print_current_time();
-                    PrintOutgoingPacket(nPacketCounter, uRead, info);
-                    std::cout << "\033[96m => #" << rule.uNr <<  ": " << rule.sTitle << "\033[0m";
+                    PrintTraffic(nPacketCounter, uRead, info, bTerminate, false);
+                    PrintAppliedRule(rule, true);
                     std::cout << std::endl;
                 }
             }
@@ -192,14 +203,8 @@ int main() {
                     break;
                 }
 
-                PrintIncommingPacket(nPacketCounter, uRead, info, bTerminate);
-
-                if (nRuleIndex != -1) {
-                    const CFilterRule &rule = arRules[nRuleIndex];
-                    std::cout << "\033[36m";
-                    std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
-                    std::cout << "\033[0m";
-                }
+                PrintTraffic(nPacketCounter, uRead, info, bTerminate, true);
+                PrintAppliedRule(rule, true);
 
                 if (nRuleIndex != -1) {
                     const CFilterRule &rule = arRules[nRuleIndex];
