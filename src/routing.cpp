@@ -95,18 +95,18 @@ void DestroyTunnelRoutes(const char *sEthName, const char *sTunName1, const char
 
     const char *sEthIP = "192.168.101.137";
 
-    system(str_format("iptables -D INPUT -i %s -j DROP", sEthName).c_str()); //debug
+    system(str_format("iptables -D INPUT -i %s -j DROP 2>/dev/null", sEthName).c_str()); //debug
 
-    system(str_format("iptables -t nat -D PREROUTING -i %s  -j DNAT --to-destination 10.0.2.22", sEthName).c_str());
+    system(str_format("iptables -t nat -D PREROUTING -i %s  -j DNAT --to-destination 10.0.2.22 2>/dev/null", sEthName).c_str());
 
-    system(str_format("iptables -t nat -D POSTROUTING -m mark --mark 2 -j SNAT --to-source %s", sEthIP).c_str());
-    system("iptables -t nat -D POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22");
-    system(str_format("iptables -t mangle -D PREROUTING -i %s -j MARK --set-mark 2", sTunName2).c_str());
-    system("iptables -t mangle -D OUTPUT -j MARK --set-mark 1");
+    system(str_format("iptables -t nat -D POSTROUTING -m mark --mark 2 -j SNAT --to-source %s 2>/dev/null", sEthIP).c_str());
+    system("iptables -t nat -D POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22 2>/dev/null");
+    system(str_format("iptables -t mangle -D PREROUTING -i %s -j MARK --set-mark 2 2>/dev/null", sTunName2).c_str());
+    system("iptables -t mangle -D OUTPUT -j MARK --set-mark 1 2>/dev/null");
 
-    system(str_format("ip link set %s down", sTunName1).c_str());
-    system(str_format("ip link set %s down", sTunName2).c_str());
+    system(str_format("ip link set %s down 2>/dev/null", sTunName1).c_str());
+    system(str_format("ip link set %s down 2>/dev/null", sTunName2).c_str());
 
-    system("ip route del table 1 default via 10.0.1.1");
-    system("ip rule del fwmark 1 table 1");
+    system("ip route del table 1 default via 10.0.1.1 2>/dev/null");
+    system("ip rule del fwmark 1 table 1 2>/dev/null");
 }

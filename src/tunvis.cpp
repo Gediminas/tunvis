@@ -115,7 +115,6 @@ int main() {
 
             bool bTerminate = false;
 
-            // if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uDst)) {
             const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uDst);
             if (nRuleIndex != -1) {
                 print_current_time();
@@ -126,33 +125,11 @@ int main() {
                 // std::cout << "  (" << ipv4::numberToAddress(info.uSrc) << ")";
                 std::cout << "\033[0m";
 
-                const CFilterRule &rule = arRules[nRuleIndex];
+                // const CFilterRule &rule = arRules[nRuleIndex];
 
-                std::cout << "\033[96m";
-                std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
-                std::cout << "\033[0m";
-
-                // // CRuleTrack &track = arTrack[nRuleIndex];
-                // switch (rule.eRuleType) {
-                // case EFilterRule::LimitTime:
-                //     // track.uValue;
-                //     break;
-                // case EFilterRule::LimitDownload:
-                //     // track.uValue += uRead;
-                //     // if (track.uValue >= rule.uRuleValue) {
-                //     //     bTerminate = true;
-                //     // }
-                //     // std::cout << "\033[33m";
-                //     // std::cout << " => " << track.uValue;
-                //     // std::cout << " => ";
-                //     // std::cout << (bTerminate ? "TERM" : "");
-                //     // std::cout << "\033[0m";
-                //     break;
-                // case EFilterRule::Undefined:
-                // default:
-                //     std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
-                //     break;
-                // }
+                // std::cout << "\033[96m";
+                // std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
+                // std::cout << "\033[0m";
 
                 std::cout << std::endl;
             }
