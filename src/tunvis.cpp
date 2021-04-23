@@ -27,6 +27,14 @@ constexpr const char *c_sEthName    = "enp0s3";
 constexpr const char *c_sTunName1   = "tunvis1";
 constexpr const char *c_sTunName2   = "tunvis2";
 
+void print_current_time() {
+    std::time_t t = std::time(nullptr);
+    char sTime[100];
+    if (std::strftime(sTime, sizeof(sTime), "%Y-%m-%d %H:%M:%S", std::localtime(&t))) {
+        std::cout << "\033[90m" << sTime << "\033[0m";
+    }
+}
+
 void signal_callback_handler(int signum) {
    std::cout << "Program terminating " << signum << std::endl;
    DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
@@ -110,8 +118,10 @@ int main() {
             // if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uDst)) {
             const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uDst);
             if (nRuleIndex != -1) {
+                print_current_time();
+
                 std::cout << "\033[92m";
-                std::cout << nPacketCounter <<  ": " << uRead << " B";
+                std::cout << " " << nPacketCounter <<  ": " << uRead << " B";
                 std::cout << " ----> " << ipv4::numberToAddress(info.uDst);
                 // std::cout << "  (" << ipv4::numberToAddress(info.uSrc) << ")";
                 std::cout << "\033[0m";
@@ -122,27 +132,27 @@ int main() {
                 std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
                 std::cout << "\033[0m";
 
-                // CRuleTrack &track = arTrack[nRuleIndex];
-                switch (rule.eRuleType) {
-                case EFilterRule::LimitTime:
-                    // track.uValue;
-                    break;
-                case EFilterRule::LimitDownload:
-                    // track.uValue += uRead;
-                    // if (track.uValue >= rule.uRuleValue) {
-                    //     bTerminate = true;
-                    // }
-                    // std::cout << "\033[33m";
-                    // std::cout << " => " << track.uValue;
-                    // std::cout << " => ";
-                    // std::cout << (bTerminate ? "TERM" : "");
-                    // std::cout << "\033[0m";
-                    break;
-                case EFilterRule::Undefined:
-                default:
-                    std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
-                    break;
-                }
+                // // CRuleTrack &track = arTrack[nRuleIndex];
+                // switch (rule.eRuleType) {
+                // case EFilterRule::LimitTime:
+                //     // track.uValue;
+                //     break;
+                // case EFilterRule::LimitDownload:
+                //     // track.uValue += uRead;
+                //     // if (track.uValue >= rule.uRuleValue) {
+                //     //     bTerminate = true;
+                //     // }
+                //     // std::cout << "\033[33m";
+                //     // std::cout << " => " << track.uValue;
+                //     // std::cout << " => ";
+                //     // std::cout << (bTerminate ? "TERM" : "");
+                //     // std::cout << "\033[0m";
+                //     break;
+                // case EFilterRule::Undefined:
+                // default:
+                //     std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
+                //     break;
+                // }
 
                 std::cout << std::endl;
             }
@@ -165,6 +175,8 @@ int main() {
             const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uSrc);
 
             if (nRuleIndex != -1) {
+                print_current_time();
+
                 const CFilterRule &rule = arRules[nRuleIndex];
                 CRuleTrack &track = arTrack[nRuleIndex];
 
@@ -192,7 +204,7 @@ int main() {
             }
 
             if (nRuleIndex != -1) {
-                std::cout << "\033[32m" << nPacketCounter <<  ": " << "\033[32m";
+                std::cout << "\033[32m" << " " << nPacketCounter <<  ": " << "\033[32m";
                 std::cout << (bTerminate ? "\033[91m" : "\033[32m");
                 std::cout << uRead << " B";
                 std::cout << (bTerminate ? " <-x--" : " <---- ");
