@@ -28,7 +28,7 @@ void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool
     } else {
       std::cout << (bTerminate ? "\033[91m" : "\033[92m");
     }
-    std::cout << uRead << " B";
+    std::cout << uRead << "b";
     if (bIncommingConnection) {
         std::cout << (bTerminate ? " <-x-- " : " <---- ");
     } else {
@@ -60,7 +60,7 @@ void PrintTrackingDetails(const CFilterRule &rule, const CRuleTrack &track, std:
     case EFilterRule::LimitDownload:
         std::cout << (track.bTerminate ? "\033[91m TERM\033[0m" : "\033[92m OK\033[0m");
         if (bIncommingConnection) {
-            std::cout << "\033[95m [" << track.uValue << " B]\033[0m";
+            std::cout << "\033[95m [" << track.uValue << "b]\033[0m";
         }
         break;
     case EFilterRule::Undefined:
