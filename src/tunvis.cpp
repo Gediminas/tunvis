@@ -84,24 +84,21 @@ int main() {
 
         if (FD_ISSET(fdTun1, &fdSet)) {
             ++nPacketCounter;
-            const uint16_t uRead = tun::Read(fdTun1, buffer, sizeof(buffer));
-
             bool bTerminate = false;
-            const CInfo info = ipv4::parseIpv4(buffer);
-            const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uDst, info.eProtocol);
+            const uint16_t uRead = tun::Read(fdTun1, buffer, sizeof(buffer));
+            const CInfo   info   = ipv4::parseIpv4(buffer);
+            const int32_t nRule  = filter_rules::findLastRule(arRules, info.uDst, info.eProtocol);
 
-            if (nRuleIndex != -1) {
-                const CFilterRule &rule = arRules[nRuleIndex];
-                CRuleTrack &track = arTrack[nRuleIndex];
+            if (nRule != -1) {
+                const CFilterRule &rule = arRules[nRule];
+                CRuleTrack &track = arTrack[nRule];
                 bTerminate = track.bTerminate;
 
-                if (!bTerminate) {
-                    print_current_time();
-                    PrintTraffic(nPacketCounter, uRead, info, bTerminate, false);
-                    PrintAppliedRule(rule, false);
-                    PrintTrackingDetails(rule, track, 0, false);
-                    std::cout << std::endl;
-                }
+                print_current_time();
+                PrintTraffic(nPacketCounter, uRead, info, bTerminate, false);
+                PrintAppliedRule(rule, false);
+                PrintTrackingDetails(rule, track, 0, false);
+                std::cout << std::endl;
             }
 
             if (!bTerminate) {
@@ -111,42 +108,20 @@ int main() {
 
         if (FD_ISSET(fdTun2, &fdSet)) {
             ++nPacketCounter;
-            const uint16_t uRead = tun::Read(fdTun2, buffer, sizeof(buffer));
-
-            const CInfo info = ipv4::parseIpv4(buffer);
-            std::time_t now = std::time(nullptr);
             bool bTerminate = false;
+            const uint16_t uRead = tun::Read(fdTun2, buffer, sizeof(buffer));
+            const CInfo    info  = ipv4::parseIpv4(buffer);
+            std::time_t    now   = std::time(nullptr);
 
-            const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uSrc, info.eProtocol);
-            if (nRuleIndex != -1) {
+            const int32_t nRule = filter_rules::findLastRule(arRules, info.uSrc, info.eProtocol);
+            if (nRule != -1) {
                 print_current_time();
 
-                const CFilterRule &rule = arRules[nRuleIndex];
-                CRuleTrack &track = arTrack[nRuleIndex];
+                const CFilterRule &rule = arRules[nRule];
+                CRuleTrack &track = arTrack[nRule];
 
-                switch (rule.eRuleType) {
-                case EFilterRule::LimitTime: {
-                    if (track.uValue == 0U) {
-                        track.uValue = now;
-                    } else if (now - track.uValue > rule.uRuleValue) {
-                        track.bTerminate = true;
-                        bTerminate = true;
-                    }
-                }
-                    break;
-                case EFilterRule::LimitDownload:
-                    if (track.uValue + uRead <= rule.uRuleValue) {
-                        track.uValue += uRead;
-                    } else {
-                        track.bTerminate = true;
-                        bTerminate = true;
-                    }
-                    break;
-                case EFilterRule::Undefined:
-                default:
-                    // std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
-                    break;
-                }
+                bTerminate = CheckRuleForTerm(rule, track, uRead);
+                track.bTerminate = bTerminate;
 
                 PrintTraffic(nPacketCounter, uRead, info, bTerminate, true);
                 PrintAppliedRule(rule, true);

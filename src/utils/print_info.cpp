@@ -23,7 +23,11 @@ void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool
     std::cout << " " << nPacketCounter << ": ";
     std::cout << "\033[m";
 
-    std::cout << (bTerminate ? "\033[91m" : "\033[32m");
+    if (bIncommingConnection) {
+      std::cout << (bTerminate ? "\033[91m" : "\033[32m");
+    } else {
+      std::cout << (bTerminate ? "\033[91m" : "\033[92m");
+    }
     std::cout << uRead << " B";
     if (bIncommingConnection) {
         std::cout << (bTerminate ? " <-x-- " : " <---- ");
