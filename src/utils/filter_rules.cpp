@@ -27,8 +27,8 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
         const std::string sRulePart = arsLinePart[0];
         const std::vector<std::string> arsRulePart = explode(sRulePart, " ./");
 
-        // for (const std::string &sToken : arsToken) {
-        //     std::cout << sToken << std::endl;
+        // for (const std::string &sPart : arsRulePart) {
+        //     std::cout << sPart << std::endl;
         // }
         if (arsRulePart.size() != 6) {
             std::cerr << "\033[1;31m" << "ERROR: Invalid rule in line " << uNr << ": "  << sLine << "\033[0m" << std::endl;
@@ -53,20 +53,34 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
         rule.sRule       = arsRulePart[5];
         rule.sNote       = arsLinePart.size() > 1 ? arsLinePart[1] : "";
         trim(rule.sNote);
-        // rule.nRuleValue  = stoi(arsToken[5]);
+
+        rule.eRuleType   = EFilterRule::LimitDownload;
+        rule.uRuleValue  = stoi(arsRulePart[5]);
+
         arRules.push_back(rule);
     }
     return arRules;
 }
 
-const CFilterRule* filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress) {
-    const CFilterRule* pRule = nullptr;
+// const CFilterRule* filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress) {
+//     const CFilterRule* pRule = nullptr;
+//     for (const CFilterRule &rule : arRules) {
+//         if ((uAddress & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits)) {
+//             pRule = &rule;
+//         }
+//     }
+//     return pRule;
+// }
+
+int32_t filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress) {
+    int32_t nIndex = -1;
     for (const CFilterRule &rule : arRules) {
+        ++nIndex;
         if ((uAddress & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits)) {
-            pRule = &rule;
+            return nIndex;
         }
     }
-    return pRule;
+    return -1;
 }
 
 void filter_rules::displayRules(const std::vector<CFilterRule> &arRules) {

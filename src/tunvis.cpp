@@ -41,9 +41,6 @@ int main() {
 
     signal(SIGINT, signal_callback_handler);
 
-    const std::vector<CFilterRule> arRules = filter_rules::readRules("dat/rules1.txt");
-    filter_rules::displayRules(arRules);
-
     const int fdTun1 = tun::InitTun(c_sTunName1);
     const int fdTun2 = tun::InitTun(c_sTunName2);
 
@@ -56,6 +53,31 @@ int main() {
     std::cout << "\033[93m" << "Tunnel created:" << "\033[0m" << std::endl;
     std::cout << "\033[93mAPP <--> [" << c_sTunName1 << "] <==TunVis==> [" << c_sTunName2 << "] <--> [" << c_sEthName << "] <--> INTERNET\033[0m" << std::endl;
     std::cout << "\033[93m" << "--------------------------------------------------------" << "\033[0m" << std::endl;
+
+    const std::vector<CFilterRule> arRules = filter_rules::readRules("dat/rules1.txt");
+    filter_rules::displayRules(arRules);
+
+    class CRuleTrack {
+    public:
+        CRuleTrack()  {}
+        ~CRuleTrack() {}
+    public:
+        EFilterRule eRule {EFilterRule::Undefined};
+        uint64_t    uValue {0U};
+        // CFilterRule *pRule {nullptr};
+
+        // std::string sTitle;
+        // uint32_t    uNr {0};
+        // uint32_t    uAddress {0};
+        // uint32_t    uMaskBits {0};
+        // int64_t     nRuleValue {0};
+        // std::string sRule;
+        // std::string sNote;
+    };
+
+    // std::unordered_map<std::string, CRuleTrack> arTrack;
+    std::vector<CRuleTrack> arTrack(arRules.size());
+
 
     char buffer[c_nBufferSize];
     const int maxfd = (fdTun1 > fdTun2) ? fdTun1 : fdTun2; //use select() to handle two descriptors at once
@@ -83,20 +105,51 @@ int main() {
             CInfo info = ipv4::parseIpv4(buffer);
             info.uSize = uRead;
 
-            if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uDst)) {
+            bool bTerminate = false;
+
+            // if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uDst)) {
+            const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uDst);
+            if (nRuleIndex != -1) {
                 std::cout << "\033[92m";
                 std::cout << nPacketCounter <<  ": " << uRead << " B";
-                std::cout << " --> " << ipv4::numberToAddress(info.uDst);
+                std::cout << " ----> " << ipv4::numberToAddress(info.uDst);
                 // std::cout << "  (" << ipv4::numberToAddress(info.uSrc) << ")";
                 std::cout << "\033[0m";
 
+                const CFilterRule &rule = arRules[nRuleIndex];
+
                 std::cout << "\033[96m";
-                std::cout << " => #" << pRule->uNr <<  ": " << pRule->sTitle;
+                std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
                 std::cout << "\033[0m";
+
+                // CRuleTrack &track = arTrack[nRuleIndex];
+                switch (rule.eRuleType) {
+                case EFilterRule::LimitTime:
+                    // track.uValue;
+                    break;
+                case EFilterRule::LimitDownload:
+                    // track.uValue += uRead;
+                    // if (track.uValue >= rule.uRuleValue) {
+                    //     bTerminate = true;
+                    // }
+                    // std::cout << "\033[33m";
+                    // std::cout << " => " << track.uValue;
+                    // std::cout << " => ";
+                    // std::cout << (bTerminate ? "TERM" : "");
+                    // std::cout << "\033[0m";
+                    break;
+                case EFilterRule::Undefined:
+                default:
+                    std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
+                    break;
+                }
+
                 std::cout << std::endl;
             }
 
-            tun::Write(fdTun2, buffer, uRead);
+            if (!bTerminate) {
+                tun::Write(fdTun2, buffer, uRead);
+            }
         }
 
         if (FD_ISSET(fdTun2, &fdSet)) {
@@ -106,20 +159,80 @@ int main() {
             CInfo info = ipv4::parseIpv4(buffer);
             info.uSize = uRead;
 
-            if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uSrc)) {
-                std::cout << "\033[32m";
-                std::cout << nPacketCounter <<  ": " << uRead << " B";
-                std::cout << " <-- " << ipv4::numberToAddress(info.uSrc);
-                // std::cout << "  (" << ipv4::numberToAddress(info.uDst) << ")";
+            bool bTerminate = false;
+
+            // if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uSrc)) {
+            const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uSrc);
+
+            if (nRuleIndex != -1) {
+                const CFilterRule &rule = arRules[nRuleIndex];
+                CRuleTrack &track = arTrack[nRuleIndex];
+
+                switch (rule.eRuleType) {
+                case EFilterRule::LimitTime:
+                    // track.uValue;
+                    break;
+                case EFilterRule::LimitDownload:
+                    if (track.uValue + uRead <= rule.uRuleValue) {
+                        track.uValue += uRead;
+                    } else {
+                        bTerminate = true;
+                    }
+                    // std::cout << "\033[33m";
+                    // std::cout << " => " << track.uValue;
+                    // std::cout << " => ";
+                    // std::cout << (bTerminate ? "TERM" : "");
+                    // std::cout << "\033[0m";
+                    break;
+                case EFilterRule::Undefined:
+                default:
+                    // std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
+                    break;
+                }
+            }
+
+            if (nRuleIndex != -1) {
+                std::cout << "\033[32m" << nPacketCounter <<  ": " << "\033[32m";
+                std::cout << (bTerminate ? "\033[91m" : "\033[32m");
+                std::cout << uRead << " B";
+                std::cout << (bTerminate ? " <-x--" : " <---- ");
                 std::cout << "\033[0m";
 
-                std::cout << "\033[36m";
-                std::cout << " => #" << pRule->uNr <<  ": " << pRule->sTitle;
+                std::cout << "\033[32m";
+                std::cout << ipv4::numberToAddress(info.uSrc);
                 std::cout << "\033[0m";
+            }
+
+            if (nRuleIndex != -1) {
+                const CFilterRule &rule = arRules[nRuleIndex];
+                std::cout << "\033[36m";
+                std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
+                std::cout << "\033[0m";
+            }
+
+            if (nRuleIndex != -1) {
+                const CFilterRule &rule = arRules[nRuleIndex];
+                CRuleTrack &track = arTrack[nRuleIndex];
+
+                switch (rule.eRuleType) {
+                case EFilterRule::LimitTime:
+                    // track.uValue;
+                    break;
+                case EFilterRule::LimitDownload:
+                    std::cout << "\033[93m => [" << track.uValue << " B]\033[0m";
+                    std::cout << (bTerminate ? "\033[91m TERMINATED\033[0m" : "\033[92m OK\033[0m");
+                    break;
+                case EFilterRule::Undefined:
+                default:
+                    // std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
+                    break;
+                }
                 std::cout << std::endl;
             }
 
-            tun::Write(fdTun1, buffer, uRead);
+            if (!bTerminate) {
+                tun::Write(fdTun1, buffer, uRead);
+            }
         }
     }
 
