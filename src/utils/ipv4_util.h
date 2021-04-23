@@ -38,7 +38,7 @@ class CInfo final {
 
     //h0
     uint8_t     uVersion        {0}; //  4 bits
-    /* uint8_t     uIHL            {0}; //  4 bits */
+    uint8_t     uIHL            {0}; //  4 bits */
     /* uint8_t     uType           {0}; //  8 bits */
     /* uint16_t    uHeaderLength   {0}; // 16 bits */
 

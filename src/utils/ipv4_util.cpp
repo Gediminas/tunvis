@@ -42,8 +42,9 @@ CInfo ipv4::parseIpv4(const char *data) {
     const uint32_t H4 = *(pFirst + 4);
 
     CInfo info;
-    info.uVersion  = (H0 >> 4);
-    info.eProtocol = (EProtocol)(uint8_t)(H2 >> 8);
+    info.uVersion  = (H0 & 0x000000f0) >> 4;
+    info.uIHL      = H0 & 0x0000000f;
+    info.eProtocol = (EProtocol)(uint8_t)((H2 & 0x0000ff00) >> 8);
     info.sProtocol = ipv4::ProtocolToStr(info.eProtocol);
     info.uSrc      = H3;
     info.uDst      = H4;
