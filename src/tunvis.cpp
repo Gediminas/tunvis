@@ -72,6 +72,7 @@ int main() {
     public:
         EFilterRule eRule {EFilterRule::Undefined};
         uint64_t    uValue {0U};
+        bool        bTerminate {false};
         // CFilterRule *pRule {nullptr};
 
         // std::string sTitle;
@@ -83,7 +84,6 @@ int main() {
         // std::string sNote;
     };
 
-    // std::unordered_map<std::string, CRuleTrack> arTrack;
     std::vector<CRuleTrack> arTrack(arRules.size());
 
 
@@ -110,29 +110,29 @@ int main() {
             ++nPacketCounter;
             const uint16_t uRead = tun::Read(fdTun1, buffer, sizeof(buffer));
 
-            CInfo info = ipv4::parseIpv4(buffer);
-            info.uSize = uRead;
-
+            const CInfo info = ipv4::parseIpv4(buffer);
             bool bTerminate = false;
 
             const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uDst, info.eProtocol);
             if (nRuleIndex != -1) {
-                print_current_time();
-
-                std::cout << "\033[92m";
-                std::cout << " " << nPacketCounter <<  ": " << uRead << " B";
-                std::cout << " ----> " << ipv4::numberToAddress(info.uDst);
-                // std::cout << "  (" << ipv4::numberToAddress(info.uSrc) << ")";
-                std::cout << "\033[0m";
-                std::cout << " " << info.sProtocol;
-
                 const CFilterRule &rule = arRules[nRuleIndex];
+                CRuleTrack &track = arTrack[nRuleIndex];
+                bTerminate = track.bTerminate;
 
-                std::cout << "\033[96m";
-                std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
-                std::cout << "\033[0m";
+                if (!bTerminate) {
+                    print_current_time();
 
-                std::cout << std::endl;
+                    std::cout << "\033[92m";
+                    std::cout << " " << nPacketCounter <<  ": " << uRead << " B";
+                    std::cout << " ----> " << ipv4::numberToAddress(info.uDst);
+                    std::cout << "\033[0m";
+                    std::cout << " " << info.sProtocol;
+
+                    std::cout << "\033[96m";
+                    std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
+                    std::cout << "\033[0m";
+                    std::cout << std::endl;
+                }
             }
 
             if (!bTerminate) {
@@ -144,15 +144,11 @@ int main() {
             ++nPacketCounter;
             const uint16_t uRead = tun::Read(fdTun2, buffer, sizeof(buffer));
 
-            CInfo info = ipv4::parseIpv4(buffer);
-            info.uSize = uRead;
-
+            const CInfo info = ipv4::parseIpv4(buffer);
             std::time_t now = std::time(nullptr);
             bool bTerminate = false;
 
-            // if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uSrc)) {
             const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uSrc, info.eProtocol);
-
             if (nRuleIndex != -1) {
                 print_current_time();
 
@@ -164,6 +160,7 @@ int main() {
                     if (track.uValue == 0U) {
                         track.uValue = now;
                     } else if (now - track.uValue > rule.uRuleValue) {
+                        track.bTerminate = true;
                         bTerminate = true;
                     }
                 }
@@ -172,13 +169,9 @@ int main() {
                     if (track.uValue + uRead <= rule.uRuleValue) {
                         track.uValue += uRead;
                     } else {
+                        track.bTerminate = true;
                         bTerminate = true;
                     }
-                    // std::cout << "\033[33m";
-                    // std::cout << " => " << track.uValue;
-                    // std::cout << " => ";
-                    // std::cout << (bTerminate ? "TERM" : "");
-                    // std::cout << "\033[0m";
                     break;
                 case EFilterRule::Undefined:
                 default:

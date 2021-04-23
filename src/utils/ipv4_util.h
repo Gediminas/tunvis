@@ -17,54 +17,19 @@ class CInfo final {
     CInfo()  {}
     ~CInfo() {}
  public:
-    // 4 version
-    // 4 IHL
-    // 8 Type
-    // 16 Leng
-    //
-    // 16 Id
-    // 4 Flags
-    // FragOffset
-    //
-    // 8 TTL
-    // 8 Protocol
-    // 16 HeaderChecksum
-    // S
-    // D
-    // Options
-    // Data
-
-    uint16_t    uSize {0};
-
-    //h0
     uint8_t     uVersion        {0}; //  4 bits
-    uint8_t     uIHL            {0}; //  4 bits */
-    /* uint8_t     uType           {0}; //  8 bits */
-    /* uint16_t    uHeaderLength   {0}; // 16 bits */
+    uint8_t     uIHL            {0}; //  4 bits
+    // uint8_t  uType           {0}; //  8 bits
+    // uint16_t uHeaderLength   {0}; // 16 bits
 
-    /* //h1 */
-    /* uint16_t    uId             {0}; // 16 bits */
-    /* uint8_t     uFlags          {0}; //  4 bits */
-
-    //h2
-    /* uint8_t     uTTL            {0}; //  8 bits */
-    uint8_t     uProtocol       {0}; //  8 bits
     EProtocol   eProtocol;
     std::string sProtocol;
-    /* uint16_t    uHeaderChecksum {0}; // 16 bits */
 
-    //h3
-    uint32_t    uSrc            {0}; // 32 bits
+    uint32_t    uSrc {0};
+    uint32_t    uDst {0};
+
     std::string sSrc;
-
-    //h4
-    uint32_t    uDst            {0}; // 32 bits
     std::string sDst;
-
-    //h5
-    /* uint32_t    uOptions        {0}; // 32 bits */
-
-    //DATA
 };
 
 namespace ipv4 {
