@@ -2,44 +2,26 @@
 
 PID=0
 
-init() {
-  # EXTRA CHECK
-  # iptables -I INPUT -i enp0s3 -j DROP
-  echo -n ""
-}
+# init() {
+#   # EXTRA CHECK
+#   # iptables -I INPUT -i enp0s3 -j DROP
+#   echo -n ""
+# }
 
 destroy() {
   kill $PID
-  killall tunvis > /dev/null 2>&1
-
-  # # REMOVE EXTRA CHECK
-  # iptables -D INPUT -i enp0s3 -j DROP
-
-  # # OUT
-  # iptables -t nat -D POSTROUTING -m mark --mark 2 -j SNAT --to-source 192.168.101.137
-  # iptables -t nat -D POSTROUTING -m mark --mark 1 -j SNAT --to-source 10.0.2.22
-  # iptables -t mangle -D PREROUTING -i tunvis2 -j MARK --set-mark 9
-  # iptables -t mangle -D OUTPUT -j MARK --set-mark 1
-  # ip route del table 1 default via 10.0.1.1
-  # ip rule del fwmark 1 table 1
-
-  # # IN
-  # iptables -t nat -D PREROUTING -i tunvis1 -j DNAT --to-destination 192.168.101.137
-  # iptables -t nat -D PREROUTING -i enp0s3  -j DNAT --to-destination 10.0.2.22
-  echo -n ""
+  # killall tunvis > /dev/null 2>&1
 }
 
-trap ctrl_c INT
-ctrl_c() {
-    echo "** Trapped CTRL-C"
-    destroy
-    exit
-}
-
-killall tunvis > /dev/null 2>&1
+# trap ctrl_c INT
+# ctrl_c() {
+#     echo "** Trapped CTRL-C"
+#     destroy
+#     exit
+# }
 
 while true; do
-  init
+  # init
   ./tunvis &
   PID=$!
   inotifywait ./tunvis
