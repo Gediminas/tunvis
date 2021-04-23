@@ -44,7 +44,7 @@ void signal_callback_handler(int signum) {
 
 int main() {
     std::cout << "\033[1;33m" << "=======================================================" << "\033[0m" << std::endl;
-    std::cout << "\033[1;33m" << "|  Tunnel Vission" << "\033[0m" << std::endl;
+    std::cout << "\033[1;33m" << "***                  Tunnel Vission                 ***" << "\033[0m" << std::endl;
     std::cout << "\033[1;33m" << "=======================================================" << "\033[0m" << std::endl;
 
     signal(SIGINT, signal_callback_handler);
