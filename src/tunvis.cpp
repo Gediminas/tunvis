@@ -115,7 +115,7 @@ int main() {
 
             bool bTerminate = false;
 
-            const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uDst);
+            const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uDst, info.eProtocol);
             if (nRuleIndex != -1) {
                 print_current_time();
 
@@ -124,12 +124,13 @@ int main() {
                 std::cout << " ----> " << ipv4::numberToAddress(info.uDst);
                 // std::cout << "  (" << ipv4::numberToAddress(info.uSrc) << ")";
                 std::cout << "\033[0m";
+                std::cout << " " << info.sProtocol;
 
-                // const CFilterRule &rule = arRules[nRuleIndex];
+                const CFilterRule &rule = arRules[nRuleIndex];
 
-                // std::cout << "\033[96m";
-                // std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
-                // std::cout << "\033[0m";
+                std::cout << "\033[96m";
+                std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
+                std::cout << "\033[0m";
 
                 std::cout << std::endl;
             }
@@ -150,7 +151,7 @@ int main() {
             bool bTerminate = false;
 
             // if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uSrc)) {
-            const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uSrc);
+            const int32_t nRuleIndex = filter_rules::findLastRule(arRules, info.uSrc, info.eProtocol);
 
             if (nRuleIndex != -1) {
                 print_current_time();
@@ -160,12 +161,12 @@ int main() {
 
                 switch (rule.eRuleType) {
                 case EFilterRule::LimitTime: {
-                        if (track.uValue == 0U) {
-                            track.uValue = now;
-                        } else if (now - track.uValue > rule.uRuleValue) {
-                            bTerminate = true;
-                        }
+                    if (track.uValue == 0U) {
+                        track.uValue = now;
+                    } else if (now - track.uValue > rule.uRuleValue) {
+                        bTerminate = true;
                     }
+                }
                     break;
                 case EFilterRule::LimitDownload:
                     if (track.uValue + uRead <= rule.uRuleValue) {
@@ -184,46 +185,47 @@ int main() {
                     // std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
                     break;
                 }
-            }
 
-            if (nRuleIndex != -1) {
-                std::cout << "\033[32m" << " " << nPacketCounter <<  ": " << "\033[32m";
-                std::cout << (bTerminate ? "\033[91m" : "\033[32m");
-                std::cout << uRead << " B";
-                std::cout << (bTerminate ? " <-x--" : " <---- ");
-                std::cout << "\033[0m";
+                if (nRuleIndex != -1) {
+                    std::cout << "\033[32m" << " " << nPacketCounter <<  ": " << "\033[32m";
+                    std::cout << (bTerminate ? "\033[91m" : "\033[32m");
+                    std::cout << uRead << " B";
+                    std::cout << (bTerminate ? " <-x--" : " <---- ");
+                    std::cout << "\033[0m";
 
-                std::cout << "\033[32m";
-                std::cout << ipv4::numberToAddress(info.uSrc);
-                std::cout << "\033[0m";
-            }
-
-            if (nRuleIndex != -1) {
-                const CFilterRule &rule = arRules[nRuleIndex];
-                std::cout << "\033[36m";
-                std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
-                std::cout << "\033[0m";
-            }
-
-            if (nRuleIndex != -1) {
-                const CFilterRule &rule = arRules[nRuleIndex];
-                CRuleTrack &track = arTrack[nRuleIndex];
-
-                switch (rule.eRuleType) {
-                case EFilterRule::LimitTime:
-                    std::cout << "\033[93m => [" << (now - track.uValue) << " s]\033[0m";
-                    std::cout << (bTerminate ? "\033[91m TERMINATED\033[0m" : "\033[92m OK\033[0m");
-                    break;
-                case EFilterRule::LimitDownload:
-                    std::cout << "\033[95m => [" << track.uValue << " B]\033[0m";
-                    std::cout << (bTerminate ? "\033[91m TERMINATED\033[0m" : "\033[92m OK\033[0m");
-                    break;
-                case EFilterRule::Undefined:
-                default:
-                    // std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
-                    break;
+                    std::cout << "\033[32m";
+                    std::cout << ipv4::numberToAddress(info.uSrc);
+                    std::cout << "\033[0m";
+                    std::cout << " " << info.sProtocol;
                 }
-                std::cout << std::endl;
+
+                if (nRuleIndex != -1) {
+                    const CFilterRule &rule = arRules[nRuleIndex];
+                    std::cout << "\033[36m";
+                    std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
+                    std::cout << "\033[0m";
+                }
+
+                if (nRuleIndex != -1) {
+                    const CFilterRule &rule = arRules[nRuleIndex];
+                    CRuleTrack &track = arTrack[nRuleIndex];
+
+                    switch (rule.eRuleType) {
+                    case EFilterRule::LimitTime:
+                        std::cout << "\033[93m => [" << (now - track.uValue) << " s]\033[0m";
+                        std::cout << (bTerminate ? "\033[91m TERMINATED\033[0m" : "\033[92m OK\033[0m");
+                        break;
+                    case EFilterRule::LimitDownload:
+                        std::cout << "\033[95m => [" << track.uValue << " B]\033[0m";
+                        std::cout << (bTerminate ? "\033[91m TERMINATED\033[0m" : "\033[92m OK\033[0m");
+                        break;
+                    case EFilterRule::Undefined:
+                    default:
+                        // std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
+                        break;
+                    }
+                    std::cout << std::endl;
+                }
             }
 
             if (!bTerminate) {

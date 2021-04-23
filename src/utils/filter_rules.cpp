@@ -30,7 +30,7 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
         // for (const std::string &sPart : arsRulePart) {
         //     std::cout << sPart << std::endl;
         // }
-        if (arsRulePart.size() != 6) {
+        if (arsRulePart.size() != 7) {
             std::cerr << "\033[1;31m" << "ERROR: Invalid rule in line " << uNr << ": "  << sLine << "\033[0m" << std::endl;
             continue;
         }
@@ -50,13 +50,15 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
         rule.sTitle      = sLine;
         rule.uAddress    = ipv4::addressToNumber(a1, a2, a3, a4);
         rule.uMaskBits   = uMaskValue ? (0xFFFFFFFF >> (32 - uMaskValue)) : 0U;
-        rule.sRule       = arsRulePart[5];
+        rule.sProtocol   = arsRulePart[5];
+        rule.eProtocol   = ipv4::StrToProtocol(arsRulePart[5].c_str());
+        rule.sRule       = arsRulePart[6];
+        rule.uRuleValue  = stoi(arsRulePart[6]);
         rule.sNote       = arsLinePart.size() > 1 ? arsLinePart[1] : "";
         trim(rule.sNote);
 
         // rule.eRuleType   = EFilterRule::LimitDownload;
         rule.eRuleType   = EFilterRule::LimitTime;
-        rule.uRuleValue  = stoi(arsRulePart[5]);
 
         arRules.push_back(rule);
     }
@@ -73,11 +75,12 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
 //     return pRule;
 // }
 
-int32_t filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress) {
+int32_t filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress, EProtocol eProtocol) {
     int32_t nIndex = -1;
     for (const CFilterRule &rule : arRules) {
         ++nIndex;
-        if ((uAddress & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits)) {
+        if ((uAddress & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits) &&
+            (eProtocol == rule.eProtocol || rule.eProtocol == EProtocol::ANY)) {
             return nIndex;
         }
     }
