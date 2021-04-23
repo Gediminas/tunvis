@@ -54,7 +54,8 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
         rule.sNote       = arsLinePart.size() > 1 ? arsLinePart[1] : "";
         trim(rule.sNote);
 
-        rule.eRuleType   = EFilterRule::LimitDownload;
+        // rule.eRuleType   = EFilterRule::LimitDownload;
+        rule.eRuleType   = EFilterRule::LimitTime;
         rule.uRuleValue  = stoi(arsRulePart[5]);
 
         arRules.push_back(rule);

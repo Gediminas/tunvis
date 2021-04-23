@@ -169,6 +169,7 @@ int main() {
             CInfo info = ipv4::parseIpv4(buffer);
             info.uSize = uRead;
 
+            std::time_t now = std::time(nullptr);
             bool bTerminate = false;
 
             // if (const CFilterRule* pRule = filter_rules::findLastRule(arRules, info.uSrc)) {
@@ -181,8 +182,13 @@ int main() {
                 CRuleTrack &track = arTrack[nRuleIndex];
 
                 switch (rule.eRuleType) {
-                case EFilterRule::LimitTime:
-                    // track.uValue;
+                case EFilterRule::LimitTime: {
+                        if (track.uValue == 0U) {
+                            track.uValue = now;
+                        } else if (now - track.uValue > rule.uRuleValue) {
+                            bTerminate = true;
+                        }
+                    }
                     break;
                 case EFilterRule::LimitDownload:
                     if (track.uValue + uRead <= rule.uRuleValue) {
@@ -228,10 +234,11 @@ int main() {
 
                 switch (rule.eRuleType) {
                 case EFilterRule::LimitTime:
-                    // track.uValue;
+                    std::cout << "\033[93m => [" << (now - track.uValue) << " s]\033[0m";
+                    std::cout << (bTerminate ? "\033[91m TERMINATED\033[0m" : "\033[92m OK\033[0m");
                     break;
                 case EFilterRule::LimitDownload:
-                    std::cout << "\033[93m => [" << track.uValue << " B]\033[0m";
+                    std::cout << "\033[95m => [" << track.uValue << " B]\033[0m";
                     std::cout << (bTerminate ? "\033[91m TERMINATED\033[0m" : "\033[92m OK\033[0m");
                     break;
                 case EFilterRule::Undefined:
