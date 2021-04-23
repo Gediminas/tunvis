@@ -21,51 +21,13 @@
 #include "utils/tun.h"
 #include "utils/ipv4_util.h"
 #include "utils/filter_rules.h"
+#include "utils/print_info.h"
+#include "utils/track.h"
 
 constexpr int32_t     c_nBufferSize = 2000; // for tun/tap must be >= 1500
 constexpr const char *c_sEthName    = "enp0s3";
 constexpr const char *c_sTunName1   = "tunvis1";
 constexpr const char *c_sTunName2   = "tunvis2";
-
-void print_current_time() {
-    std::time_t t = std::time(nullptr);
-    char sTime[100];
-    if (std::strftime(sTime, sizeof(sTime), "%Y-%m-%d %H:%M:%S", std::localtime(&t))) {
-        std::cout << "\033[90m" << sTime << "\033[0m";
-    }
-}
-
-void PrintOutgoingPacket(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool bTerminate, bool bIncommingConnection) {
-    std::cout << " " << info.sProtocol;
-    std::cout << "\033[0m";
-}
-
-void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool bTerminate, bool bIncommingConnection) {
-    std::cout << (bIncommingConnection ? "\033[32m" : "\033[92m");
-    std::cout << " " << nPacketCounter << ": ";
-    std::cout << "\033[m";
-
-    std::cout << (bTerminate ? "\033[91m" : "\033[32m");
-    std::cout << uRead << " B";
-    if (bIncommingConnection) {
-        std::cout << (bTerminate ? " <-x-- " : " <---- ");
-    } else {
-        std::cout << (bTerminate ? " --x-> " : " ----> ");
-    }
-    std::cout << "\033[0m";
-
-    std::cout << (bIncommingConnection ? "\033[32m" : "\033[92m");
-    std::cout << ipv4::numberToAddress(info.uSrc);
-    std::cout << "\033[0m";
-
-    std::cout << " " << info.sProtocol;
-}
-
-void PrintAppliedRule(const CFilterRule &rule, bool bIncommingConnection) {
-    std::cout << (bIncommingConnection ? "\033[36m" : "\033[96m");
-    std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
-    std::cout << "\033[0m";
-}
 
 void signal_callback_handler(int signum) {
    std::cout << "Program terminating " << signum << std::endl;
@@ -97,24 +59,6 @@ int main() {
     const std::vector<CFilterRule> arRules = filter_rules::readRules("dat/rules1.txt");
     filter_rules::displayRules(arRules);
 
-    class CRuleTrack {
-    public:
-        CRuleTrack()  {}
-        ~CRuleTrack() {}
-    public:
-        EFilterRule eRule {EFilterRule::Undefined};
-        uint64_t    uValue {0U};
-        bool        bTerminate {false};
-        // CFilterRule *pRule {nullptr};
-
-        // std::string sTitle;
-        // uint32_t    uNr {0};
-        // uint32_t    uAddress {0};
-        // uint32_t    uMaskBits {0};
-        // int64_t     nRuleValue {0};
-        // std::string sRule;
-        // std::string sNote;
-    };
 
     std::vector<CRuleTrack> arTrack(arRules.size());
 
@@ -154,7 +98,8 @@ int main() {
                 if (!bTerminate) {
                     print_current_time();
                     PrintTraffic(nPacketCounter, uRead, info, bTerminate, false);
-                    PrintAppliedRule(rule, true);
+                    PrintAppliedRule(rule, false);
+                    PrintTrackingDetails(rule, track, 0, false);
                     std::cout << std::endl;
                 }
             }
@@ -205,27 +150,8 @@ int main() {
 
                 PrintTraffic(nPacketCounter, uRead, info, bTerminate, true);
                 PrintAppliedRule(rule, true);
-
-                if (nRuleIndex != -1) {
-                    const CFilterRule &rule = arRules[nRuleIndex];
-                    CRuleTrack &track = arTrack[nRuleIndex];
-
-                    switch (rule.eRuleType) {
-                    case EFilterRule::LimitTime:
-                        std::cout << "\033[93m => [" << (now - track.uValue) << " s]\033[0m";
-                        std::cout << (bTerminate ? "\033[91m TERM\033[0m" : "\033[92m OK\033[0m");
-                        break;
-                    case EFilterRule::LimitDownload:
-                        std::cout << "\033[95m => [" << track.uValue << " B]\033[0m";
-                        std::cout << (bTerminate ? "\033[91m TERM\033[0m" : "\033[92m OK\033[0m");
-                        break;
-                    case EFilterRule::Undefined:
-                    default:
-                        // std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
-                        break;
-                    }
-                    std::cout << std::endl;
-                }
+                PrintTrackingDetails(rule, track, now, true);
+                std::cout << std::endl;
             }
 
             if (!bTerminate) {
