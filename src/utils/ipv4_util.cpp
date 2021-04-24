@@ -42,13 +42,15 @@ CInfo ipv4::parseIpv4(const char *data) {
     const uint32_t H4 = *(pFirst + 4);
 
     CInfo info;
-    info.uVersion  = (H0 & 0x000000f0) >> 4;
-    info.uIHL      = H0 & 0x0000000f;
-    info.eProtocol = (EProtocol)(uint8_t)((H2 & 0x0000ff00) >> 8);
-    info.sProtocol = ipv4::ProtocolToStr(info.eProtocol);
-    info.uSrc      = H3;
-    info.uDst      = H4;
-    info.sSrc      = ipv4::numberToAddress(info.uSrc);
-    info.sDst      = ipv4::numberToAddress(info.uDst);
+    info.uVersion      = (H0 & 0x000000f0) >> 4;   //  4 bits
+    info.uIHL          =  H0 & 0x0000000f;         //  4 bits
+    info.uType         = (H0 & 0x0000ff00) >> 8;   //  8 bits
+    info.uHeaderLength = (H0 & 0xffff0000) >> 16;  // 16 bits
+    info.eProtocol     = (EProtocol)(uint8_t)((H2 & 0x0000ff00) >> 8);
+    info.sProtocol     = ipv4::ProtocolToStr(info.eProtocol);
+    info.uSrc          = H3;
+    info.uDst          = H4;
+    info.sSrc          = ipv4::numberToAddress(info.uSrc);
+    info.sDst          = ipv4::numberToAddress(info.uDst);
     return info;
 }

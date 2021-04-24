@@ -132,8 +132,19 @@ std::tuple<uint64_t, char, EFilterRule> filter_rules::ParseRuleValueType(const s
     return std::make_tuple(uValue, cUnit, eType);
 }
 
-constexpr const char *c_sByteUnits = "kmgt"; //kb, mb, gb, tb
+int32_t filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress, EProtocol eProtocol) {
+    int32_t nIndex = -1;
+    for (const CFilterRule &rule : arRules) {
+        ++nIndex;
+        if ((uAddress & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits) &&
+            (eProtocol == rule.eProtocol || rule.eProtocol == EProtocol::ANY)) {
+            return nIndex;
+        }
+    }
+    return -1;
+}
 
+// constexpr const char *c_sByteUnits = "kmgt"; //kb, mb, gb, tb
 // static inline std::string GetHumanReadableBytes(uint64_t uBytes) {
 //     std::stringstream ss;
 //     if (uBytes < 1024) {
@@ -151,29 +162,3 @@ constexpr const char *c_sByteUnits = "kmgt"; //kb, mb, gb, tb
 //     ss << "Invalid";
 //     return ss.str();
 // }
-
-// std::string filter_rules::GetHumanRuleValue(const CFilterRule &rule) {
-//     switch (rule.eRuleType) {
-//     case EFilterRule::LimitDownload:
-//         return ::GetHumanReadableBytes(rule.uValue);
-//         break;
-//     case EFilterRule::LimitTime:
-//         return ::GetHumanReadableBytes(rule.uValue);
-//         break;
-//     default:
-//         break;
-//     }
-//     return "";
-// }
-
-int32_t filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress, EProtocol eProtocol) {
-    int32_t nIndex = -1;
-    for (const CFilterRule &rule : arRules) {
-        ++nIndex;
-        if ((uAddress & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits) &&
-            (eProtocol == rule.eProtocol || rule.eProtocol == EProtocol::ANY)) {
-            return nIndex;
-        }
-    }
-    return -1;
-}

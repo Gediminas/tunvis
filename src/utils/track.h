@@ -3,6 +3,7 @@
 #include <bits/stdc++.h>
 
 class CFilterRule;
+class CInfo;
 enum class EFilterRule : uint8_t;
 
 class CRuleTrack {
@@ -24,4 +25,4 @@ public:
     // std::string sNote;
 };
 
-bool CheckRuleForTerm(const CFilterRule &rule, CRuleTrack &track, uint16_t uRead);
+bool CheckRuleForTerm(const CFilterRule &rule, const CInfo &info, CRuleTrack &track, uint16_t uRead);

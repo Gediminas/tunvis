@@ -1,8 +1,17 @@
 #include "track.h"
 #include "filter_rules.h"
+#include "ipv4_util.h"
 
-bool CheckRuleForTerm(const CFilterRule &rule, CRuleTrack &track, uint16_t uRead) {
+bool CheckRuleForTerm(const CFilterRule &rule, const CInfo &info, CRuleTrack &track, uint16_t uRead) {
     const std::time_t now = std::time(nullptr);
+
+    std::cout << "                        Read:"
+              << uRead
+              << " IHL:"
+              << info.uIHL*4
+              << " HLen:"
+              << info.uHeaderLength
+              << std::endl;
 
     switch (rule.eRuleType) {
     case EFilterRule::LimitTime:
@@ -13,8 +22,9 @@ bool CheckRuleForTerm(const CFilterRule &rule, CRuleTrack &track, uint16_t uRead
         }
         break;
     case EFilterRule::LimitDownload:
-        if (track.uValue + uRead <= rule.uValue) {
+        if (track.uValue < rule.uValue) {
             track.uValue += uRead;
+            track.uValue -= info.uIHL*4;
         } else {
             return true;
         }

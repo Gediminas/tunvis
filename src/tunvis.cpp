@@ -114,7 +114,7 @@ int main() {
                 const CFilterRule &rule = arRules[nRule];
                 CRuleTrack &track = arTrack[nRule];
 
-                bTerminate = CheckRuleForTerm(rule, track, uRead);
+                bTerminate = CheckRuleForTerm(rule, info, track, uRead);
                 track.bTerminate = bTerminate;
 
                 PrintTraffic(nPacketCounter, uRead, info, bTerminate, true);
