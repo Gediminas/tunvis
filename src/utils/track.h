@@ -3,7 +3,7 @@
 #include <bits/stdc++.h>
 
 class CFilterRule;
-enum class EFilterRule;
+enum class EFilterRule : uint8_t;
 
 class CRuleTrack {
 public:

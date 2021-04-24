@@ -63,7 +63,7 @@ void PrintRule(const CFilterRule &rule) {
     // std::cout << rule.sTitle;
     std::cout << ipv4::numberToAddress(rule.uAddress) << "/" << +rule.uMaskValue;
     std::cout << " [" << rule.sProtocol << "] ";
-    std::cout << rule.uRuleValue;
+    std::cout << filter_rules::GetHumanRuleValue(rule);
     std::cout << " (" << (uint32_t)rule.eRuleType << ")";
     std::cout << " #" << rule.sNote;
     std::cout << " ";

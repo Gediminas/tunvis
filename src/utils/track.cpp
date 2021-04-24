@@ -8,12 +8,12 @@ bool CheckRuleForTerm(const CFilterRule &rule, CRuleTrack &track, uint16_t uRead
     case EFilterRule::LimitTime:
         if (track.uValue == 0U) {
             track.uValue = now;
-        } else if (now - track.uValue > rule.uRuleValue) {
+        } else if (now - track.uValue > rule.uValue) {
             return true;
         }
         break;
     case EFilterRule::LimitDownload:
-        if (track.uValue + uRead <= rule.uRuleValue) {
+        if (track.uValue + uRead <= rule.uValue) {
             track.uValue += uRead;
         } else {
             return true;
