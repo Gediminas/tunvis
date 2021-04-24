@@ -1,4 +1,4 @@
-#include "filter_rules.h"
+#include "Rules.h"
 
 #include "str_util.h"
 #include "ipv4_util.h"
@@ -58,13 +58,11 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
         rule.sNote       = arsLinePart.size() > 1 ? arsLinePart[1] : "";
         trim(rule.sNote);
 
-        const auto [ uValue, cUnit, eRuleType ] = filter_rules::ParseRuleValueType(arsRulePart[6]);
-        rule.uValue = uValue;
-        rule.cUnit  = cUnit;
+        const auto [uValue, cUnit, eRuleType] = filter_rules::ParseRuleValueType(arsRulePart[6]);
+        rule.uValue    = uValue;
+        rule.cUnit     = cUnit;
         rule.eRuleType = eRuleType;
 
-        // rule.eRuleType   = EFilterRule::LimitDownload;
-        // rule.eRuleType   = EFilterRule::LimitTime;
         arRules.push_back(rule);
     }
     return arRules;
