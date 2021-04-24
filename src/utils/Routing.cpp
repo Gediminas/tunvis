@@ -23,7 +23,7 @@ void routing::CreateTunnelRoutes(const char *sEthName, const char *sTunName1, co
     // system("echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter");
     // system(str_format("echo 0 > /proc/sys/net/ipv4/conf/%s/rp_filter", sIFName1).c_str());
     // system("echo 0 > /proc/sys/net/ipv4/conf/tunvis2/rp_filter");
-    // system("echo 0 > /proc/sys/net/ipv4/conf/enp0s3/rp_filter");
+    // system("echo 0 r /proc/sys/net/ipv4/conf/enp0s3/rp_filter");
 
     system(str_format("ip link set %s up", sTunName1).c_str());
     system(str_format("ip link set %s up", sTunName2).c_str());
@@ -93,4 +93,5 @@ std::string routing::GetDefaultEthName() {
     const int status = std::system("ip route|grep default>tmp/eth.txt");
     std::cout << "Exit code: " << WEXITSTATUS(status) << std::endl;
     std::cout << std::ifstream("tmp/test.txt").rdbuf();
+    return "";
 }
