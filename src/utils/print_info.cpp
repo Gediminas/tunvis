@@ -5,6 +5,19 @@
 #include "ipv4_util.h"
 #include "filter_rules.h"
 
+void PrintAppTitle(){
+    std::cout << "\033[1;33m" << "=====================================================================" << "\033[0m" << std::endl;
+    std::cout << "\033[1;33m" << "***                        Tunnel Vission                         ***" << "\033[0m" << std::endl;
+    std::cout << "\033[1;33m" << "=====================================================================" << "\033[0m" << std::endl;
+}
+
+void PrintTunnel(const char *sEthName, const char *sTunName1, const char *sTunName2){
+    std::cout << "\033[93m" << "-----------------------------------------------------------------------" << "\033[0m" << std::endl;
+    std::cout << "\033[93m" << "Tunnel created:" << "\033[0m" << std::endl;
+    std::cout << "\033[93mAPP <--> [" << sTunName1 << "] <==TunVis==> [" << sTunName2 << "] <--> [" << sEthName << "] <--> INTERNET\033[0m" << std::endl;
+    std::cout << "\033[93m" << "-----------------------------------------------------------------------" << "\033[0m" << std::endl;
+}
+
 void PrintCurrentDateTime() {
     std::time_t t = std::time(nullptr);
     char sTime[100];

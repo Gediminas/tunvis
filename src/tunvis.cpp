@@ -37,9 +37,7 @@ void signal_callback_handler(int signum) {
 }
 
 int main() {
-    std::cout << "\033[1;33m" << "=======================================================" << "\033[0m" << std::endl;
-    std::cout << "\033[1;33m" << "***                  Tunnel Vission                 ***" << "\033[0m" << std::endl;
-    std::cout << "\033[1;33m" << "=======================================================" << "\033[0m" << std::endl;
+    PrintAppTitle();
 
     signal(SIGINT, signal_callback_handler);
 
@@ -48,13 +46,9 @@ int main() {
 
     std::cout << "Successfully connected to interfaces " << c_sTunName1 << " & " << c_sTunName2 << std::endl;
 
-    DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
+    DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2); // just in case
     CreateTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
-
-    std::cout << "\033[93m" << "--------------------------------------------------------" << "\033[0m" << std::endl;
-    std::cout << "\033[93m" << "Tunnel created:" << "\033[0m" << std::endl;
-    std::cout << "\033[93mAPP <--> [" << c_sTunName1 << "] <==TunVis==> [" << c_sTunName2 << "] <--> [" << c_sEthName << "] <--> INTERNET\033[0m" << std::endl;
-    std::cout << "\033[93m" << "--------------------------------------------------------" << "\033[0m" << std::endl;
+    PrintTunnel(c_sEthName, c_sTunName1, c_sTunName2);
 
     const std::vector<CFilterRule> arRules = filter_rules::readRules("dat/rules1.txt");
     PrintRules(arRules);

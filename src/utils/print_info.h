@@ -6,6 +6,8 @@ class CFilterRule;
 class CRuleTrack;
 class CInfo;
 
+void PrintAppTitle();
+void PrintTunnel(const char *sEthName, const char *sTunName1, const char *sTunName2);
 void PrintCurrentDateTime();
 void PrintOutgoingPacket(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool bTerminate, bool bIncommingConnection);
 void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool bTerminate, bool bIncommingConnection);
