@@ -1,8 +1,8 @@
-#include "ipv4_util.h"
+#include "IPv4.h"
 
 #include <sstream>
 
-std::string ipv4::numberToAddress(const uint32_t uAddress) {
+std::string ipv4::NumberToAddress(const uint32_t uAddress) {
     const uint8_t a1 = (uint8_t) (uAddress);
     const uint8_t a2 = (uint8_t) (uAddress >> 8);
     const uint8_t a3 = (uint8_t) (uAddress >> 16);
@@ -12,7 +12,7 @@ std::string ipv4::numberToAddress(const uint32_t uAddress) {
     return ss.str();
 }
 
-uint32_t ipv4::addressToNumber(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4) {
+uint32_t ipv4::AddressToNumber(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4) {
     return (a4 << 24) | (a3 << 16) | (a2 << 8) | a1;
 }
 
@@ -33,7 +33,7 @@ EProtocol ipv4::StrToProtocol(const char* sProtocol) {
     return EProtocol::ANY;
 }
 
-CIpv4Packet ipv4::parseIpv4Packet(const char *data) {
+CIpv4Packet ipv4::ParseIpv4Packet(const char *data) {
     const uint32_t *pFirst = (uint32_t*) data;
 
     const uint32_t H0 = *(pFirst + 0);
@@ -50,7 +50,7 @@ CIpv4Packet ipv4::parseIpv4Packet(const char *data) {
     packet.sProtocol     = ipv4::ProtocolToStr(packet.eProtocol);
     packet.uSrc          = H3;
     packet.uDst          = H4;
-    packet.sSrc          = ipv4::numberToAddress(packet.uSrc);
-    packet.sDst          = ipv4::numberToAddress(packet.uDst);
+    packet.sSrc          = ipv4::NumberToAddress(packet.uSrc);
+    packet.sDst          = ipv4::NumberToAddress(packet.uDst);
     return packet;
 }

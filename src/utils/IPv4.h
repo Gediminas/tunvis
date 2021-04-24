@@ -33,9 +33,9 @@ class CIpv4Packet final {
 };
 
 namespace ipv4 {
-  std::string numberToAddress(const uint32_t uAddress);
-  uint32_t addressToNumber(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4);
-  CIpv4Packet parseIpv4Packet(const char *data);
+  std::string NumberToAddress(const uint32_t uAddress);
+  uint32_t AddressToNumber(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4);
+  CIpv4Packet ParseIpv4Packet(const char *data);
 
   EProtocol StrToProtocol(const char* sProtocol);
   std::string ProtocolToStr(EProtocol eProtocol);

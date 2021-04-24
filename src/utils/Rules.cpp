@@ -1,7 +1,7 @@
 #include "Rules.h"
 
 #include "str_util.h"
-#include "ipv4_util.h"
+#include "IPv4.h"
 
 #include <iostream>
 #include <fstream>
@@ -50,7 +50,7 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
 
         rule.uNr         = uNr;
         rule.sTitle      = sLine;
-        rule.uAddress    = ipv4::addressToNumber(a1, a2, a3, a4);
+        rule.uAddress    = ipv4::AddressToNumber(a1, a2, a3, a4);
         rule.uMaskValue  = uMaskValue;
         rule.uMaskBits   = uMaskValue ? (0xFFFFFFFF >> (32 - uMaskValue)) : 0U;
         rule.sProtocol   = arsRulePart[5];

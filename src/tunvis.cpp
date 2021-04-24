@@ -19,7 +19,7 @@
 
 #include "utils/Routing.h"
 #include "utils/tun.h"
-#include "utils/ipv4_util.h"
+#include "utils/IPv4.h"
 #include "utils/Rules.h"
 #include "utils/Log.h"
 #include "utils/track.h"
@@ -80,7 +80,7 @@ int main() {
             ++nPacketCounter;
             bool bTerminate = false;
             const uint16_t    uRead = tun::Read(fdTun1, buffer, sizeof(buffer));
-            const CIpv4Packet packet = ipv4::parseIpv4Packet(buffer);
+            const CIpv4Packet packet = ipv4::ParseIpv4Packet(buffer);
             const int32_t     nRule  = filter_rules::findLastRule(arRules, packet.uDst, packet.eProtocol);
 
             if (nRule != -1) {
@@ -104,7 +104,7 @@ int main() {
             ++nPacketCounter;
             bool bTerminate = false;
             const uint16_t uRead = tun::Read(fdTun2, buffer, sizeof(buffer));
-            const CIpv4Packet    packet  = ipv4::parseIpv4Packet(buffer);
+            const CIpv4Packet    packet  = ipv4::ParseIpv4Packet(buffer);
             std::time_t    now   = std::time(nullptr);
 
             const int32_t nRule = filter_rules::findLastRule(arRules, packet.uSrc, packet.eProtocol);

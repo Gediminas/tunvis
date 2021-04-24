@@ -1,7 +1,7 @@
 #include "Log.h"
 
 #include "track.h"
-#include "ipv4_util.h"
+#include "IPv4.h"
 #include "Rules.h"
 
 namespace internal {
@@ -92,7 +92,7 @@ void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CIpv4Packet &pack
     std::cout << "\033[0m";
 
     std::cout << (bIncommingConnection ? "\033[32m" : "\033[92m");
-    std::cout << ipv4::numberToAddress(bIncommingConnection ? packet.uSrc : packet.uDst);
+    std::cout << ipv4::NumberToAddress(bIncommingConnection ? packet.uSrc : packet.uDst);
     std::cout << "\033[0m";
 
     std::cout << " " << packet.sProtocol;
@@ -102,7 +102,7 @@ void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CIpv4Packet &pack
 void PrintRule(const CFilterRule &rule) {
     std::cout << "#" << rule.uNr << ": ";
     // std::cout << rule.sTitle;
-    std::cout << ipv4::numberToAddress(rule.uAddress) << "/" << +rule.uMaskValue;
+    std::cout << ipv4::NumberToAddress(rule.uAddress) << "/" << +rule.uMaskValue;
     std::cout << " [" << rule.sProtocol << "] ";
     std::cout << " (" << (uint32_t)rule.eRuleType << ")";
     std::cout << " #" << rule.sNote;
