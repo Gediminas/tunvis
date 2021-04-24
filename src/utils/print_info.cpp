@@ -5,22 +5,23 @@
 #include "ipv4_util.h"
 #include "filter_rules.h"
 
-void print_current_time() {
+void PrintCurrentDateTime() {
     std::time_t t = std::time(nullptr);
     char sTime[100];
     if (std::strftime(sTime, sizeof(sTime), "%Y-%m-%d %H:%M:%S", std::localtime(&t))) {
         std::cout << "\033[90m" << sTime << "\033[0m";
     }
+    std::cout << " ";
 }
 
 void PrintOutgoingPacket(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool bTerminate, bool bIncommingConnection) {
-    std::cout << " " << info.sProtocol;
-    std::cout << "\033[0m";
+    std::cout << " [" << info.sProtocol << "] ";
+    // std::cout << "\033[0m";
 }
 
 void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool bTerminate, bool bIncommingConnection) {
     std::cout << (bIncommingConnection ? "\033[32m" : "\033[92m");
-    std::cout << " " << nPacketCounter << ": ";
+    std::cout << nPacketCounter << ": ";
     std::cout << "\033[m";
 
     if (bIncommingConnection) {
@@ -41,24 +42,48 @@ void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool
     std::cout << "\033[0m";
 
     std::cout << " " << info.sProtocol;
+    std::cout << " ";
 }
 
+void PrintRule(const CFilterRule &rule) {
+    std::cout << "#" << rule.uNr << ": ";
+    // std::cout << rule.sTitle;
+    std::cout << ipv4::numberToAddress(rule.uAddress) << "/" << +rule.uMaskValue;
+    std::cout << " [" << rule.sProtocol << "] ";
+    std::cout << rule.uRuleValue;
+    std::cout << " (" << (uint32_t)rule.eRuleType << ")";
+    std::cout << " #" << rule.sNote;
+    std::cout << " ";
+}
+
+void PrintRules(const std::vector<CFilterRule> &arRules) {
+    std::cout << "\033[1;96m" << "-------------------------------------------------------" << "\033[0m" << std::endl;
+    std::cout << "\033[96m";
+    std::cout << "Rules loaded:" << std::endl;
+    for (const CFilterRule &rule : arRules) {
+        PrintRule(rule);
+        std::cout << std::endl;
+    }
+    std::cout << "\033[0m";
+    std::cout << "\033[1;96m" << "-------------------------------------------------------" << "\033[0m" << std::endl;
+}
 void PrintAppliedRule(const CFilterRule &rule, bool bIncommingConnection) {
     std::cout << (bIncommingConnection ? "\033[36m" : "\033[96m");
-    std::cout << " => #" << rule.uNr <<  ": " << rule.sTitle;
+    PrintRule(rule);
     std::cout << "\033[0m";
+    std::cout << " ";
 }
 
 void PrintTrackingDetails(const CFilterRule &rule, const CRuleTrack &track, std::time_t now, bool bIncommingConnection) {
     switch (rule.eRuleType) {
     case EFilterRule::LimitTime:
-        std::cout << (track.bTerminate ? "\033[91m TERM\033[0m" : "\033[92m OK\033[0m");
+        std::cout << (track.bTerminate ? "\033[91mTERM\033[0m" : "\033[92mOK\033[0m");
         if (bIncommingConnection) {
             std::cout << "\033[93m [" << (now - track.uValue) << " s]\033[0m";
         }
         break;
     case EFilterRule::LimitDownload:
-        std::cout << (track.bTerminate ? "\033[91m TERM\033[0m" : "\033[92m OK\033[0m");
+        std::cout << (track.bTerminate ? "\033[91mTERM\033[0m" : "\033[92mOK\033[0m");
         if (bIncommingConnection) {
             std::cout << "\033[95m [" << track.uValue << "b]\033[0m";
         }
@@ -68,4 +93,5 @@ void PrintTrackingDetails(const CFilterRule &rule, const CRuleTrack &track, std:
         // std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
         break;
     }
+    std::cout << " ";
 }

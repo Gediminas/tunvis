@@ -57,7 +57,7 @@ int main() {
     std::cout << "\033[93m" << "--------------------------------------------------------" << "\033[0m" << std::endl;
 
     const std::vector<CFilterRule> arRules = filter_rules::readRules("dat/rules1.txt");
-    filter_rules::displayRules(arRules);
+    PrintRules(arRules);
 
 
     std::vector<CRuleTrack> arTrack(arRules.size());
@@ -94,7 +94,7 @@ int main() {
                 CRuleTrack &track = arTrack[nRule];
                 bTerminate = track.bTerminate;
 
-                print_current_time();
+                PrintCurrentDateTime();
                 PrintTraffic(nPacketCounter, uRead, info, bTerminate, false);
                 PrintAppliedRule(rule, false);
                 PrintTrackingDetails(rule, track, 0, false);
@@ -115,7 +115,7 @@ int main() {
 
             const int32_t nRule = filter_rules::findLastRule(arRules, info.uSrc, info.eProtocol);
             if (nRule != -1) {
-                print_current_time();
+                PrintCurrentDateTime();
 
                 const CFilterRule &rule = arRules[nRule];
                 CRuleTrack &track = arTrack[nRule];

@@ -49,6 +49,7 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
         rule.uNr         = uNr;
         rule.sTitle      = sLine;
         rule.uAddress    = ipv4::addressToNumber(a1, a2, a3, a4);
+        rule.uMaskValue  = uMaskValue;
         rule.uMaskBits   = uMaskValue ? (0xFFFFFFFF >> (32 - uMaskValue)) : 0U;
         rule.sProtocol   = arsRulePart[5];
         rule.eProtocol   = ipv4::StrToProtocol(arsRulePart[5].c_str());
@@ -85,13 +86,4 @@ int32_t filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint
         }
     }
     return -1;
-}
-
-void filter_rules::displayRules(const std::vector<CFilterRule> &arRules) {
-    std::cout << "\033[1;96m" << "-------------------------------------------------------" << "\033[0m" << std::endl;
-    std::cout << "\033[96m"  << "Rules loaded:" << "\033[0m" << std::endl;
-    for (const CFilterRule &rule : arRules) {
-        std::cout << "\033[96m"  << "#" << rule.uNr << ":   " << rule.sTitle << "\033[0m" << std::endl;
-    }
-    std::cout << "\033[1;96m" << "-------------------------------------------------------" << "\033[0m" << std::endl;
 }
