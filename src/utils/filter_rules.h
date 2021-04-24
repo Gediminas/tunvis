@@ -33,5 +33,5 @@ namespace filter_rules {
     int32_t findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress, EProtocol eProtocol);
 
     std::tuple<uint64_t, char, EFilterRule> ParseRuleValueType(const std::string &sText);
-    std::string GetHumanRuleValue(const CFilterRule &rule);
+    /* std::string GetHumanRuleValue(const CFilterRule &rule); */
 };

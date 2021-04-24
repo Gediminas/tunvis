@@ -140,8 +140,8 @@ void PrintTrackingDetails(const CFilterRule &rule, const CRuleTrack &track, std:
                       << ::GetFormatedBytes(track.uValue, rule.cUnit)
                       << "/"
                       << ::GetFormatedBytes(rule.uValue, rule.cUnit)
-                      << ((rule.cUnit == ' ') ? "" : (std::string() + rule.cUnit))
-                      << ((rule.cUnit == ' ') ? "" : "b")
+                      << ((rule.cUnit == 'b') ? "" : (std::string() + rule.cUnit))
+                      << "b"
                       << "]\033[0m";
         }
         break;

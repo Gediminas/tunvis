@@ -90,7 +90,7 @@ std::tuple<uint64_t, char, EFilterRule> filter_rules::ParseRuleValueType(const s
         // std::cout << ">>>> " << sValue << " " << dValue << " " << sUnits << std::endl;
 
         if (sUnits == "b") {
-            cUnit = ' ';
+            cUnit = 'b';
             eType = EFilterRule::LimitDownload;
         } else if (sUnits == "kb") {
             dValue *= 1024;
@@ -134,37 +134,37 @@ std::tuple<uint64_t, char, EFilterRule> filter_rules::ParseRuleValueType(const s
 
 constexpr const char *c_sByteUnits = "kmgt"; //kb, mb, gb, tb
 
-static inline std::string GetHumanReadableBytes(uint64_t uBytes) {
-    std::stringstream ss;
-    if (uBytes < 1024) {
-        ss << uBytes << "b";
-        return ss.str();
-    }
-    double dHuman = uBytes;
-    for (const char *pUnit = c_sByteUnits; pUnit; ++pUnit) {
-        dHuman /= 1024.0;
-        if (dHuman < 10) {
-            ss << dHuman << *pUnit << "b";
-            return ss.str();
-        }
-    }
-    ss << "Invalid";
-    return ss.str();
-}
+// static inline std::string GetHumanReadableBytes(uint64_t uBytes) {
+//     std::stringstream ss;
+//     if (uBytes < 1024) {
+//         ss << uBytes << "b";
+//         return ss.str();
+//     }
+//     double dHuman = uBytes;
+//     for (const char *pUnit = c_sByteUnits; pUnit; ++pUnit) {
+//         dHuman /= 1024.0;
+//         if (dHuman < 10) {
+//             ss << dHuman << *pUnit << "b";
+//             return ss.str();
+//         }
+//     }
+//     ss << "Invalid";
+//     return ss.str();
+// }
 
-std::string filter_rules::GetHumanRuleValue(const CFilterRule &rule) {
-    switch (rule.eRuleType) {
-    case EFilterRule::LimitDownload:
-        return ::GetHumanReadableBytes(rule.uValue);
-        break;
-    case EFilterRule::LimitTime:
-        return ::GetHumanReadableBytes(rule.uValue);
-        break;
-    default:
-        break;
-    }
-    return "";
-}
+// std::string filter_rules::GetHumanRuleValue(const CFilterRule &rule) {
+//     switch (rule.eRuleType) {
+//     case EFilterRule::LimitDownload:
+//         return ::GetHumanReadableBytes(rule.uValue);
+//         break;
+//     case EFilterRule::LimitTime:
+//         return ::GetHumanReadableBytes(rule.uValue);
+//         break;
+//     default:
+//         break;
+//     }
+//     return "";
+// }
 
 int32_t filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress, EProtocol eProtocol) {
     int32_t nIndex = -1;
