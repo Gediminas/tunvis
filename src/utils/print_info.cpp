@@ -27,12 +27,12 @@ void PrintCurrentDateTime() {
     std::cout << " ";
 }
 
-void PrintOutgoingPacket(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool bTerminate, bool bIncommingConnection) {
-    std::cout << " [" << info.sProtocol << "] ";
+void PrintOutgoingPacket(int64_t nPacketCounter, int16_t uRead, const CIpv4Packet &packet, bool bTerminate, bool bIncommingConnection) {
+    std::cout << " [" << packet.sProtocol << "] ";
     // std::cout << "\033[0m";
 }
 
-void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool bTerminate, bool bIncommingConnection) {
+void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CIpv4Packet &packet, bool bTerminate, bool bIncommingConnection) {
     std::cout << (bIncommingConnection ? "\033[32m" : "\033[92m");
     std::cout << nPacketCounter << ": ";
     std::cout << "\033[m";
@@ -51,10 +51,10 @@ void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CInfo &info, bool
     std::cout << "\033[0m";
 
     std::cout << (bIncommingConnection ? "\033[32m" : "\033[92m");
-    std::cout << ipv4::numberToAddress(bIncommingConnection ? info.uSrc : info.uDst);
+    std::cout << ipv4::numberToAddress(bIncommingConnection ? packet.uSrc : packet.uDst);
     std::cout << "\033[0m";
 
-    std::cout << " " << info.sProtocol;
+    std::cout << " " << packet.sProtocol;
     std::cout << " ";
 }
 

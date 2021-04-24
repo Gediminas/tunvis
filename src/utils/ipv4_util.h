@@ -12,10 +12,10 @@ enum class EProtocol : uint8_t {
     UDP    = 17,
 };
 
-class CInfo final {
+class CIpv4Packet final {
  public:
-    CInfo()  {}
-    ~CInfo() {}
+    CIpv4Packet()  {}
+    ~CIpv4Packet() {}
  public:
     uint8_t  uVersion      {0}; //  4 bits
     uint8_t  uIHL          {0}; //  4 bits
@@ -35,7 +35,7 @@ class CInfo final {
 namespace ipv4 {
   std::string numberToAddress(const uint32_t uAddress);
   uint32_t addressToNumber(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4);
-  CInfo parseIpv4(const char *data);
+  CIpv4Packet parseIpv4Packet(const char *data);
 
   EProtocol StrToProtocol(const char* sProtocol);
   std::string ProtocolToStr(EProtocol eProtocol);

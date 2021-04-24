@@ -33,7 +33,7 @@ EProtocol ipv4::StrToProtocol(const char* sProtocol) {
     return EProtocol::ANY;
 }
 
-CInfo ipv4::parseIpv4(const char *data) {
+CIpv4Packet ipv4::parseIpv4Packet(const char *data) {
     const uint32_t *pFirst = (uint32_t*) data;
 
     const uint32_t H0 = *(pFirst + 0);
@@ -41,16 +41,16 @@ CInfo ipv4::parseIpv4(const char *data) {
     const uint32_t H3 = *(pFirst + 3);
     const uint32_t H4 = *(pFirst + 4);
 
-    CInfo info;
-    info.uVersion      = (H0 & 0x000000f0) >> 4;   //  4 bits
-    info.uIHL          =  H0 & 0x0000000f;         //  4 bits
-    info.uType         = (H0 & 0x0000ff00) >> 8;   //  8 bits
-    info.uHeaderLength = (H0 & 0xffff0000) >> 16;  // 16 bits
-    info.eProtocol     = (EProtocol)(uint8_t)((H2 & 0x0000ff00) >> 8);
-    info.sProtocol     = ipv4::ProtocolToStr(info.eProtocol);
-    info.uSrc          = H3;
-    info.uDst          = H4;
-    info.sSrc          = ipv4::numberToAddress(info.uSrc);
-    info.sDst          = ipv4::numberToAddress(info.uDst);
-    return info;
+    CIpv4Packet packet;
+    packet.uVersion      = (H0 & 0x000000f0) >> 4;   //  4 bits
+    packet.uIHL          =  H0 & 0x0000000f;         //  4 bits
+    packet.uType         = (H0 & 0x0000ff00) >> 8;   //  8 bits
+    packet.uHeaderLength = (H0 & 0xffff0000) >> 16;  // 16 bits
+    packet.eProtocol     = (EProtocol)(uint8_t)((H2 & 0x0000ff00) >> 8);
+    packet.sProtocol     = ipv4::ProtocolToStr(packet.eProtocol);
+    packet.uSrc          = H3;
+    packet.uDst          = H4;
+    packet.sSrc          = ipv4::numberToAddress(packet.uSrc);
+    packet.sDst          = ipv4::numberToAddress(packet.uDst);
+    return packet;
 }

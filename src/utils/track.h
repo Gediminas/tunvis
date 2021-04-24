@@ -3,7 +3,7 @@
 #include <bits/stdc++.h>
 
 class CFilterRule;
-class CInfo;
+class CIpv4Packet;
 enum class EFilterRule : uint8_t;
 
 class CRuleTrack {
@@ -25,4 +25,4 @@ public:
     // std::string sNote;
 };
 
-bool CheckRuleForTerm(const CFilterRule &rule, const CInfo &info, CRuleTrack &track, uint16_t uRead);
+bool CheckRuleForTerm(const CFilterRule &rule, const CIpv4Packet &packet, CRuleTrack &track, uint16_t uRead);

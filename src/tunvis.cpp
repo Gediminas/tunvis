@@ -79,9 +79,9 @@ int main() {
         if (FD_ISSET(fdTun1, &fdSet)) {
             ++nPacketCounter;
             bool bTerminate = false;
-            const uint16_t uRead = tun::Read(fdTun1, buffer, sizeof(buffer));
-            const CInfo   info   = ipv4::parseIpv4(buffer);
-            const int32_t nRule  = filter_rules::findLastRule(arRules, info.uDst, info.eProtocol);
+            const uint16_t    uRead = tun::Read(fdTun1, buffer, sizeof(buffer));
+            const CIpv4Packet packet = ipv4::parseIpv4Packet(buffer);
+            const int32_t     nRule  = filter_rules::findLastRule(arRules, packet.uDst, packet.eProtocol);
 
             if (nRule != -1) {
                 const CFilterRule &rule = arRules[nRule];
@@ -89,7 +89,7 @@ int main() {
                 bTerminate = track.bTerminate;
 
                 PrintCurrentDateTime();
-                PrintTraffic(nPacketCounter, uRead, info, bTerminate, false);
+                PrintTraffic(nPacketCounter, uRead, packet, bTerminate, false);
                 PrintAppliedRule(rule, false);
                 PrintTrackingDetails(rule, track, 0, false);
                 std::cout << std::endl;
@@ -104,20 +104,20 @@ int main() {
             ++nPacketCounter;
             bool bTerminate = false;
             const uint16_t uRead = tun::Read(fdTun2, buffer, sizeof(buffer));
-            const CInfo    info  = ipv4::parseIpv4(buffer);
+            const CIpv4Packet    packet  = ipv4::parseIpv4Packet(buffer);
             std::time_t    now   = std::time(nullptr);
 
-            const int32_t nRule = filter_rules::findLastRule(arRules, info.uSrc, info.eProtocol);
+            const int32_t nRule = filter_rules::findLastRule(arRules, packet.uSrc, packet.eProtocol);
             if (nRule != -1) {
                 PrintCurrentDateTime();
 
                 const CFilterRule &rule = arRules[nRule];
                 CRuleTrack &track = arTrack[nRule];
 
-                bTerminate = CheckRuleForTerm(rule, info, track, uRead);
+                bTerminate = CheckRuleForTerm(rule, packet, track, uRead);
                 track.bTerminate = bTerminate;
 
-                PrintTraffic(nPacketCounter, uRead, info, bTerminate, true);
+                PrintTraffic(nPacketCounter, uRead, packet, bTerminate, true);
                 PrintAppliedRule(rule, true);
                 PrintTrackingDetails(rule, track, now, true);
                 std::cout << std::endl;
