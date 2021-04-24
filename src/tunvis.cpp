@@ -6,13 +6,14 @@
 #include "utils/tun.h"
 
 constexpr int32_t     c_nBufferSize = 2000; // for tun/tap must be >= 1500
-constexpr const char *c_sEthName    = "enp0s3";
 constexpr const char *c_sTunName1   = "tunvis1";
 constexpr const char *c_sTunName2   = "tunvis2";
 
+std::string g_sEthName;
+
 void signal_callback_handler(int signum) {
    std::cout << "Program terminating " << signum << std::endl;
-   routing::DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
+   routing::DestroyTunnelRoutes(g_sEthName.c_str(), c_sTunName1, c_sTunName2);
    // sleep(3);
    exit(signum);
 }
@@ -22,14 +23,15 @@ int main() {
 
     signal(SIGINT, signal_callback_handler);
 
+    g_sEthName = routing::GetDefaultEthName();
     const int fdTun1 = tun::InitTun(c_sTunName1);
     const int fdTun2 = tun::InitTun(c_sTunName2);
 
     std::cout << "Successfully connected to interfaces " << c_sTunName1 << " & " << c_sTunName2 << std::endl;
 
-    routing::DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2); // just in case
-    routing::CreateTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
-    PrintTunnel(c_sEthName, c_sTunName1, c_sTunName2);
+    routing::DestroyTunnelRoutes(g_sEthName.c_str(), c_sTunName1, c_sTunName2); // just in case
+    routing::CreateTunnelRoutes(g_sEthName.c_str(), c_sTunName1, c_sTunName2);
+    PrintTunnel(g_sEthName.c_str(), c_sTunName1, c_sTunName2);
 
     const std::vector<CFilterRule> arRules = filter_rules::readRules("dat/rules1.txt");
     PrintRules(arRules);

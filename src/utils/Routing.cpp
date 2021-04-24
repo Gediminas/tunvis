@@ -1,8 +1,6 @@
 #include "Routing.h"
 
-#include <bits/stdc++.h>
-
-std::string str_format(const std::string fmt_str, ...) {
+static std::string str_format(const std::string fmt_str, ...) {
     va_list ap;
     char *fp = NULL;
     va_start(ap, fmt_str);
@@ -89,4 +87,10 @@ void routing::DestroyTunnelRoutes(const char *sEthName, const char *sTunName1, c
 
     system("ip route del table 1 default via 10.0.1.1 2>/dev/null");
     system("ip rule del fwmark 1 table 1 2>/dev/null");
+}
+
+std::string routing::GetDefaultEthName() {
+    const int status = std::system("ip route|grep default>tmp/eth.txt");
+    std::cout << "Exit code: " << WEXITSTATUS(status) << std::endl;
+    std::cout << std::ifstream("tmp/test.txt").rdbuf();
 }
