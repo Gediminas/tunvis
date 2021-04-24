@@ -1,27 +1,7 @@
-#include "routing.h"
+#include "Routing.h"
 
-
-// #include <stdio.h>
-// #include <unistd.h>
-// #include <sys/types.h>
-// #include <fcntl.h>
-// #include <sys/time.h>
-// #include <linux/if_tun.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include <net/if.h>
-// #include <sys/socket.h>
-// #include <sys/ioctl.h>
-// #include <sys/stat.h>
-// #include <arpa/inet.h>
-// #include <sys/select.h>
-// #include <errno.h>
-// #include <stdarg.h>
-
-// #include <stdlib.h>
 #include <bits/stdc++.h>
-// #include "utils/str_util.h"
-//
+
 std::string str_format(const std::string fmt_str, ...) {
     va_list ap;
     char *fp = NULL;
@@ -32,7 +12,7 @@ std::string str_format(const std::string fmt_str, ...) {
     return std::string(formatted.get());
 }
 
-void CreateTunnelRoutes(const char *sEthName, const char *sTunName1, const char *sTunName2)
+void routing::CreateTunnelRoutes(const char *sEthName, const char *sTunName1, const char *sTunName2)
 {
     std::cout << "Creating tunnel" << std::endl;
 
@@ -89,7 +69,7 @@ void CreateTunnelRoutes(const char *sEthName, const char *sTunName1, const char 
 
 }
 
-void DestroyTunnelRoutes(const char *sEthName, const char *sTunName1, const char *sTunName2)
+void routing::DestroyTunnelRoutes(const char *sEthName, const char *sTunName1, const char *sTunName2)
 {
     std::cout << "Destroying tunnel (if exists)" << std::endl;
 

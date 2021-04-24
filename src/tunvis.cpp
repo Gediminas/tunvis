@@ -17,11 +17,11 @@
 // #include <errno.h>
 // #include <stdarg.h>
 
-#include "utils/routing.h"
+#include "utils/Routing.h"
 #include "utils/tun.h"
 #include "utils/ipv4_util.h"
 #include "utils/Rules.h"
-#include "utils/print_info.h"
+#include "utils/Log.h"
 #include "utils/track.h"
 
 constexpr int32_t     c_nBufferSize = 2000; // for tun/tap must be >= 1500
@@ -31,7 +31,7 @@ constexpr const char *c_sTunName2   = "tunvis2";
 
 void signal_callback_handler(int signum) {
    std::cout << "Program terminating " << signum << std::endl;
-   DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
+   routing::DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
    sleep(3);
    exit(signum);
 }
@@ -46,8 +46,8 @@ int main() {
 
     std::cout << "Successfully connected to interfaces " << c_sTunName1 << " & " << c_sTunName2 << std::endl;
 
-    DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2); // just in case
-    CreateTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
+    routing::DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2); // just in case
+    routing::CreateTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
     PrintTunnel(c_sEthName, c_sTunName1, c_sTunName2);
 
     const std::vector<CFilterRule> arRules = filter_rules::readRules("dat/rules1.txt");
