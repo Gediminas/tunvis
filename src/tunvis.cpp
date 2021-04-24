@@ -1,28 +1,9 @@
-#include <iostream>
-
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <sys/time.h>
-#include <linux/if_tun.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include <net/if.h>
-// #include <sys/socket.h>
-// #include <sys/ioctl.h>
-// #include <sys/stat.h>
-// #include <arpa/inet.h>
-// #include <sys/select.h>
-// #include <errno.h>
-// #include <stdarg.h>
-
-#include "utils/Routing.h"
-#include "utils/tun.h"
 #include "utils/IPv4.h"
-#include "utils/Rules.h"
 #include "utils/Log.h"
-#include "utils/track.h"
+#include "utils/Routing.h"
+#include "utils/Rules.h"
+#include "utils/Tracking.h"
+#include "utils/tun.h"
 
 constexpr int32_t     c_nBufferSize = 2000; // for tun/tap must be >= 1500
 constexpr const char *c_sEthName    = "enp0s3";
@@ -32,7 +13,7 @@ constexpr const char *c_sTunName2   = "tunvis2";
 void signal_callback_handler(int signum) {
    std::cout << "Program terminating " << signum << std::endl;
    routing::DestroyTunnelRoutes(c_sEthName, c_sTunName1, c_sTunName2);
-   sleep(3);
+   // sleep(3);
    exit(signum);
 }
 

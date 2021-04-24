@@ -1,8 +1,8 @@
 #include "Log.h"
 
-#include "track.h"
 #include "IPv4.h"
 #include "Rules.h"
+#include "Tracking.h"
 
 namespace internal {
     constexpr const char *c_sByteUnits = "kmgt"; //kb, mb, gb, tb
@@ -47,6 +47,7 @@ namespace internal {
 };
 
 void PrintAppTitle(){
+    std::cout << std::endl;
     std::cout << "\033[1;33m" << "=====================================================================" << "\033[0m" << std::endl;
     std::cout << "\033[1;33m" << "***                        Tunnel Vission                         ***" << "\033[0m" << std::endl;
     std::cout << "\033[1;33m" << "=====================================================================" << "\033[0m" << std::endl;
