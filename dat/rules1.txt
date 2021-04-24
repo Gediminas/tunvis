@@ -1,10 +1,10 @@
 # 192.168.101.100/24 UDP  500 # home1 1kB
 # 93.184.216.34/32   TCP    5 # example.com 1kB
 
-8.8.8.8/32         ICMP  1,2345mb # google
-8.8.4.4/32         ICMP 1kb # google
-80.249.106.141/32  TCP   5mb # thinkbroadband.com
-80.249.99.148/32   TCP  5,1mb # thinkbroadband dwn
+8.8.8.8/32         ICMP  0,1kb      # google
+8.8.4.4/32         ICMP  0,001mb    # google
+80.249.106.141/32  TCP   5kb        # thinkbroadband.com
+80.249.99.148/32   TCP   5242880b   # thinkbroadband dwn
 
 # 0.0.0.0/0           0s      # ANY
 # 91.234.200.110/32  TCP    500   # delfi.lt (1)

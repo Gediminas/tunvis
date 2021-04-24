@@ -58,8 +58,9 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
         rule.sNote       = arsLinePart.size() > 1 ? arsLinePart[1] : "";
         trim(rule.sNote);
 
-        const auto [ uValue, eRuleType ] = filter_rules::ParseRuleValueType(arsRulePart[6]);
+        const auto [ uValue, cUnit, eRuleType ] = filter_rules::ParseRuleValueType(arsRulePart[6]);
         rule.uValue = uValue;
+        rule.cUnit  = cUnit;
         rule.eRuleType = eRuleType;
 
         // rule.eRuleType   = EFilterRule::LimitDownload;
@@ -69,9 +70,10 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
     return arRules;
 }
 
-std::pair<uint64_t, EFilterRule> filter_rules::ParseRuleValueType(const std::string &sText) {
+std::tuple<uint64_t, char, EFilterRule> filter_rules::ParseRuleValueType(const std::string &sText) {
         // const std::string sOrigValue = arsRulePart[6];
     double       dValue = 0.0;
+    char         cUnit  = ' ';
     EFilterRule  eType  = EFilterRule::Undefined;
 
     setlocale(LC_ALL,"");
@@ -85,46 +87,54 @@ std::pair<uint64_t, EFilterRule> filter_rules::ParseRuleValueType(const std::str
 
         const std::string sUnits = sText.substr(i1, std::string::npos);
 
-        std::cout << ">>>> " << sValue << " " << dValue << " " << sUnits << std::endl;
+        // std::cout << ">>>> " << sValue << " " << dValue << " " << sUnits << std::endl;
 
         if (sUnits == "b") {
+            cUnit = ' ';
             eType = EFilterRule::LimitDownload;
         } else if (sUnits == "kb") {
             dValue *= 1024;
+            cUnit = 'k';
             eType = EFilterRule::LimitDownload;
         } else if (sUnits == "mb") {
             dValue *= 1024;
             dValue *= 1024;
+            cUnit = 'm';
             eType = EFilterRule::LimitDownload;
         } else if (sUnits == "gb") {
             dValue *= 1024;
             dValue *= 1024;
             dValue *= 1024;
+            cUnit = 'g';
             eType = EFilterRule::LimitDownload;
         } else if (sUnits == "tb") {
             dValue *= 1024;
             dValue *= 1024;
             dValue *= 1024;
             dValue *= 1024;
+            cUnit = 't';
             eType = EFilterRule::LimitDownload;
         } else if (sUnits == "s") {
+            cUnit = 's';
             eType = EFilterRule::LimitTime;
         } else if (sUnits == "m") {
+            cUnit = 'm';
             dValue *= 60;
             eType = EFilterRule::LimitTime;
         } else if (sUnits == "h") {
+            cUnit = 'h';
             dValue *= 3600;
             eType = EFilterRule::LimitTime;
         }
     }
-    // const uint64_t uValue = (uint64_t)dValue;
     const uint64_t uValue = std::round(dValue);
-    return std::make_pair(uValue, eType);
+    // std::cout << uValue << " " << cUnit << " " << (int32_t)eType << std::endl;
+    return std::make_tuple(uValue, cUnit, eType);
 }
 
 constexpr const char *c_sByteUnits = "kmgt"; //kb, mb, gb, tb
 
-static std::string GetHumanReadableBytes(uint64_t uBytes) {
+static inline std::string GetHumanReadableBytes(uint64_t uBytes) {
     std::stringstream ss;
     if (uBytes < 1024) {
         ss << uBytes << "b";
@@ -145,10 +155,10 @@ static std::string GetHumanReadableBytes(uint64_t uBytes) {
 std::string filter_rules::GetHumanRuleValue(const CFilterRule &rule) {
     switch (rule.eRuleType) {
     case EFilterRule::LimitDownload:
-        ::GetHumanReadableBytes(rule.uValue);
+        return ::GetHumanReadableBytes(rule.uValue);
         break;
     case EFilterRule::LimitTime:
-        ::GetHumanReadableBytes(rule.uValue);
+        return ::GetHumanReadableBytes(rule.uValue);
         break;
     default:
         break;

@@ -23,6 +23,7 @@ public:
     EProtocol   eProtocol;
     std::string sProtocol;
     uint64_t    uValue     {0U};
+    char        cUnit;     // <space> or kmgt or hms
     std::string sNote;
     EFilterRule eRuleType {EFilterRule::Undefined};
 };
@@ -31,6 +32,6 @@ namespace filter_rules {
     std::vector<CFilterRule> readRules(const char* sFileName);
     int32_t findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress, EProtocol eProtocol);
 
-    std::pair<uint64_t, EFilterRule> ParseRuleValueType(const std::string &sText);
+    std::tuple<uint64_t, char, EFilterRule> ParseRuleValueType(const std::string &sText);
     std::string GetHumanRuleValue(const CFilterRule &rule);
 };

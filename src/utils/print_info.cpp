@@ -63,7 +63,6 @@ void PrintRule(const CFilterRule &rule) {
     // std::cout << rule.sTitle;
     std::cout << ipv4::numberToAddress(rule.uAddress) << "/" << +rule.uMaskValue;
     std::cout << " [" << rule.sProtocol << "] ";
-    std::cout << filter_rules::GetHumanRuleValue(rule);
     std::cout << " (" << (uint32_t)rule.eRuleType << ")";
     std::cout << " #" << rule.sNote;
     std::cout << " ";
@@ -87,6 +86,45 @@ void PrintAppliedRule(const CFilterRule &rule, bool bIncommingConnection) {
     std::cout << " ";
 }
 
+constexpr const char *c_sByteUnits = "kmgt"; //kb, mb, gb, tb
+// static inline std::string GetHumanReadableBytes(uint64_t uBytes) {
+//     std::stringstream ss;
+//     ss << std::fixed << std::setprecision(2);
+//     if (uBytes < 1024) {
+//         ss << uBytes << "b";
+//         return ss.str();
+//     }
+//     double dHuman = uBytes;
+//     for (const char *pUnit = c_sByteUnits; pUnit; ++pUnit) {
+//         dHuman /= 1024.0;
+//         if (dHuman < 10) {
+//             ss << dHuman << *pUnit << "b";
+//             return ss.str();
+//         }
+//     }
+//     ss << "Invalid";
+//     return ss.str();
+// }
+
+static inline std::string GetFormatedBytes(uint64_t uBytes, char sUnit) {
+    //sUnits - can be b, k, m, g, t (=> b, kb, mb, gb, tb)
+    if (sUnit == 'b') {
+        std::stringstream ss;
+        ss << uBytes;
+        return ss.str();
+    }
+    double dHuman = uBytes;
+    for (const char *pUnit = c_sByteUnits; pUnit; ++pUnit) {
+        dHuman /= 1024.0;
+        if (*pUnit == sUnit) {
+            std::stringstream ss;
+            ss << std::fixed << std::setprecision(3) << dHuman;
+            return ss.str();
+        }
+    }
+    return "Invalid";
+}
+
 void PrintTrackingDetails(const CFilterRule &rule, const CRuleTrack &track, std::time_t now, bool bIncommingConnection) {
     switch (rule.eRuleType) {
     case EFilterRule::LimitTime:
@@ -98,7 +136,13 @@ void PrintTrackingDetails(const CFilterRule &rule, const CRuleTrack &track, std:
     case EFilterRule::LimitDownload:
         std::cout << (track.bTerminate ? "\033[91mTERM\033[0m" : "\033[92mOK\033[0m");
         if (bIncommingConnection) {
-            std::cout << "\033[95m [" << track.uValue << "b]\033[0m";
+            std::cout << "\033[32m ["
+                      << ::GetFormatedBytes(track.uValue, rule.cUnit)
+                      << "/"
+                      << ::GetFormatedBytes(rule.uValue, rule.cUnit)
+                      << ((rule.cUnit == ' ') ? "" : (std::string() + rule.cUnit))
+                      << ((rule.cUnit == ' ') ? "" : "b")
+                      << "]\033[0m";
         }
         break;
     case EFilterRule::Undefined:

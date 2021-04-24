@@ -2,26 +2,27 @@
 
 PID=0
 
-# init() {
+init() {
+  killall tunvis > /dev/null 2>&1
 #   # EXTRA CHECK
 #   # iptables -I INPUT -i enp0s3 -j DROP
 #   echo -n ""
-# }
+}
 
 destroy() {
   kill $PID
-  # killall tunvis > /dev/null 2>&1
+  killall tunvis > /dev/null 2>&1
 }
 
-# trap ctrl_c INT
-# ctrl_c() {
-#     echo "** Trapped CTRL-C"
-#     destroy
-#     exit
-# }
+trap ctrl_c INT
+ctrl_c() {
+    echo "rtunvis: Trapped CTRL-C"
+    destroy
+    exit
+}
 
 while true; do
-  # init
+  init
   ./tunvis &
   PID=$!
   inotifywait ./tunvis
