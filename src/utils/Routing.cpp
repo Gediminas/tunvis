@@ -93,5 +93,5 @@ std::string routing::GetDefaultEthName() {
     const int status = std::system("ip route|grep default>tmp/eth.txt");
     std::cout << "Exit code: " << WEXITSTATUS(status) << std::endl;
     std::cout << std::ifstream("tmp/test.txt").rdbuf();
-    return "";
+    return "enp0s3";
 }
