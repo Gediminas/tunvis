@@ -60,7 +60,8 @@ int main(int argc, char* argv[]) {
     PrintAppTitle();
 
     g_sEthName = sInterface.empty() ? routing::GetDefaultEthName() : sInterface;
-    g_sEthIP   = routing::GetDefaultEthIP();
+    g_sEthIP   = routing::GetIPByDev(g_sEthName.c_str());
+    // g_sEthIP   = routing::GetDefaultEthIP();
 
     std::cout << "\033[32m" << "Network interface used: " << g_sEthName << " (" << g_sEthIP << ")" << "\033[0m" << std::endl;
 

@@ -8,4 +8,5 @@ namespace routing {
 
     std::string GetDefaultEthName();
     std::string GetDefaultEthIP();
+    std::string GetIPByDev(const char *sDev);
 };

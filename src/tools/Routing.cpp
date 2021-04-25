@@ -3,15 +3,41 @@
 #include "str_util.h"
 
 std::string routing::GetDefaultEthName() {
-    const std::string sOutput = exec("ip route get 1.2.3.4");
+    const std::string sCmd = "ip route get 1.2.3.4";
+    const std::string sOutput = exec(sCmd.c_str());
     const std::vector<std::string> arToken = explode(sOutput, " ");
+    if (arToken.size() < 5) {
+        std::cerr << "\033[91m" << "ERROR: Cannot parse command '" << sCmd << "'" << " output '" << sOutput << "'" << "\033[0m" << std::endl;
+        exit (-3);
+    }
     return arToken[4];
 }
 
 std::string routing::GetDefaultEthIP() {
-    const std::string sOutput = exec("ip route get 1.2.3.4");
+    const std::string sCmd = "ip route get 1.2.3.4";
+    const std::string sOutput = exec(sCmd.c_str());
     const std::vector<std::string> arToken = explode(sOutput, " ");
+    if (arToken.size() < 7) {
+        std::cerr << "\033[91m" << "ERROR: Cannot parse command '" << sCmd << "'" << " output '" << sOutput << "'" << "\033[0m" << std::endl;
+        exit (-3);
+    }
     return arToken[6];
+}
+
+std::string routing::GetIPByDev(const char *sDev) {
+    const std::string sCmd = "ip addr show enp0s3 | grep inet | grep enp0s3";
+    const std::string sOutput = exec(sCmd.c_str());
+    const std::vector<std::string> arToken1 = explode(sOutput, " ");
+    if (arToken1.size() < 2) {
+        std::cerr << "\033[91m" << "ERROR: Cannot parse (1) command '" << sCmd << "'" << " output '" << sOutput << "'" <<"\033[0m" << std::endl;
+        exit (-3);
+    }
+    const std::vector<std::string> arToken2 = explode(arToken1[1], "/");
+    if (!arToken2.size()) {
+        std::cerr << "\033[91m" << "ERROR: Cannot parse (2) command '" << sCmd << "'" << " output '" << sOutput << "'" << "\033[0m" << std::endl;
+        exit (-3);
+    }
+    return arToken2[0];
 }
 
 void routing::CreateTunnelRoutes(const char *sTunName1, const char *sTunName2, const char *sEthName, const char *sEthIP)
