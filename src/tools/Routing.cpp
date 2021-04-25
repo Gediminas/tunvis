@@ -3,9 +3,15 @@
 #include "str_util.h"
 
 std::string routing::GetDefaultEthName() {
-    const std::string output = exec("ip route | grep default");
-    std::cout << "ETH: " << output << std::endl;
-    return "enp0s3";
+    const std::string sOutput = exec("ip route | grep default");
+    const std::vector<std::string> arToken = explode(sOutput, " ");
+    for (size_t i1 = 0; i1 < arToken.size()-1; ++i1) {
+        const std::string sToken = arToken[i1];
+        if (sToken == "dev") {
+            return arToken[i1+1];
+        }
+    }
+    return "eth0";
 }
 
 void routing::CreateTunnelRoutes(const char *sEthName, const char *sTunName1, const char *sTunName2)

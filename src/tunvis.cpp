@@ -14,9 +14,9 @@ constexpr const char *c_sTunName2   = "tunvis2";
 std::string g_sEthName;
 
 void signal_callback_handler(int signum) {
-   std::cout << "Program terminating " << signum << std::endl;
+   std::cout << "\033[1;33mProgram terminating...\033[0m" << std::endl;
    routing::DestroyTunnelRoutes(g_sEthName.c_str(), c_sTunName1, c_sTunName2);
-   // sleep(3);
+   sleep(3);
    exit(signum);
 }
 
@@ -26,16 +26,20 @@ int main() {
     signal(SIGINT, signal_callback_handler);
 
     g_sEthName = routing::GetDefaultEthName();
+    std::cout << "\033[32m" << "Network interface used (default gateway): " << g_sEthName << "\033[0m" << std::endl;
+
+    std::cout << "\033[32m" << "Creating TUN interfaces " << c_sTunName1 << " & " << c_sTunName2 << "..." << "\033[0m" << std::endl;
     const int fdTun1 = tun::InitTun(c_sTunName1);
     const int fdTun2 = tun::InitTun(c_sTunName2);
-
-    std::cout << "Successfully connected to interfaces " << c_sTunName1 << " & " << c_sTunName2 << std::endl;
+    std::cout << "\033[32m" << "Successfully connected to interfaces " << c_sTunName1 << " & " << c_sTunName2 << " \033[0m" << std::endl;
 
     routing::DestroyTunnelRoutes(g_sEthName.c_str(), c_sTunName1, c_sTunName2); // just in case
     routing::CreateTunnelRoutes(g_sEthName.c_str(), c_sTunName1, c_sTunName2);
     PrintTunnel(g_sEthName.c_str(), c_sTunName1, c_sTunName2);
 
-    const std::vector<CFilterRule> arRules = filter_rules::readRules("dat/rules1.txt");
+    const std::string sRulesFile = "dat/rules1.txt";
+    std::cout << "\033[32m" << "Loading rules from " << sRulesFile << "..."<< "\033[0m" << std::endl;
+    const std::vector<CFilterRule> arRules = filter_rules::readRules(sRulesFile.c_str());
     PrintRules(arRules);
 
     sleep(1000);
