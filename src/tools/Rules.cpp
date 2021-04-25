@@ -11,6 +11,10 @@
 std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
     std::vector<CFilterRule> arRules;
     std::fstream fs(sFileName, std::ios::in);
+    if (!fs.is_open()) {
+        std::cerr << "\033[1;31m" << "Rules file " << sFileName << " not found!" << "\033[0m" << std::endl;
+        return arRules;
+    }
     std::string sLine, sCidr, sRule;
     uint32_t uNr = 0U;
     while (getline(fs, sLine)) {
@@ -29,9 +33,6 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
         const std::string sRulePart = arsLinePart[0];
         const std::vector<std::string> arsRulePart = explode(sRulePart, " ./");
 
-        // for (const std::string &sPart : arsRulePart) {
-        //     std::cout << sPart << std::endl;
-        // }
         if (arsRulePart.size() != 7) {
             std::cerr << "\033[1;31m" << "ERROR: Invalid rule in line " << uNr << ": "  << sLine << "\033[0m" << std::endl;
             continue;
@@ -84,9 +85,6 @@ std::tuple<uint64_t, char, EFilterRule> filter_rules::ParseRuleValueType(const s
         dValue = std::stod(sValue);
 
         const std::string sUnits = sText.substr(i1, std::string::npos);
-
-        // std::cout << ">>>> " << sValue << " " << dValue << " " << sUnits << std::endl;
-
         if (sUnits == "b") {
             cUnit = 'b';
             eType = EFilterRule::LimitDownload;
@@ -126,7 +124,6 @@ std::tuple<uint64_t, char, EFilterRule> filter_rules::ParseRuleValueType(const s
         }
     }
     const uint64_t uValue = std::round(dValue);
-    // std::cout << uValue << " " << cUnit << " " << (int32_t)eType << std::endl;
     return std::make_tuple(uValue, cUnit, eType);
 }
 

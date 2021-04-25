@@ -14,57 +14,54 @@ constexpr const char *c_sTunName2   = "tunvis2";
 std::string g_sEthName;
 std::string g_sEthIP;
 
-void signal_callback_handler(int signum) {
-   std::cout << std::endl;
-   std::cout << "\033[1;33m" << "Terminating..." << "\033[0m" << std::endl;
-   std::cout << "\033[32m"   << "Destroying tunnel" << "\033[0m" << std::endl;
+namespace internal {
+    static void OnTerminate(int signum) {
+        std::cout << std::endl;
+        std::cout << "\033[1;33m" << "Terminating..." << "\033[0m" << std::endl;
+        std::cout << "\033[32m"   << "Destroying tunnel" << "\033[0m" << std::endl;
 
-   routing::DestroyTunnelRoutes(c_sTunName1, c_sTunName2, g_sEthName.c_str(), g_sEthIP.c_str());
+        routing::DestroyTunnelRoutes(c_sTunName1, c_sTunName2, g_sEthName.c_str(), g_sEthIP.c_str());
 
-   std::cout << "\033[1;33m" << "Terminated" << "\033[0m" << std::endl;
-   exit(signum);
-}
-static void show_usage(std::string name)
-{
-    std::cerr << "Usage: " << name << " <option(s)> RULES_FILE\n"
-              << "Options:\n"
-              << "\t-h,--help\t\tShow this help message\n"
-              // << "\t-i,--interface INTERFACE\tNetwork Interface"
-              << std::endl;
+        std::cout << "\033[1;33m" << "Terminated" << "\033[0m" << std::endl;
+        exit(signum);
+    }
+
+    static inline std::tuple<std::string, std::string> ParseAppParams(int argc, char* argv[]) {
+        std::string sRulesFile, sInterface;
+        for (int i = 1; i < argc; ++i) {
+            const std::string arg = argv[i];
+            if ((arg == "-h") || (arg == "--help")) {
+                PrintUsage(argv[0]);
+                exit (-1);
+            } else if ((arg == "-i") || (arg == "--interface")) {
+                if (i + 1 < argc) {
+                    sInterface = argv[i++];
+                } else {
+                    std::cerr << "-i / --interface option requires one argument." << std::endl;
+                    exit (-1);
+                }
+            } else {
+                sRulesFile = argv[i];
+            }
+        }
+        if (sRulesFile.empty()) {
+            PrintUsage(argv[0]);
+            exit (-1);
+        }
+        return std::make_tuple(sRulesFile, sInterface);
+    }
 }
 
 int main(int argc, char* argv[]) {
-    std::string sRulesFile;
+    auto [sRulesFile, sInterface] = internal::ParseAppParams(argc, argv);
 
-    for (int i = 1; i < argc; ++i) {
-        const std::string arg = argv[i];
-
-        if ((arg == "-h") || (arg == "--help")) {
-            show_usage(argv[0]);
-            return 0;
-        } else if ((arg == "-i") || (arg == "--interface")) {
-            if (i + 1 < argc) {
-                // interface = argv[i++];
-                ++i;
-            } else {
-                std::cerr << "-i / --interface option requires one argument." << std::endl;
-                return 1;
-            }
-        } else {
-            sRulesFile = argv[i];
-        }
-    }
-    if (sRulesFile.empty()) {
-        show_usage(argv[0]);
-        return 0;
-    }
+    signal(SIGINT, internal::OnTerminate);
 
     PrintAppTitle();
 
-    signal(SIGINT, signal_callback_handler);
-
-    g_sEthName = routing::GetDefaultEthName();
+    g_sEthName = sInterface.empty() ? routing::GetDefaultEthName() : sInterface;
     g_sEthIP   = routing::GetDefaultEthIP();
+
     std::cout << "\033[32m" << "Network interface used: " << g_sEthName << " (" << g_sEthIP << ")" << "\033[0m" << std::endl;
 
     std::cout << "\033[32m" << "Creating TUN interfaces " << c_sTunName1 << " & " << c_sTunName2 << "..." << "\033[0m" << std::endl;

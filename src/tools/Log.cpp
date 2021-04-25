@@ -46,6 +46,14 @@ namespace internal {
     // }
 };
 
+void PrintUsage(const std::string sAppName) {
+    std::cerr << "Usage: " << sAppName << " <option(s)> RULES_FILE\n"
+              << "Options:\n"
+              << "  -h,--help                - Show this help message\n"
+              << "  -i,--interface INTERFACE - Network Interface"
+              << std::endl;
+}
+
 void PrintAppTitle(){
     std::cout << std::endl;
     std::cout << "\033[1;33m" << "=====================================================================" << "\033[0m" << std::endl;

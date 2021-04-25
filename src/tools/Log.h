@@ -6,6 +6,7 @@ class CFilterRule;
 class CRuleTrack;
 class CIpv4Packet;
 
+void PrintUsage(const std::string sAppName);
 void PrintAppTitle();
 void PrintTunnel(const char *sEthName, const char *sTunName1, const char *sTunName2);
 void PrintCurrentDateTime();
