@@ -1,13 +1,11 @@
 #include "Routing.h"
+#include "Process.h"
+#include "str_util.h"
 
-static std::string str_format(const std::string fmt_str, ...) {
-    va_list ap;
-    char *fp = NULL;
-    va_start(ap, fmt_str);
-    vasprintf(&fp, fmt_str.c_str(), ap);
-    va_end(ap);
-    std::unique_ptr<char[]> formatted(fp);
-    return std::string(formatted.get());
+std::string routing::GetDefaultEthName() {
+    const std::string output = exec("ip route | grep default");
+    std::cout << "ETH: " << output << std::endl;
+    return "enp0s3";
 }
 
 void routing::CreateTunnelRoutes(const char *sEthName, const char *sTunName1, const char *sTunName2)
@@ -89,9 +87,3 @@ void routing::DestroyTunnelRoutes(const char *sEthName, const char *sTunName1, c
     system("ip rule del fwmark 1 table 1 2>/dev/null");
 }
 
-std::string routing::GetDefaultEthName() {
-    const int status = std::system("ip route|grep default>tmp/eth.txt");
-    std::cout << "Exit code: " << WEXITSTATUS(status) << std::endl;
-    std::cout << std::ifstream("tmp/test.txt").rdbuf();
-    return "enp0s3";
-}

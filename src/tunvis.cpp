@@ -1,9 +1,11 @@
-#include "utils/IPv4.h"
-#include "utils/Log.h"
-#include "utils/Routing.h"
-#include "utils/Rules.h"
-#include "utils/Tracking.h"
-#include "utils/tun.h"
+#include "tools/IPv4.h"
+#include "tools/Log.h"
+#include "tools/Routing.h"
+#include "tools/Rules.h"
+#include "tools/Tracking.h"
+#include "tools/tun.h"
+
+#include <unistd.h> //sleep
 
 constexpr int32_t     c_nBufferSize = 2000; // for tun/tap must be >= 1500
 constexpr const char *c_sTunName1   = "tunvis1";
@@ -36,6 +38,8 @@ int main() {
     const std::vector<CFilterRule> arRules = filter_rules::readRules("dat/rules1.txt");
     PrintRules(arRules);
 
+    sleep(1000);
+    return 0;
 
     std::vector<CRuleTrack> arTrack(arRules.size());
 

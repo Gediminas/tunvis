@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+PID=0
+
+# init() {
+#   iptables -I INPUT -i enp0s3 -j DROP # EXTRA CHECK
+# }
+
+destroy() {
+  kill -SIGTERM $PID
+  # killall tunvis > /dev/null 2>&1
+  # iptables -D INPUT -i enp0s3 -j DROP # EXTRA CHECK
+}
+
+trap ctrl_c INT
+ctrl_c() {
+    echo "tunvis_forever: Trapped CTRL-C"
+    destroy
+    exit
+}
+
+killall tunvis > /dev/null 2>&1
+
+pushd ..
+while true; do
+  # init
+  ./tunvis &
+  PID=$!
+  inotifywait ./tunvis
+  destroy
+  sleep 3
+done
+popd

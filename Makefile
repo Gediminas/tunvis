@@ -1,16 +1,18 @@
 tunvis: src/tunvis.cpp \
-		src/utils/IPv4.cpp \
-		src/utils/IPv4.h \
-		src/utils/Log.cpp \
-		src/utils/Log.h \
-		src/utils/Routing.cpp \
-		src/utils/Routing.h \
-		src/utils/Rules.cpp \
-		src/utils/Rules.h \
-		src/utils/str_util.h \
-		src/utils/Tracking.cpp \
-		src/utils/Tracking.h \
-		src/utils/tun.cpp \
-		src/utils/tun.h
+		src/tools/IPv4.cpp \
+		src/tools/IPv4.h \
+		src/tools/Log.cpp \
+		src/tools/Log.h \
+		src/tools/Process.cpp \
+		src/tools/Process.h \
+		src/tools/Routing.cpp \
+		src/tools/Routing.h \
+		src/tools/Rules.cpp \
+		src/tools/Rules.h \
+		src/tools/str_util.h \
+		src/tools/Tracking.cpp \
+		src/tools/Tracking.h \
+		src/tools/tun.cpp \
+		src/tools/tun.h
 
-	g++ -std=c++17 -Wall -fexceptions -o tunvis src/tunvis.cpp src/utils/Routing.cpp src/utils/Rules.cpp src/utils/IPv4.cpp src/utils/Tracking.cpp src/utils/tun.cpp src/utils/Log.cpp
+	g++ -std=c++17 -Wall -fexceptions -o tunvis src/tunvis.cpp src/tools/IPv4.cpp src/tools/Log.cpp src/tools/Process.cpp src/tools/Routing.cpp src/tools/Rules.cpp src/tools/Tracking.cpp src/tools/tun.cpp
