@@ -12,11 +12,12 @@ constexpr const char *c_sTunName1   = "tunvis1";
 constexpr const char *c_sTunName2   = "tunvis2";
 
 std::string g_sEthName;
+std::string g_sEthIP;
 
 void signal_callback_handler(int signum) {
    std::cout << std::endl;
    std::cout << "\033[1;33mProgram Terminating...\033[0m" << std::endl;
-   routing::DestroyTunnelRoutes(g_sEthName.c_str(), c_sTunName1, c_sTunName2);
+   routing::DestroyTunnelRoutes(c_sTunName1, c_sTunName2, g_sEthName.c_str(), g_sEthIP.c_str());
    // sleep(3);
    std::cout << "\033[1;33mProgram Terminated\033[0m" << std::endl;
    exit(signum);
@@ -28,15 +29,21 @@ int main() {
     signal(SIGINT, signal_callback_handler);
 
     g_sEthName = routing::GetDefaultEthName();
-    std::cout << "\033[32m" << "Network interface used (default gateway): " << g_sEthName << "\033[0m" << std::endl;
+    g_sEthIP   = routing::GetDefaultEthIP();
+
+    std::cout << "\033[32m" << "Network interface used: " << g_sEthName << " (" << g_sEthIP << ")" << "\033[0m" << std::endl;
 
     std::cout << "\033[32m" << "Creating TUN interfaces " << c_sTunName1 << " & " << c_sTunName2 << "..." << "\033[0m" << std::endl;
     const int fdTun1 = tun::InitTun(c_sTunName1);
     const int fdTun2 = tun::InitTun(c_sTunName2);
     std::cout << "\033[32m" << "Successfully connected to interfaces " << c_sTunName1 << " & " << c_sTunName2 << " \033[0m" << std::endl;
 
-    routing::DestroyTunnelRoutes(g_sEthName.c_str(), c_sTunName1, c_sTunName2); // just in case
-    routing::CreateTunnelRoutes(g_sEthName.c_str(), c_sTunName1, c_sTunName2);
+    std::cout << "\033[32m" << "Destroying tunnel (if exists)" << "\033[0m" << std::endl;
+    routing::DestroyTunnelRoutes(c_sTunName1, c_sTunName2, g_sEthName.c_str(), g_sEthIP.c_str()); // just in case
+
+    std::cout << "\033[32m" << "Creating tunnel" << "\033[0m" << std::endl;
+    routing::CreateTunnelRoutes(c_sTunName1, c_sTunName2, g_sEthName.c_str(), g_sEthIP.c_str());
+
     PrintTunnel(g_sEthName.c_str(), c_sTunName1, c_sTunName2);
 
     const std::string sRulesFile = "dat/rules1.txt";

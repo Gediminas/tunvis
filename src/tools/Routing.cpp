@@ -3,32 +3,28 @@
 #include "str_util.h"
 
 std::string routing::GetDefaultEthName() {
-    const std::string sOutput = exec("ip route | grep default");
+    const std::string sOutput = exec("ip route get 1.2.3.4");
     const std::vector<std::string> arToken = explode(sOutput, " ");
-    for (size_t i1 = 0; i1 < arToken.size()-1; ++i1) {
-        const std::string sToken = arToken[i1];
-        if (sToken == "dev") {
-            return arToken[i1+1];
-        }
-    }
-    return "eth0";
+    return arToken[4];
 }
 
-void routing::CreateTunnelRoutes(const char *sEthName, const char *sTunName1, const char *sTunName2)
+std::string routing::GetDefaultEthIP() {
+    const std::string sOutput = exec("ip route get 1.2.3.4");
+    const std::vector<std::string> arToken = explode(sOutput, " ");
+    return arToken[6];
+}
+
+void routing::CreateTunnelRoutes(const char *sTunName1, const char *sTunName2, const char *sEthName, const char *sEthIP)
 {
-    std::cout << "Creating tunnel" << std::endl;
+    execv("           echo 1 > /proc/sys/net/ipv4/ip_forward");
 
-    const char *sEthIP = "192.168.101.137";
-
-    execv("echo 1 > /proc/sys/net/ipv4/ip_forward");
+ // execv("           echo 1 > /proc/sys/net/ipv4/tcp_fwmark_accept");
     execv(str_format("echo 0 > /proc/sys/net/ipv4/conf/%s/rp_filter", sTunName1).c_str());
 
-    execv("echo 1 > /proc/sys/net/ipv4/tcp_fwmark_accept");
-
-    // execv("echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter");
+    // execv("           echo 0 > /proc/sys/net/ipv4/conf/default/rp_filter");
     // execv(str_format("echo 0 > /proc/sys/net/ipv4/conf/%s/rp_filter", sIFName1).c_str());
-    // execv("echo 0 > /proc/sys/net/ipv4/conf/tunvis2/rp_filter");
-    // execv("echo 0 r /proc/sys/net/ipv4/conf/enp0s3/rp_filter");
+    // execv("           echo 0 > /proc/sys/net/ipv4/conf/tunvis2/rp_filter");
+    // execv("           echo 0 r /proc/sys/net/ipv4/conf/enp0s3/rp_filter");
 
     execv(str_format("ip link set %s up", sTunName1).c_str());
     execv(str_format("ip link set %s up", sTunName2).c_str());
@@ -72,12 +68,8 @@ void routing::CreateTunnelRoutes(const char *sEthName, const char *sTunName1, co
 
 }
 
-void routing::DestroyTunnelRoutes(const char *sEthName, const char *sTunName1, const char *sTunName2)
+void routing::DestroyTunnelRoutes(const char *sTunName1, const char *sTunName2, const char *sEthName, const char *sEthIP)
 {
-    std::cout << "Destroying tunnel (if exists)" << std::endl;
-
-    const char *sEthIP = "192.168.101.137";
-
     execv(str_format("iptables -D INPUT -i %s -j DROP 2>/dev/null", sEthName).c_str()); //debug
 
     execv(str_format("iptables -t nat -D PREROUTING -i %s  -j DNAT --to-destination 10.0.2.22 2>/dev/null", sEthName).c_str());

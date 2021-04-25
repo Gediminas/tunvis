@@ -20,6 +20,6 @@ std::string exec(const char* cmd) {
 }
 
 void execv(const char* cmd) {
-    std::cout << ">> " << cmd << std::endl;
+    std::cout << "\033[90m" << ">> " << cmd << "\033[0m" << std::endl;
     system(cmd);
 }
