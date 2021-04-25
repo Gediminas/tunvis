@@ -19,7 +19,7 @@ namespace internal {
             dHuman /= 1024.0;
             if (*pUnit == sUnit) {
                 std::stringstream ss;
-                ss << std::fixed << std::setprecision(4) << dHuman;
+                ss << std::fixed << std::setprecision(3) << dHuman;
                 return ss.str();
             }
         }
