@@ -5,14 +5,6 @@
 void UpdateTracking(const CFilterRule &rule, const CIpv4Packet &packet, CRuleTrack &track, uint16_t uRead) {
     const std::time_t now = std::time(nullptr);
 
-    std::cout << "                        Read:"
-              << uRead
-              << " IHL:"
-              << packet.uIHL*4
-              << " HLen:"
-              << packet.uHeaderLength
-              << std::endl;
-
     switch (rule.eRuleType) {
     case EFilterRule::LimitTime:
         if (track.uValue == 0U) {

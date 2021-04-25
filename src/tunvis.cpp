@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
             ++nPacketCounter;
             bool bTerminate = false;
             const uint16_t    uRead = tun::Read(fdTun1, buffer, sizeof(buffer));
-            const CIpv4Packet packet = ipv4::ParseIpv4Packet(buffer);
+            const CIpv4Packet packet = ipv4::ParseIpv4Packet(buffer, uRead);
             const int32_t     nRule  = filter_rules::findLastRule(arRules, packet.uDst, packet.eProtocol);
 
             if (nRule != -1) {
@@ -135,7 +135,7 @@ int main(int argc, char* argv[]) {
             ++nPacketCounter;
             bool bTerminate = false;
             const uint16_t uRead = tun::Read(fdTun2, buffer, sizeof(buffer));
-            const CIpv4Packet    packet  = ipv4::ParseIpv4Packet(buffer);
+            const CIpv4Packet    packet  = ipv4::ParseIpv4Packet(buffer, uRead);
             std::time_t    now   = std::time(nullptr);
 
             const int32_t nRule = filter_rules::findLastRule(arRules, packet.uSrc, packet.eProtocol);

@@ -17,10 +17,10 @@ class CIpv4Packet final {
     CIpv4Packet()  {}
     ~CIpv4Packet() {}
  public:
-    uint8_t  uVersion      {0}; //  4 bits
-    uint8_t  uIHL          {0}; //  4 bits
-    uint8_t  uType         {0}; //  8 bits
-    uint16_t uHeaderLength {0}; // 16 bits
+    uint8_t  uVersion     {0}; //  4 bits
+    uint8_t  uIHL         {0}; //  4 bits
+    uint8_t  uType        {0}; //  8 bits
+    uint16_t uTotalLength {0}; // 16 bits
 
     EProtocol   eProtocol;
     std::string sProtocol;
@@ -35,7 +35,7 @@ class CIpv4Packet final {
 namespace ipv4 {
   std::string NumberToAddress(const uint32_t uAddress);
   uint32_t AddressToNumber(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4);
-  CIpv4Packet ParseIpv4Packet(const char *data);
+  CIpv4Packet ParseIpv4Packet(const char *data, uint16_t uLength);
 
   EProtocol StrToProtocol(const char* sProtocol);
   std::string ProtocolToStr(EProtocol eProtocol);
