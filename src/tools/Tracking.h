@@ -25,4 +25,4 @@ public:
     // std::string sNote;
 };
 
-bool CheckRuleForTerm(const CFilterRule &rule, const CIpv4Packet &packet, CRuleTrack &track, uint16_t uRead);
+void UpdateTracking(const CFilterRule &rule, const CIpv4Packet &packet, CRuleTrack &track, uint16_t uRead);

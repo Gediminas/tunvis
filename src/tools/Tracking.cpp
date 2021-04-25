@@ -2,7 +2,7 @@
 #include "Rules.h"
 #include "Tracking.h"
 
-bool CheckRuleForTerm(const CFilterRule &rule, const CIpv4Packet &packet, CRuleTrack &track, uint16_t uRead) {
+void UpdateTracking(const CFilterRule &rule, const CIpv4Packet &packet, CRuleTrack &track, uint16_t uRead) {
     const std::time_t now = std::time(nullptr);
 
     std::cout << "                        Read:"
@@ -18,15 +18,16 @@ bool CheckRuleForTerm(const CFilterRule &rule, const CIpv4Packet &packet, CRuleT
         if (track.uValue == 0U) {
             track.uValue = now;
         } else if (now - track.uValue > rule.uValue) {
-            return true;
+            track.bTerminate = true;
         }
         break;
     case EFilterRule::LimitDownload:
         if (track.uValue < rule.uValue) {
             track.uValue += uRead;
             track.uValue -= packet.uIHL*4;
+            track.uValue -= 32;
         } else {
-            return true;
+            track.bTerminate = true;
         }
         break;
     case EFilterRule::Undefined:
@@ -34,5 +35,4 @@ bool CheckRuleForTerm(const CFilterRule &rule, const CIpv4Packet &packet, CRuleT
         // std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
         break;
     }
-    return false;
 }

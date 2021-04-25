@@ -145,8 +145,8 @@ int main(int argc, char* argv[]) {
                 const CFilterRule &rule = arRules[nRule];
                 CRuleTrack &track = arTrack[nRule];
 
-                bTerminate = CheckRuleForTerm(rule, packet, track, uRead);
-                track.bTerminate = bTerminate;
+                UpdateTracking(rule, packet, track, uRead);
+                bTerminate = track.bTerminate;
 
                 PrintTraffic(nPacketCounter, uRead, packet, bTerminate, true);
                 PrintAppliedRule(rule, true);
