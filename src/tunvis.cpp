@@ -109,7 +109,6 @@ int main(int argc, char* argv[]) {
 
         if (FD_ISSET(fdTun1, &fdSet)) {
             ++nPacketCounter;
-            bool bTerminate = false;
             const uint16_t    uRead = tun::Read(fdTun1, buffer, sizeof(buffer));
             const CIpv4Packet packet = ipv4::ParseIpv4PacketHeader(buffer, uRead);
             const int32_t     nRule  = filter_rules::findLastRule(arRules, packet.uDst, packet.eProtocol);
@@ -117,43 +116,40 @@ int main(int argc, char* argv[]) {
             if (nRule != -1) {
                 const CFilterRule &rule = arRules[nRule];
                 CRuleTrack &track = arTrack[nRule];
-                bTerminate = track.bTerminate;
 
                 PrintCurrentDateTime();
-                PrintTraffic(nPacketCounter, uRead, packet, bTerminate, false);
+                PrintTraffic(nPacketCounter, uRead, packet, track.bTerminate, false);
                 PrintAppliedRule(rule, false);
                 PrintTrackingDetails(rule, track, false);
                 std::cout << std::endl;
-            }
 
-            if (!bTerminate) {
-                tun::Write(fdTun2, buffer, uRead);
+                if (!track.bTerminate) {
+                    tun::Write(fdTun2, buffer, uRead);
+                }
             }
         }
 
         if (FD_ISSET(fdTun2, &fdSet)) {
             ++nPacketCounter;
-            bool bTerminate = false;
             const uint16_t uRead = tun::Read(fdTun2, buffer, sizeof(buffer));
             const CIpv4Packet    packet  = ipv4::ParseIpv4PacketHeader(buffer, uRead);
             const int32_t nRule = filter_rules::findLastRule(arRules, packet.uSrc, packet.eProtocol);
-            if (nRule != -1) {
-                PrintCurrentDateTime();
 
+            if (nRule != -1) {
                 const CFilterRule &rule = arRules[nRule];
                 CRuleTrack &track = arTrack[nRule];
 
                 UpdateTracking(rule, packet, track, buffer, uRead);
-                bTerminate = track.bTerminate;
 
-                PrintTraffic(nPacketCounter, uRead, packet, bTerminate, true);
+                PrintCurrentDateTime();
+                PrintTraffic(nPacketCounter, uRead, packet, track.bTerminate, true);
                 PrintAppliedRule(rule, true);
                 PrintTrackingDetails(rule, track, true);
                 std::cout << std::endl;
-            }
 
-            if (!bTerminate) {
-                tun::Write(fdTun1, buffer, uRead);
+                if (!track.bTerminate) {
+                    tun::Write(fdTun1, buffer, uRead);
+                }
             }
         }
     }
