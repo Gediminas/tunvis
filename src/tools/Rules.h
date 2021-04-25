@@ -2,13 +2,13 @@
 
 #include <bits/stdc++.h>
 
+enum class EProtocol : uint8_t;
+
 enum class EFilterRule : uint8_t {
     Undefined = 0,
     LimitTime,
     LimitDownload,
 };
-
-enum class EProtocol : uint8_t;
 
 class CFilterRule final {
 public:
@@ -31,7 +31,5 @@ public:
 namespace filter_rules {
     std::vector<CFilterRule> readRules(const char* sFileName);
     int32_t findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress, EProtocol eProtocol);
-
     std::tuple<uint64_t, char, EFilterRule> ParseRuleValueType(const std::string &sText);
-    /* std::string GetHumanRuleValue(const CFilterRule &rule); */
 };

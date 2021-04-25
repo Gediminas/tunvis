@@ -1,10 +1,6 @@
-#pragma once
+#include "StrUtil.h"
 
-#include <bits/stdc++.h>
-/* #include <vector> */
-/* #include <algorithm> */
-
-inline std::vector<std::string> explode(const std::string &sText, const std::string &sDelims) {
+std::vector<std::string> explode(const std::string &sText, const std::string &sDelims) {
     std::vector<std::string> arsTokens;
     size_t beg, pos = 0;
     while ((beg = sText.find_first_not_of(sDelims, pos)) != std::string::npos) {
@@ -14,8 +10,7 @@ inline std::vector<std::string> explode(const std::string &sText, const std::str
     return arsTokens;
 }
 
-inline std::string& ltrim(std::string &s)
-{
+std::string& ltrim(std::string &s) {
     const auto it = std::find_if(s.begin(), s.end(), [](char c) {
             return !std::isspace<char>(c, std::locale::classic());
         });
@@ -23,8 +18,7 @@ inline std::string& ltrim(std::string &s)
     return s;
 }
 
-inline std::string& rtrim(std::string &s)
-{
+std::string& rtrim(std::string &s) {
     const auto it = std::find_if(s.rbegin(), s.rend(), [](char c) {
             return !std::isspace<char>(c, std::locale::classic());
         });
@@ -32,11 +26,11 @@ inline std::string& rtrim(std::string &s)
     return s;
 }
 
-inline std::string& trim(std::string &s) {
+std::string& trim(std::string &s) {
     return ltrim(rtrim(s));
 }
 
-inline std::string str_format(const std::string fmt_str, ...) {
+std::string str_format(const std::string fmt_str, ...) {
     va_list ap;
     char *fp = NULL;
     va_start(ap, fmt_str);

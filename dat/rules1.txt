@@ -1,4 +1,4 @@
-8.8.8.8/32         ICMP  1h        # google
+8.8.8.8/32         ICMP  1m        # google
 8.8.4.4/32         ICMP  1mb        # google
 80.249.106.141/32  TCP   5kb        # thinkbroadband.com
 

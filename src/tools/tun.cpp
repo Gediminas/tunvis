@@ -1,29 +1,20 @@
 #include "tun.h"
 
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <net/if.h>
 #include <linux/if_tun.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <sys/select.h>
-#include <sys/time.h>
-#include <errno.h>
-#include <stdarg.h>
 
 constexpr int flags = IFF_TUN | IFF_NO_PI; //IFF_TAP IFF_MULTI_QUEUE
 
 int tun::InitTun(const char *name) {
     const int fd = open("/dev/net/tun", O_RDWR);
     if (fd < 0) {
-        std::cerr << "Error connecting to tun/tap interface " << name << std::endl;
+        std::cerr << "\033[91m" << "ERROR: Failed to connect TUN/TAP interface " << name << "!" << "\033[0m" << std::endl;
         exit(1);
     }
 

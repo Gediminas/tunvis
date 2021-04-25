@@ -3,7 +3,7 @@
 #include "Tracking.h"
 
 void UpdateTracking(const CFilterRule &rule, const CIpv4Packet &packet, CRuleTrack &track, char *buffer, uint16_t uRead) {
-    if (track.bTerminate) {
+    if (!track.bAccept) {
         return;
     }
     switch (rule.eRuleType) {
@@ -12,7 +12,7 @@ void UpdateTracking(const CFilterRule &rule, const CIpv4Packet &packet, CRuleTra
             if (track.uValue == 0U) {
                 track.uValue = now;
             } else if (now - track.uValue > rule.uValue) {
-                track.bTerminate = true;
+                track.bAccept = false;
             }
         }
         break;
@@ -33,7 +33,7 @@ void UpdateTracking(const CFilterRule &rule, const CIpv4Packet &packet, CRuleTra
                 track.uValue -= uTCPHeaderSize;
             }
         } else {
-            track.bTerminate = true;
+            track.bAccept = false;
         }
         break;
     case EFilterRule::Undefined:

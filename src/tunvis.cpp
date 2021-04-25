@@ -35,7 +35,7 @@ namespace internal {
                 exit (-1);
             } else if ((arg == "-i") || (arg == "--interface")) {
                 if (i + 1 < argc) {
-                    sInterface = argv[i++];
+                    sInterface = argv[++i];
                 } else {
                     std::cerr << "-i / --interface option requires one argument." << std::endl;
                     exit (-1);
@@ -82,11 +82,7 @@ int main(int argc, char* argv[]) {
     const std::vector<CFilterRule> arRules = filter_rules::readRules(sRulesFile.c_str());
     PrintRules(arRules);
 
-    // sleep(1000);
-    // return 0;
-
     std::vector<CRuleTrack> arTrack(arRules.size());
-
 
     char buffer[c_nBufferSize];
     const int maxfd = (fdTun1 > fdTun2) ? fdTun1 : fdTun2; //use select() to handle two descriptors at once
@@ -109,47 +105,47 @@ int main(int argc, char* argv[]) {
 
         if (FD_ISSET(fdTun1, &fdSet)) {
             ++nPacketCounter;
+            bool bAccept = true;
             const uint16_t    uRead = tun::Read(fdTun1, buffer, sizeof(buffer));
             const CIpv4Packet packet = ipv4::ParseIpv4PacketHeader(buffer, uRead);
             const int32_t     nRule  = filter_rules::findLastRule(arRules, packet.uDst, packet.eProtocol);
-
             if (nRule != -1) {
                 const CFilterRule &rule = arRules[nRule];
                 CRuleTrack &track = arTrack[nRule];
+                bAccept = track.bAccept;
 
                 PrintCurrentDateTime();
-                PrintTraffic(nPacketCounter, uRead, packet, track.bTerminate, false);
+                PrintTraffic(nPacketCounter, uRead, packet, track.bAccept, false);
                 PrintAppliedRule(rule, false);
                 PrintTrackingDetails(rule, track, false);
                 std::cout << std::endl;
-
-                if (!track.bTerminate) {
-                    tun::Write(fdTun2, buffer, uRead);
-                }
+            }
+            if (bAccept) {
+                tun::Write(fdTun2, buffer, uRead);
             }
         }
 
         if (FD_ISSET(fdTun2, &fdSet)) {
             ++nPacketCounter;
+            bool bAccept = true;
             const uint16_t uRead = tun::Read(fdTun2, buffer, sizeof(buffer));
             const CIpv4Packet    packet  = ipv4::ParseIpv4PacketHeader(buffer, uRead);
             const int32_t nRule = filter_rules::findLastRule(arRules, packet.uSrc, packet.eProtocol);
-
             if (nRule != -1) {
                 const CFilterRule &rule = arRules[nRule];
                 CRuleTrack &track = arTrack[nRule];
 
                 UpdateTracking(rule, packet, track, buffer, uRead);
+                bAccept = track.bAccept;
 
                 PrintCurrentDateTime();
-                PrintTraffic(nPacketCounter, uRead, packet, track.bTerminate, true);
+                PrintTraffic(nPacketCounter, uRead, packet, track.bAccept, true);
                 PrintAppliedRule(rule, true);
                 PrintTrackingDetails(rule, track, true);
                 std::cout << std::endl;
-
-                if (!track.bTerminate) {
-                    tun::Write(fdTun1, buffer, uRead);
-                }
+            }
+            if (bAccept) {
+                tun::Write(fdTun1, buffer, uRead);
             }
         }
     }

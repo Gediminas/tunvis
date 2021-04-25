@@ -1,18 +1,13 @@
 #include "Rules.h"
 
-#include "str_util.h"
 #include "IPv4.h"
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
+#include "StrUtil.h"
 
 std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
     std::vector<CFilterRule> arRules;
     std::fstream fs(sFileName, std::ios::in);
     if (!fs.is_open()) {
-        std::cerr << "\033[1;31m" << "Rules file " << sFileName << " not found!" << "\033[0m" << std::endl;
+        std::cerr << "\033[91m" << "Rules file " << sFileName << " not found!" << "\033[0m" << std::endl;
         return arRules;
     }
     std::string sLine, sCidr, sRule;
@@ -27,16 +22,16 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
             continue;
         }
         if (arsLinePart.size() > 2) {
-            std::cerr << "\033[1;31m" << "ERROR: Invalid line " << uNr << ": " << sLine << "\033[0m" << std::endl;
+            std::cerr << "\033[91m" << "ERROR: Invalid line " << uNr << ": " << sLine << "\033[0m" << std::endl;
             continue;
         }
         const std::string sRulePart = arsLinePart[0];
         const std::vector<std::string> arsRulePart = explode(sRulePart, " ./");
-
         if (arsRulePart.size() != 7) {
-            std::cerr << "\033[1;31m" << "ERROR: Invalid rule in line " << uNr << ": "  << sLine << "\033[0m" << std::endl;
+            std::cerr << "\033[91m" << "ERROR: Invalid rule in line " << uNr << ": "  << sLine << "\033[0m" << std::endl;
             continue;
         }
+
         CFilterRule rule;
         const uint8_t a1 = std::stoi(arsRulePart[0]);
         const uint8_t a2 = std::stoi(arsRulePart[1]);
@@ -45,7 +40,7 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
 
         const int8_t uMaskValue = std::stoi(arsRulePart[4]);
         if (uMaskValue > 32) {
-            std::cerr << "Error in mask " << sLine << std::endl;
+            std::cerr << "\033[91m" << "ERROR: Invalid mask " << sLine << "\033[0m" << std::endl;
             continue;
         }
 
@@ -69,8 +64,19 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
     return arRules;
 }
 
+int32_t filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress, EProtocol eProtocol) {
+    int32_t nIndex = -1;
+    for (const CFilterRule &rule : arRules) {
+        ++nIndex;
+        if ((uAddress & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits) &&
+            (eProtocol == rule.eProtocol || rule.eProtocol == EProtocol::ANY)) {
+            return nIndex;
+        }
+    }
+    return -1;
+}
+
 std::tuple<uint64_t, char, EFilterRule> filter_rules::ParseRuleValueType(const std::string &sText) {
-        // const std::string sOrigValue = arsRulePart[6];
     double       dValue = 0.0;
     char         cUnit  = ' ';
     EFilterRule  eType  = EFilterRule::Undefined;
@@ -126,34 +132,3 @@ std::tuple<uint64_t, char, EFilterRule> filter_rules::ParseRuleValueType(const s
     const uint64_t uValue = std::round(dValue);
     return std::make_tuple(uValue, cUnit, eType);
 }
-
-int32_t filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress, EProtocol eProtocol) {
-    int32_t nIndex = -1;
-    for (const CFilterRule &rule : arRules) {
-        ++nIndex;
-        if ((uAddress & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits) &&
-            (eProtocol == rule.eProtocol || rule.eProtocol == EProtocol::ANY)) {
-            return nIndex;
-        }
-    }
-    return -1;
-}
-
-// constexpr const char *c_sByteUnits = "kmgt"; //kb, mb, gb, tb
-// static inline std::string GetHumanReadableBytes(uint64_t uBytes) {
-//     std::stringstream ss;
-//     if (uBytes < 1024) {
-//         ss << uBytes << "b";
-//         return ss.str();
-//     }
-//     double dHuman = uBytes;
-//     for (const char *pUnit = c_sByteUnits; pUnit; ++pUnit) {
-//         dHuman /= 1024.0;
-//         if (dHuman < 10) {
-//             ss << dHuman << *pUnit << "b";
-//             return ss.str();
-//         }
-//     }
-//     ss << "Invalid";
-//     return ss.str();
-// }

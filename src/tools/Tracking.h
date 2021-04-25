@@ -11,9 +11,9 @@ public:
     CRuleTrack()  {}
     ~CRuleTrack() {}
 public:
-    EFilterRule eRule; // {EFilterRule::Undefined};
-    uint64_t    uValue {0U};
-    bool        bTerminate {false};
+    EFilterRule eRule;  // {EFilterRule::Undefined};
+    uint64_t    uValue  {0U};
+    bool        bAccept {true};
 };
 
 void UpdateTracking(const CFilterRule &rule, const CIpv4Packet &packet, CRuleTrack &track, char *buffer, uint16_t uRead);
