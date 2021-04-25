@@ -16,21 +16,55 @@ std::string g_sEthIP;
 
 void signal_callback_handler(int signum) {
    std::cout << std::endl;
-   std::cout << "\033[1;33mProgram Terminating...\033[0m" << std::endl;
+   std::cout << "\033[1;33m" << "Terminating..." << "\033[0m" << std::endl;
+   std::cout << "\033[32m"   << "Destroying tunnel" << "\033[0m" << std::endl;
+
    routing::DestroyTunnelRoutes(c_sTunName1, c_sTunName2, g_sEthName.c_str(), g_sEthIP.c_str());
-   // sleep(3);
-   std::cout << "\033[1;33mProgram Terminated\033[0m" << std::endl;
+
+   std::cout << "\033[1;33m" << "Terminated" << "\033[0m" << std::endl;
    exit(signum);
 }
+static void show_usage(std::string name)
+{
+    std::cerr << "Usage: " << name << " <option(s)> RULES_FILE\n"
+              << "Options:\n"
+              << "\t-h,--help\t\tShow this help message\n"
+              // << "\t-i,--interface INTERFACE\tNetwork Interface"
+              << std::endl;
+}
 
-int main() {
+int main(int argc, char* argv[]) {
+    std::string sRulesFile;
+
+    for (int i = 1; i < argc; ++i) {
+        const std::string arg = argv[i];
+
+        if ((arg == "-h") || (arg == "--help")) {
+            show_usage(argv[0]);
+            return 0;
+        } else if ((arg == "-i") || (arg == "--interface")) {
+            if (i + 1 < argc) {
+                // interface = argv[i++];
+                ++i;
+            } else {
+                std::cerr << "-i / --interface option requires one argument." << std::endl;
+                return 1;
+            }
+        } else {
+            sRulesFile = argv[i];
+        }
+    }
+    if (sRulesFile.empty()) {
+        show_usage(argv[0]);
+        return 0;
+    }
+
     PrintAppTitle();
 
     signal(SIGINT, signal_callback_handler);
 
     g_sEthName = routing::GetDefaultEthName();
     g_sEthIP   = routing::GetDefaultEthIP();
-
     std::cout << "\033[32m" << "Network interface used: " << g_sEthName << " (" << g_sEthIP << ")" << "\033[0m" << std::endl;
 
     std::cout << "\033[32m" << "Creating TUN interfaces " << c_sTunName1 << " & " << c_sTunName2 << "..." << "\033[0m" << std::endl;
@@ -46,7 +80,6 @@ int main() {
 
     PrintTunnel(g_sEthName.c_str(), c_sTunName1, c_sTunName2);
 
-    const std::string sRulesFile = "dat/rules1.txt";
     std::cout << "\033[32m" << "Loading rules from " << sRulesFile << "..."<< "\033[0m" << std::endl;
     const std::vector<CFilterRule> arRules = filter_rules::readRules(sRulesFile.c_str());
     PrintRules(arRules);
