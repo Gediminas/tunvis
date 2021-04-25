@@ -96,7 +96,7 @@ void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CIpv4Packet &pack
     std::cout << " ";
 }
 
-void PrintRule(const CFilterRule &rule) {
+void PrintRule(const CRule &rule) {
     std::cout << "#" << rule.uNr << ": ";
     std::cout << ipv4::NumberToAddress(rule.uAddress) << "/" << +rule.uMaskValue;
     std::cout << " [" << rule.sProtocol << "] ";
@@ -105,25 +105,25 @@ void PrintRule(const CFilterRule &rule) {
     std::cout << " ";
 }
 
-void PrintRules(const std::vector<CFilterRule> &arRules) {
+void PrintRules(const std::vector<CRule> &arRules) {
     std::cout << "\033[96m" << "---------------------------------------------------------------------" << "\033[0m" << std::endl;
     std::cout << "\033[96m";
     std::cout << "Rules loaded:" << std::endl;
-    for (const CFilterRule &rule : arRules) {
+    for (const CRule &rule : arRules) {
         PrintRule(rule);
         std::cout << std::endl;
     }
     std::cout << "\033[0m";
     std::cout << "\033[96m" << "---------------------------------------------------------------------" << "\033[0m" << std::endl;
 }
-void PrintAppliedRule(const CFilterRule &rule, bool bIncommingConnection) {
+void PrintAppliedRule(const CRule &rule, bool bIncommingConnection) {
     std::cout << (bIncommingConnection ? "\033[36m" : "\033[96m");
     PrintRule(rule);
     std::cout << "\033[0m";
     std::cout << " ";
 }
 
-void PrintTrackingDetails(const CFilterRule &rule, const CRuleTrack &track, bool bIncommingConnection) {
+void PrintTrackingDetails(const CRule &rule, const CRuleTrack &track, bool bIncommingConnection) {
     switch (rule.eRuleType) {
     case EFilterRule::LimitTime:
         std::cout << (track.bAccept ? "\033[92mACCEPT\033[0m" : "\033[91mDROP\033[0m");
@@ -153,7 +153,7 @@ void PrintTrackingDetails(const CFilterRule &rule, const CRuleTrack &track, bool
     case EFilterRule::Undefined:
     default:
         std::cout << "ERROR: Internal error, unknown rule type" << std::endl;
-        exit (-4);
+        exit(-4);
         break;
     }
     std::cout << " ";

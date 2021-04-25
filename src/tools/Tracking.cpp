@@ -1,8 +1,9 @@
-#include "IPv4.h"
-#include "Rules.h"
 #include "Tracking.h"
 
-void UpdateTracking(const CFilterRule &rule, const CIpv4Packet &packet, CRuleTrack &track, char *buffer, uint16_t uRead) {
+#include "IPv4.h"
+#include "Rules.h"
+
+void UpdateTracking(const CRule &rule, const CIpv4Packet &packet, CRuleTrack &track, char *buffer, uint16_t uRead) {
     if (!track.bAccept) {
         return;
     }

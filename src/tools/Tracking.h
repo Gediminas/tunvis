@@ -2,7 +2,7 @@
 
 #include <bits/stdc++.h>
 
-class CFilterRule;
+class CRule;
 class CIpv4Packet;
 enum class EFilterRule : uint8_t;
 
@@ -16,4 +16,4 @@ public:
     bool        bAccept {true};
 };
 
-void UpdateTracking(const CFilterRule &rule, const CIpv4Packet &packet, CRuleTrack &track, char *buffer, uint16_t uRead);
+void UpdateTracking(const CRule &rule, const CIpv4Packet &packet, CRuleTrack &track, char *buffer, uint16_t uRead);

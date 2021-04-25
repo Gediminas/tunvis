@@ -3,8 +3,8 @@
 #include "IPv4.h"
 #include "StrUtil.h"
 
-std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
-    std::vector<CFilterRule> arRules;
+std::vector<CRule> filter_rules::readRules(const char* sFileName) {
+    std::vector<CRule> arRules;
     std::fstream fs(sFileName, std::ios::in);
     if (!fs.is_open()) {
         std::cerr << "\033[91m" << "Rules file " << sFileName << " not found!" << "\033[0m" << std::endl;
@@ -32,7 +32,7 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
             continue;
         }
 
-        CFilterRule rule;
+        CRule rule;
         const uint8_t a1 = std::stoi(arsRulePart[0]);
         const uint8_t a2 = std::stoi(arsRulePart[1]);
         const uint8_t a3 = std::stoi(arsRulePart[2]);
@@ -64,9 +64,9 @@ std::vector<CFilterRule> filter_rules::readRules(const char* sFileName) {
     return arRules;
 }
 
-int32_t filter_rules::findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress, EProtocol eProtocol) {
+int32_t filter_rules::findLastRule(const std::vector<CRule> &arRules, uint32_t uAddress, EProtocol eProtocol) {
     int32_t nIndex = -1;
-    for (const CFilterRule &rule : arRules) {
+    for (const CRule &rule : arRules) {
         ++nIndex;
         if ((uAddress & rule.uMaskBits) == (rule.uAddress & rule.uMaskBits) &&
             (eProtocol == rule.eProtocol || rule.eProtocol == EProtocol::ANY)) {

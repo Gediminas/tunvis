@@ -10,10 +10,10 @@ enum class EFilterRule : uint8_t {
     LimitDownload,
 };
 
-class CFilterRule final {
+class CRule final {
 public:
-    CFilterRule()  {}
-    ~CFilterRule() {}
+    CRule()  {}
+    ~CRule() {}
 public:
     std::string sTitle;
     uint32_t    uNr        {0U};
@@ -29,7 +29,7 @@ public:
 };
 
 namespace filter_rules {
-    std::vector<CFilterRule> readRules(const char* sFileName);
-    int32_t findLastRule(const std::vector<CFilterRule> &arRules, uint32_t uAddress, EProtocol eProtocol);
+    std::vector<CRule> readRules(const char* sFileName);
+    int32_t findLastRule(const std::vector<CRule> &arRules, uint32_t uAddress, EProtocol eProtocol);
     std::tuple<uint64_t, char, EFilterRule> ParseRuleValueType(const std::string &sText);
 };

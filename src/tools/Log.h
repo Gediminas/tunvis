@@ -2,7 +2,7 @@
 
 #include <bits/stdc++.h>
 
-class CFilterRule;
+class CRule;
 class CRuleTrack;
 class CIpv4Packet;
 
@@ -12,7 +12,7 @@ void PrintTunnel(const char *sEthName, const char *sTunName1, const char *sTunNa
 void PrintCurrentDateTime();
 void PrintOutgoingPacket(int64_t nPacketCounter, int16_t uRead, const CIpv4Packet &packet, bool bAccept, bool bIncommingConnection);
 void PrintTraffic(int64_t nPacketCounter, int16_t uRead, const CIpv4Packet &packet, bool bAccept, bool bIncommingConnection);
-void PrintRule(const CFilterRule &rule);
-void PrintRules(const std::vector<CFilterRule> &arRules);
-void PrintAppliedRule(const CFilterRule &rule, bool bIncommingConnection);
-void PrintTrackingDetails(const CFilterRule &rule, const CRuleTrack &track, bool bIncommingConnection);
+void PrintRule(const CRule &rule);
+void PrintRules(const std::vector<CRule> &arRules);
+void PrintAppliedRule(const CRule &rule, bool bIncommingConnection);
+void PrintTrackingDetails(const CRule &rule, const CRuleTrack &track, bool bIncommingConnection);

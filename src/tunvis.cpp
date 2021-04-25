@@ -3,9 +3,7 @@
 #include "tools/Routing.h"
 #include "tools/Rules.h"
 #include "tools/Tracking.h"
-#include "tools/tun.h"
-
-// #include <unistd.h> //sleep
+#include "tools/Tun.h"
 
 constexpr int32_t     c_nBufferSize = 2000; // for tun/tap must be >= 1500
 constexpr const char *c_sTunName1   = "tunvis1";
@@ -32,13 +30,13 @@ namespace internal {
             const std::string arg = argv[i];
             if ((arg == "-h") || (arg == "--help")) {
                 PrintUsage(argv[0]);
-                exit (-1);
+                exit(-1);
             } else if ((arg == "-i") || (arg == "--interface")) {
-                if (i + 1 < argc) {
-                    sInterface = argv[++i];
+                if (++i < argc) {
+                    sInterface = argv[i];
                 } else {
                     std::cerr << "-i / --interface option requires one argument." << std::endl;
-                    exit (-1);
+                    exit(-1);
                 }
             } else {
                 sRulesFile = argv[i];
@@ -46,7 +44,7 @@ namespace internal {
         }
         if (sRulesFile.empty()) {
             PrintUsage(argv[0]);
-            exit (-1);
+            exit(-1);
         }
         return std::make_tuple(sRulesFile, sInterface);
     }
@@ -61,7 +59,6 @@ int main(int argc, char* argv[]) {
 
     g_sEthName = sInterface.empty() ? routing::GetDefaultEthName() : sInterface;
     g_sEthIP   = routing::GetIPByDev(g_sEthName.c_str());
-    // g_sEthIP   = routing::GetDefaultEthIP();
 
     std::cout << "\033[32m" << "Network interface used: " << g_sEthName << " (" << g_sEthIP << ")" << "\033[0m" << std::endl;
 
@@ -79,7 +76,7 @@ int main(int argc, char* argv[]) {
     PrintTunnel(g_sEthName.c_str(), c_sTunName1, c_sTunName2);
 
     std::cout << "\033[32m" << "Loading rules from " << sRulesFile << "..."<< "\033[0m" << std::endl;
-    const std::vector<CFilterRule> arRules = filter_rules::readRules(sRulesFile.c_str());
+    const std::vector<CRule> arRules = filter_rules::readRules(sRulesFile.c_str());
     PrintRules(arRules);
 
     std::vector<CRuleTrack> arTrack(arRules.size());
@@ -110,7 +107,7 @@ int main(int argc, char* argv[]) {
             const CIpv4Packet packet = ipv4::ParseIpv4PacketHeader(buffer, uRead);
             const int32_t     nRule  = filter_rules::findLastRule(arRules, packet.uDst, packet.eProtocol);
             if (nRule != -1) {
-                const CFilterRule &rule = arRules[nRule];
+                const CRule &rule = arRules[nRule];
                 CRuleTrack &track = arTrack[nRule];
                 bAccept = track.bAccept;
 
@@ -132,7 +129,7 @@ int main(int argc, char* argv[]) {
             const CIpv4Packet    packet  = ipv4::ParseIpv4PacketHeader(buffer, uRead);
             const int32_t nRule = filter_rules::findLastRule(arRules, packet.uSrc, packet.eProtocol);
             if (nRule != -1) {
-                const CFilterRule &rule = arRules[nRule];
+                const CRule &rule = arRules[nRule];
                 CRuleTrack &track = arTrack[nRule];
 
                 UpdateTracking(rule, packet, track, buffer, uRead);

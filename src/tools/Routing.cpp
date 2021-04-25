@@ -9,7 +9,7 @@ std::string routing::GetDefaultEthName() {
     const std::vector<std::string> arToken = explode(sOutput, " ");
     if (arToken.size() < 5) {
         std::cerr << "\033[91m" << "ERROR: Cannot parse command '" << sCmd << "'" << " output '" << sOutput << "'" << "\033[0m" << std::endl;
-        exit (-3);
+        exit(-3);
     }
     return arToken[4];
 }
@@ -20,12 +20,12 @@ std::string routing::GetIPByDev(const char *sDev) {
     const std::vector<std::string> arToken1 = explode(sOutput, " ");
     if (arToken1.size() < 2) {
         std::cerr << "\033[91m" << "ERROR: Cannot parse (1) command '" << sCmd << "'" << " output '" << sOutput << "'" <<"\033[0m" << std::endl;
-        exit (-3);
+        exit(-3);
     }
     const std::vector<std::string> arToken2 = explode(arToken1[1], "/");
     if (!arToken2.size()) {
         std::cerr << "\033[91m" << "ERROR: Cannot parse (2) command '" << sCmd << "'" << " output '" << sOutput << "'" << "\033[0m" << std::endl;
-        exit (-3);
+        exit(-3);
     }
     return arToken2[0];
 }
