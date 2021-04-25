@@ -1,6 +1,8 @@
-8.8.8.8/32         ICMP  1mb        # google
+8.8.8.8/32         ICMP  1h        # google
 8.8.4.4/32         ICMP  1mb        # google
 80.249.106.141/32  TCP   5kb        # thinkbroadband.com
+
+# 80.249.99.148/32   TCP   5mb        # thinkbroadband dwn
 80.249.99.148/32   TCP   5242880b   # thinkbroadband dwn
 
 # 192.168.101.100/24 UDP  500 # home1 1kB

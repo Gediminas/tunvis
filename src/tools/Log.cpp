@@ -136,7 +136,10 @@ void PrintAppliedRule(const CFilterRule &rule, bool bIncommingConnection) {
     std::cout << " ";
 }
 
-void PrintTrackingDetails(const CFilterRule &rule, const CRuleTrack &track, std::time_t now, bool bIncommingConnection) {
+void PrintTrackingDetails(const CFilterRule &rule, const CRuleTrack &track, bool bIncommingConnection) {
+
+            std::time_t    now   = std::time(nullptr);
+
     switch (rule.eRuleType) {
     case EFilterRule::LimitTime:
         std::cout << (track.bTerminate ? "\033[91mTERM\033[0m" : "\033[92mOK\033[0m");

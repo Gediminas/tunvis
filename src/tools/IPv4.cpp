@@ -34,9 +34,8 @@ EProtocol ipv4::StrToProtocol(const char* sProtocol) {
     return EProtocol::ANY;
 }
 
-CIpv4Packet ipv4::ParseIpv4Packet(const char *data, uint16_t uLength) {
+CIpv4Packet ipv4::ParseIpv4PacketHeader(const char *data, uint16_t uLength) {
     const uint32_t *pFirst = (uint32_t*) data;
-
     const uint32_t H0 = ntohl(*(pFirst + 0));
     const uint32_t H2 = ntohl(*(pFirst + 2));
     const uint32_t H3 = ntohl(*(pFirst + 3));
@@ -57,5 +56,18 @@ CIpv4Packet ipv4::ParseIpv4Packet(const char *data, uint16_t uLength) {
     if (packet.uTotalLength && packet.uTotalLength != uLength) {
         std::cerr << "\033[0;33m" << "WARNING: Invalid packet length: " << packet.uTotalLength << " != " << uLength << " (buffer)" << "\033[0m" << std::endl;
     }
+    return packet;
+}
+
+CTCPPacket ipv4::ParseTCPPacketHeader(const char *data, uint16_t uLength) {
+     const uint32_t *pFirst = (uint32_t*) data;
+     const uint32_t H3 = ntohl(*(pFirst + 3));
+
+    CTCPPacket packet;
+    packet.uDataOffset = (H3 & 0xf0000000) >> 28;  //  4 bits
+
+    // if (packet.uTotalLength && packet.uTotalLength != uLength) {
+    //     std::cerr << "\033[0;33m" << "WARNING: Invalid packet length: " << packet.uTotalLength << " != " << uLength << " (buffer)" << "\033[0m" << std::endl;
+    // }
     return packet;
 }

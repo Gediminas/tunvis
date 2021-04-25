@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
             ++nPacketCounter;
             bool bTerminate = false;
             const uint16_t    uRead = tun::Read(fdTun1, buffer, sizeof(buffer));
-            const CIpv4Packet packet = ipv4::ParseIpv4Packet(buffer, uRead);
+            const CIpv4Packet packet = ipv4::ParseIpv4PacketHeader(buffer, uRead);
             const int32_t     nRule  = filter_rules::findLastRule(arRules, packet.uDst, packet.eProtocol);
 
             if (nRule != -1) {
@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
                 PrintCurrentDateTime();
                 PrintTraffic(nPacketCounter, uRead, packet, bTerminate, false);
                 PrintAppliedRule(rule, false);
-                PrintTrackingDetails(rule, track, 0, false);
+                PrintTrackingDetails(rule, track, false);
                 std::cout << std::endl;
             }
 
@@ -135,9 +135,7 @@ int main(int argc, char* argv[]) {
             ++nPacketCounter;
             bool bTerminate = false;
             const uint16_t uRead = tun::Read(fdTun2, buffer, sizeof(buffer));
-            const CIpv4Packet    packet  = ipv4::ParseIpv4Packet(buffer, uRead);
-            std::time_t    now   = std::time(nullptr);
-
+            const CIpv4Packet    packet  = ipv4::ParseIpv4PacketHeader(buffer, uRead);
             const int32_t nRule = filter_rules::findLastRule(arRules, packet.uSrc, packet.eProtocol);
             if (nRule != -1) {
                 PrintCurrentDateTime();
@@ -145,12 +143,12 @@ int main(int argc, char* argv[]) {
                 const CFilterRule &rule = arRules[nRule];
                 CRuleTrack &track = arTrack[nRule];
 
-                UpdateTracking(rule, packet, track, uRead);
+                UpdateTracking(rule, packet, track, buffer, uRead);
                 bTerminate = track.bTerminate;
 
                 PrintTraffic(nPacketCounter, uRead, packet, bTerminate, true);
                 PrintAppliedRule(rule, true);
-                PrintTrackingDetails(rule, track, now, true);
+                PrintTrackingDetails(rule, track, true);
                 std::cout << std::endl;
             }
 
