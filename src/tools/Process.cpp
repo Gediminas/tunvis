@@ -18,3 +18,8 @@ std::string exec(const char* cmd) {
     }
     return result;
 }
+
+void execv(const char* cmd) {
+    std::cout << ">> " << cmd << std::endl;
+    system(cmd);
+}

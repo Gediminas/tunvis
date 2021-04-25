@@ -5,7 +5,7 @@
 #include "tools/Tracking.h"
 #include "tools/tun.h"
 
-#include <unistd.h> //sleep
+// #include <unistd.h> //sleep
 
 constexpr int32_t     c_nBufferSize = 2000; // for tun/tap must be >= 1500
 constexpr const char *c_sTunName1   = "tunvis1";
@@ -14,9 +14,11 @@ constexpr const char *c_sTunName2   = "tunvis2";
 std::string g_sEthName;
 
 void signal_callback_handler(int signum) {
-   std::cout << "\033[1;33mProgram terminating...\033[0m" << std::endl;
+   std::cout << std::endl;
+   std::cout << "\033[1;33mProgram Terminating...\033[0m" << std::endl;
    routing::DestroyTunnelRoutes(g_sEthName.c_str(), c_sTunName1, c_sTunName2);
-   sleep(3);
+   // sleep(3);
+   std::cout << "\033[1;33mProgram Terminated\033[0m" << std::endl;
    exit(signum);
 }
 
@@ -42,8 +44,8 @@ int main() {
     const std::vector<CFilterRule> arRules = filter_rules::readRules(sRulesFile.c_str());
     PrintRules(arRules);
 
-    sleep(1000);
-    return 0;
+    // sleep(1000);
+    // return 0;
 
     std::vector<CRuleTrack> arTrack(arRules.size());
 
