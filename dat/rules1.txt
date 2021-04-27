@@ -1,5 +1,5 @@
-8.8.8.8/32         ICMP  10s   # google-dns1
-8.8.4.4/32         ICMP  1,5kb # google-dns2
+8.8.8.0/24         ICMP  10s   # google-dns1
+8.8.4.0/24         ICMP  1,5kb # google-dns2
 80.249.106.141/32  TCP   5kb   # thinkbroadband.com
 80.249.99.148/32   TCP   5mb   # thinkbroadband dwn
 
